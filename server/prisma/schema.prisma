@@ -9,3 +9,34 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id          String      @id @default(uuid())
+  displayName String
+  familyName  String
+  givenName   String
+  email       String      @unique
+  photo       String
+  Workspace   Workspace[]
+}
+
+model Workspace {
+  id      String   @id @default(uuid())
+  logo    String
+  user    User     @relation(fields: [adminId], references: [id])
+  adminId String
+  members Member[]
+}
+
+model Member {
+  id          String    @id @default(uuid())
+  role        String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId String
+}
+
+enum Role {
+  ADMIN
+  LANCER
+  CLIENT
+}
