@@ -1,7 +1,9 @@
-import React from "react";
-
 const NotFound = () => {
-  return <div>404</div>;
+  return (
+    <div className="h-full flex justify-center items-center ">
+      <h2 className="text-6xl md:text-9xl">404</h2>
+    </div>
+  );
 };
 
 export default NotFound;

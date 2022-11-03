@@ -21,7 +21,6 @@ const CustomSwitch: React.FC<Props> = ({ children }) => {
     NProgress.done();
   }, [location]);
 
-  console.log("custom-switch", pathname);
   return <>{children}</>;
 };
 
