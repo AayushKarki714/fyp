@@ -9,6 +9,7 @@ interface Props {
 const ProtectedRoute: React.FC<Props> = ({ children }) => {
   const location = useLocation();
   const { user } = useAppSelector((state) => state.auth);
+
   if (!user)
     return (
       <Navigate
@@ -17,6 +18,7 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
         state={{ from: { pathname: location.pathname } }}
       />
     );
+
   return <React.Fragment>{children}</React.Fragment>;
 };
 

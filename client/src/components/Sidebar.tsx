@@ -37,7 +37,7 @@ const Sidebar: React.FC<Props> = ({ isSideBarOpen }) => {
         variants={asideVariants}
         className="flex-shrink-0 bg-[#27292a]"
       >
-        <div className="flex flex-col gap-2 py-8">
+        <div className="flex flex-col gap-2 py-4">
           <SideNavLink
             url="/dashboard"
             Icon={SquaresPlusIcon}

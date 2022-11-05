@@ -22,8 +22,8 @@ const Login: React.FC = () => {
         <img src="" alt="" />
         <img
           className="w-full h-full object-cover"
-          src="https://images.unsplash.com/photo-1558403194-611308249627?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fHRlYW18ZW58MHx8MHx8&auto=format&fit=crop&w=700&q=60"
-          // src="https://images.unsplash.com/photo-1664575599730-0814817939de?ixlib=rb-4.0.3&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80"
+          // src="https://images.unsplash.com/photo-1558403194-611308249627?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fHRlYW18ZW58MHx8MHx8&auto=format&fit=crop&w=700&q=60"
+          src="https://images.unsplash.com/photo-1664575599730-0814817939de?ixlib=rb-4.0.3&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80"
           alt=""
         />
       </div>

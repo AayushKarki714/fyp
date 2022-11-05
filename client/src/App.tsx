@@ -4,18 +4,18 @@ import { Routes, Route } from "react-router-dom";
 import axios from "./api/axios";
 import Login from "./pages/Login";
 import NotFound from "./pages/404";
-import Dashboard from "./components/Dashboard";
+import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
-import Chat from "./components/Chat";
-import Todo from "./components/Todo";
-import Gallery from "./components/Gallery";
-import Progress from "./components/Progress";
-import CreateWorkspace from "./components/CreateWorkspace";
+import Chat from "./pages/Chat";
+import Todo from "./pages/Todo";
+import Gallery from "./pages/Gallery";
+import Progress from "./pages/Progress";
+import CreateWorkspace from "./pages/CreateWorkspace";
 import NestedLayout from "./components/NestedLayout";
 
 import { useAppDispatch } from "./redux/store/hooks";
 import { updateUser } from "./redux/slices/authSlice";
-import Setting from "./components/Setting";
+import Setting from "./pages/Setting";
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -32,7 +32,7 @@ const App: React.FC = () => {
   }, [data?.user, dispatch]);
 
   return (
-    <main className="h-screen overflow-hidden bg-[#18191a] text-white font-poppins">
+    <main className="h-screen overflow-hidden bg-[#18191a]">
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />}>

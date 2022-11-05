@@ -8,6 +8,7 @@ function useOnClickOutside<T extends HTMLElement = HTMLElement>(
 ): void {
   useEffect(() => {
     const listener = (event: MouseEvent) => {
+      console.log(ref.current?.contains(event.target as Node));
       if (!ref.current || ref.current.contains(event.target as Node)) return;
       handler(event);
     };

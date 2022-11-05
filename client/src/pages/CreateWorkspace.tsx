@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ProtectedRoute from "./ProtectedRoute";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 interface IButton {
   type?: "submit" | "button" | "reset";
@@ -30,7 +30,7 @@ const Button: React.FC<IButton> = ({
 
 interface IFormItem {
   value: string;
-  type: "email" | "text" | "password";
+  type: "email" | "text" | "password" | "number";
   placeholder?: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }

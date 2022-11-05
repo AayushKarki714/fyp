@@ -35,9 +35,9 @@ const NavBar: React.FC = () => {
           onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
           className="relative flex items-center justify-center w-10 h-10 cursor-pointer bg-[#333] select-none rounded-full"
         >
-          {/* <div className=" w-4 h-4 flex items-center justify-center text-xs absolute top-[2px] right-[8px] bg-red-600 rounded-full">
+          <div className=" w-5 h-5 flex items-center justify-center text-xs absolute top-[01px] right-[2px] bg-red-600 rounded-full">
             0
-          </div> */}
+          </div>
           <BellIcon className="h-5 w-5 text-white" />
         </motion.div>
 
