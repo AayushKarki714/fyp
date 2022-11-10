@@ -24,7 +24,7 @@ const Workspace: React.FC<any> = ({ img, text, id }) => {
       layout
       whileHover={{ scale: 1.04 }}
       onClick={() => dispatch(switchWorkSpace({ workspaceId: id }))}
-      className={`flex flex-col gap-3 bg-[#27292a]  border-2 p-3 rounded-lg h-full cursor-pointer w-full  ${isActive} `}
+      className={`flex flex-col gap-3 bg-[#27292a]  border-2 p-3 rounded-lg h-full cursor-pointer w-full  ${isActive} group `}
     >
       <figure className="overflow-hidden rounded-sm">
         <img
@@ -40,7 +40,7 @@ const Workspace: React.FC<any> = ({ img, text, id }) => {
           ref={popUpRef}
           whileTap={{ scale: 0.96 }}
           onClick={() => setIsPopupVisible(!isPopupVisible)}
-          className="flex items-center justify-center rounded-full overflow-hidden w-7 h-7 hover:bg-dark-gray group select-none"
+          className=" items-center justify-center rounded-full overflow-hidden w-7 h-7 hover:bg-dark-gray group select-none hidden group-hover:flex"
         >
           <EllipsisVerticalIcon className="h-5 w-5 text-gray-400 group-hover:text-white " />
         </motion.div>

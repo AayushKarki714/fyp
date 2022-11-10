@@ -13,7 +13,7 @@ interface ProgressBarProps {
 const ProgressBar: React.FC<ProgressBarProps> = ({ width, text }) => {
   return (
     <>
-      <p className="text-lg self-center justify-self-end">{text}</p>
+      <p className="text-lg self-center">{text}</p>
       <div className="relative w-full h-[40px] overflow-hidden">
         <div
           style={{ width: `${width}%` }}
@@ -43,21 +43,21 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({ text }) => {
           <ProgressModal />
         </Modal>
       </Overlay>
-      <div className="flex flex-col gap-4 border-2 border-custom-light-dark rounded-md p-3">
+      <div className="flex flex-col gap-4 border-2 border-custom-light-dark rounded-md p-3 group">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl">{text}</h2>
           <button
             onClick={() => setIsOpen(true)}
-            className="text-sm text-gray-300 hover:text-custom-light-green"
+            className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
           >
             <PlusCircleIcon className="h-5" />
           </button>
         </div>
-        <div className="grid grid-cols-[max-content_1fr] gap-4">
+        <div className="grid  gap-2">
           <ProgressBar width={100} text="React" />
-          <ProgressBar width={30} text="Pre-react" />
-          <ProgressBar width={50} text="Typscript" />
           <ProgressBar width={80} text="Golang" />
+          <ProgressBar width={50} text="Typscript" />
+          <ProgressBar width={30} text="Pre-react" />
         </div>
       </div>
     </>
@@ -66,9 +66,10 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({ text }) => {
 
 const Progress: React.FC = () => {
   return (
-    <div className="flex flex-col gap-4 h-full">
+    <div className="flex flex-col gap-4">
       <ProgressContainer text="Front-end" />
       <ProgressContainer text="Back-end" />
+      <ProgressContainer text="Dev-Ops" />
     </div>
   );
 };

@@ -25,8 +25,6 @@ const Chat: React.FC = () => {
     setMessages([...messages, message]);
   };
 
-  console.log(messages);
-
   const onEmojiClick = (emojiObject: EmojiClickData, event: MouseEvent) => {
     setMessage(message + emojiObject.emoji);
   };
@@ -34,8 +32,6 @@ const Chat: React.FC = () => {
   const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
   };
-
-  // console.log(showPicker);
 
   useOnClickOutside(emojiRef, () => {
     setShowPicker(false);
@@ -46,9 +42,6 @@ const Chat: React.FC = () => {
       <div className="basis-56 flex flex-col bg-custom-black border-r-2 border-dark-gray  p-2 gap-2 text-xl">
         <div className=" p-2 hover:bg-[#434343] rounded-md cursor-pointer">
           <h2>All</h2>
-        </div>
-        <div className=" p-2 hover:bg-[#434343] rounded-md cursor-pointer">
-          <h2>Admin</h2>
         </div>
         <div className=" p-2 hover:bg-[#434343] rounded-md cursor-pointer">
           <h2>Lancers</h2>
@@ -72,9 +65,10 @@ const Chat: React.FC = () => {
           ))}
         </div>
         <div className="relative flex items-center gap-3 p-2 border-t-2 border-dark-gray">
-          <div className="cursor-pointer text-gray-400">
+          <label className="flex items-center cursor-pointer">
+            <input className="w-0 h-0" type="file" accept="image/*" />
             <PhotoIcon className="h-6" />
-          </div>
+          </label>
 
           <form
             id="submit-message"
