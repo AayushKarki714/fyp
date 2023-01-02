@@ -1,5 +1,8 @@
-import React from "react";
-import { PlusCircleIcon } from "@heroicons/react/24/outline";
+import React, { useState } from "react";
+import { PlusCircleIcon, FolderPlusIcon } from "@heroicons/react/24/outline";
+import CreateGallery from "../components/Modals/CreateGallery";
+import Overlay from "../components/Modals/Overlay";
+import Modal from "../components/Modals/Modal";
 
 interface GalleryContainerProps {
   text: string;
@@ -31,11 +34,30 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({ text }) => {
 };
 
 const Gallery: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const closeModal = () => {
+    setIsOpen(false);
+  };
+
   return (
-    <div className="flex flex-col gap-4">
-      <GalleryContainer text="Front-End" />
-      <GalleryContainer text="Back-End" />
-      <GalleryContainer text="Dev-Ops" />
+    <div className="flex flex-col gap-3">
+      <button
+        className="flex items-center justify-center p-2 w-10 h-10 rounded-full ml-auto text-gray-400 hover:text-custom-light-green"
+        onClick={() => setIsOpen(true)}
+      >
+        <FolderPlusIcon className="h-6" />
+      </button>
+      <Overlay isOpen={isOpen} onClick={closeModal}>
+        <Modal onClick={closeModal}>
+          <CreateGallery />
+        </Modal>
+      </Overlay>
+      <div className="flex flex-col gap-4">
+        <GalleryContainer text="Front-End" />
+        <GalleryContainer text="Back-End" />
+        <GalleryContainer text="Dev-Ops" />
+      </div>
     </div>
   );
 };

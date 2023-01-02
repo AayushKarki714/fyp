@@ -53,6 +53,7 @@
   "devDependencies": {
     "@types/nprogress": "^0.2.0",
     "autoprefixer": "^10.4.12",
+    "cogo-toast": "^4.2.3",
     "postcss": "^8.4.17",
     "tailwindcss": "^3.1.8"
   }

@@ -24,10 +24,11 @@ const NavBar: React.FC = () => {
     bg-[#27292a] border-b-4 border-[#333]
     "
     >
+      {" "}
       <h1 className="text-xl md:text-2xl">
-        <Link to="/dashboard">ProjectZone</Link>
+        {" "}
+        <Link to="/dashboard">ProjectZone</Link>{" "}
       </h1>
-
       <div className="flex items-center gap-4">
         <motion.div
           whileTap={{ scale: 0.95 }}
@@ -40,9 +41,7 @@ const NavBar: React.FC = () => {
           </div>
           <BellIcon className="h-5 w-5 text-white" />
         </motion.div>
-
         {isNotificationsOpen && <NotificationModal />}
-
         <motion.div
           ref={profileRef}
           className="relative flex items-center rounded-full"
@@ -50,15 +49,14 @@ const NavBar: React.FC = () => {
         >
           <img
             className="w-10 h-10 cursor-pointer rounded-full"
-            src={user?.photos[0]?.value}
+            src={user?.photo}
             alt="User Profile"
             referrerPolicy="no-referrer"
-          />
-          {showUserDetails && <UserModal user={user} />}
-        </motion.div>
-      </div>
+          />{" "}
+          {showUserDetails && <UserModal user={user} />}{" "}
+        </motion.div>{" "}
+      </div>{" "}
     </nav>
   );
 };
-
 export default NavBar;

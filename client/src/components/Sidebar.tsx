@@ -4,12 +4,10 @@ import SideNavLink from "./SideNavLink";
 import {
   PhotoIcon,
   ChartBarIcon,
-  // Squares2X2Icon,
   SquaresPlusIcon,
   PencilSquareIcon,
   ChatBubbleLeftIcon,
   WrenchScrewdriverIcon,
-  // Square3Stack3DIcon,
 } from "@heroicons/react/24/outline";
 import { AnimatePresence } from "framer-motion";
 

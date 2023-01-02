@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { PlusCircleIcon } from "@heroicons/react/24/outline";
+import { PlusCircleIcon, FolderPlusIcon } from "@heroicons/react/24/outline";
 
 import Modal from "../components/Modals/Modal";
 import Overlay from "../components/Modals/Overlay";
 import ProgressModal from "../components/Modals/ProgressModal";
+import CreateProgress from "../components/Modals/CreateProgress";
 
 interface ProgressBarProps {
   width: number;
@@ -13,8 +14,8 @@ interface ProgressBarProps {
 const ProgressBar: React.FC<ProgressBarProps> = ({ width, text }) => {
   return (
     <>
-      <p className="text-lg self-center">{text}</p>
-      <div className="relative w-full h-[40px] overflow-hidden">
+      <p className="text-sm self-center">{text}</p>
+      <div className="relative w-full h-[20px] overflow-hidden">
         <div
           style={{ width: `${width}%` }}
           title={`${width}%`}
@@ -65,11 +66,29 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({ text }) => {
 };
 
 const Progress: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const closeModal = () => {
+    setIsOpen(false);
+  };
   return (
-    <div className="flex flex-col gap-4">
-      <ProgressContainer text="Front-end" />
-      <ProgressContainer text="Back-end" />
-      <ProgressContainer text="Dev-Ops" />
+    <div className="flex flex-col gap-3">
+      <button
+        className="flex items-center justify-center p-2 w-10 h-10 rounded-full ml-auto text-gray-400 hover:text-custom-light-green"
+        onClick={() => setIsOpen(true)}
+      >
+        <FolderPlusIcon className="h-6" />
+      </button>
+      <Overlay isOpen={isOpen} onClick={closeModal}>
+        <Modal onClick={closeModal}>
+          <CreateProgress />
+        </Modal>
+      </Overlay>
+      <div className="flex flex-col gap-4">
+        <ProgressContainer text="Front-end" />
+        <ProgressContainer text="Back-end" />
+        <ProgressContainer text="Dev-Ops" />
+      </div>
     </div>
   );
 };

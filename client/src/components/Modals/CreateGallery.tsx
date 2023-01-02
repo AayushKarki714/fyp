@@ -1,0 +1,34 @@
+import React, { useState } from "react";
+
+const CreateGallery: React.FC = () => {
+  const [galleryTitle, setGalleryTitle] = useState("");
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4 w-96 rounded-md"
+    >
+      <label htmlFor="gallerytitle">Gallery Title:</label>
+      <input
+        id="gallerytitle"
+        type="text"
+        value={galleryTitle}
+        placeholder="Enter a gallery title..."
+        className="bg-[#09090a] rounded text-base p-2"
+        onChange={(event) => setGalleryTitle(event.target.value)}
+      />
+      <button
+        type="submit"
+        className="bg-custom-light-green px-4 py-2 rounded-md text-base text-custom-black font-bold"
+      >
+        Submit
+      </button>
+    </form>
+  );
+};
+
+export default CreateGallery;

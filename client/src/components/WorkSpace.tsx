@@ -7,7 +7,8 @@ import handleStopPropagation from "../utils/handleStopPropagation";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { switchWorkSpace } from "../redux/slices/workspaceSlice";
 
-const Workspace: React.FC<any> = ({ img, text, id }) => {
+const Workspace: React.FC<any> = ({ logo, name, id, role }) => {
+  console.log(id);
   const popUpRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch();
   const { workspaceId } = useAppSelector((state) => state.workspace);
@@ -22,29 +23,33 @@ const Workspace: React.FC<any> = ({ img, text, id }) => {
   return (
     <motion.div
       layout
-      whileHover={{ scale: 1.04 }}
+      whileHover={{ scale: 1.05 }}
       onClick={() => dispatch(switchWorkSpace({ workspaceId: id }))}
-      className={`flex flex-col gap-3 bg-[#27292a]  border-2 p-3 rounded-lg h-full cursor-pointer w-full  ${isActive} group `}
+      className={`flex relative flex-col gap-3 bg-[#27292a] border-2  p-3 rounded-lg h-full cursor-pointer w-full  ${isActive} group hover:shadow  `}
     >
+      <div className="absolute bg-custom-light-green  text-base top-4 -right-1 w-[100px] text-center">
+        <span>{role}</span>
+      </div>
       <figure className="overflow-hidden rounded-sm">
         <img
-          src={img}
+          src={logo}
           className="w-full h-[150px] object-cover  "
           alt="Workspace"
         />
       </figure>
 
       <div className="relative flex items-center justify-between">
-        <h2 className="text-xl">{text}</h2>
-        <motion.div
-          ref={popUpRef}
-          whileTap={{ scale: 0.96 }}
-          onClick={() => setIsPopupVisible(!isPopupVisible)}
-          className=" items-center justify-center rounded-full overflow-hidden w-7 h-7 hover:bg-dark-gray group select-none hidden group-hover:flex"
-        >
-          <EllipsisVerticalIcon className="h-5 w-5 text-gray-400 group-hover:text-white " />
-        </motion.div>
-
+        <h2 className="text-xl">{name}</h2>
+        {role === "ADMIN" && (
+          <motion.div
+            ref={popUpRef}
+            whileTap={{ scale: 0.96 }}
+            onClick={() => setIsPopupVisible(!isPopupVisible)}
+            className=" items-center justify-center rounded-full overflow-hidden w-7 h-7 hover:bg-dark-gray group select-none hidden group-hover:flex"
+          >
+            <EllipsisVerticalIcon className="h-5 w-5 text-gray-400 group-hover:text-white " />
+          </motion.div>
+        )}
         {isPopupVisible && (
           <motion.div
             initial={{ opacity: 0, scale: 0 }}

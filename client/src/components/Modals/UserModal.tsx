@@ -29,7 +29,7 @@ const UserModal: React.FC<IUserModal> = ({ user }) => {
     >
       <div className="flex items-center gap-2 p-2 hover:bg-[#434343] rounded-md">
         <UserIcon className="h-5" />
-        <p>{user?.displayName}</p>
+        <p>{user.userName}</p>
       </div>
       <div
         onClick={handleLogout}

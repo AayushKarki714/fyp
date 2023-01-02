@@ -14,7 +14,7 @@ const Modal: React.FC<Props> = ({ onClick, children }) => {
       initial={{ opacity: 0, scale: 0 }}
       animate={{ opacity: 1, scale: 1 }}
       onClick={handleStopPropagation}
-      className="flex flex-col gap-3 bg-custom-black  p-4 rounded-md shadow-md"
+      className="flex flex-col gap-3 bg-custom-black  p-4 rounded-md shadow-md border-2 border-dark-gray "
     >
       <button
         onClick={onClick}

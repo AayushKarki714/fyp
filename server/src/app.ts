@@ -4,6 +4,9 @@ import passport from "passport";
 import cookieSession from "cookie-session";
 import authRouter from "./routes/auth.router";
 import { Strategy } from "passport-google-oauth20";
+import prisma from "./utils/prisma";
+import workspaceRouter from "./routes/workspace.router";
+import path from "path";
 
 const AUTH_OPTIONS = {
   clientID: process.env.CLIENT_ID!,
@@ -17,11 +20,23 @@ function verify(_: string, __2: string, profile: object, cb: Function) {
   cb(null, profile);
 }
 
-passport.serializeUser((user: any, done) => {
-  done(null, user);
+passport.serializeUser(async (user: any, done) => {
+  const exists = await prisma.user.findUnique({ where: { id: user.id } });
+  if (!exists) {
+    await prisma.user.create({
+      data: {
+        id: user.id,
+        userName: user.displayName,
+        email: user.emails[0].value,
+        photo: user.photos[0].value,
+      },
+    });
+  }
+  done(null, user.id);
 });
 
-passport.deserializeUser((user: object, done) => {
+passport.deserializeUser(async (userId: string, done) => {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
   done(null, user);
 });
 
@@ -45,8 +60,10 @@ app.use(
   })
 );
 
+app.use(express.static(path.join(__dirname, "..", "public")));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use("/auth", authRouter);
+app.use("/workspace", workspaceRouter);
 
 export default app;

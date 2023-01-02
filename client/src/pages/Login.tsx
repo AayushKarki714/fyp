@@ -19,7 +19,6 @@ const Login: React.FC = () => {
     <section className="h-full flex">
       {/* left */}
       <div className="flex-grow">
-        <img src="" alt="" />
         <img
           className="w-full h-full object-cover"
           // src="https://images.unsplash.com/photo-1558403194-611308249627?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTF8fHRlYW18ZW58MHx8MHx8&auto=format&fit=crop&w=700&q=60"

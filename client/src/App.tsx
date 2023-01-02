@@ -2,28 +2,32 @@ import React, { useEffect } from "react";
 import { useQuery } from "react-query";
 import { Routes, Route } from "react-router-dom";
 import axios from "./api/axios";
-import Login from "./pages/Login";
-import NotFound from "./pages/404";
 import Dashboard from "./pages/Dashboard";
-import Home from "./pages/Home";
 import Chat from "./pages/Chat";
-import Todo from "./pages/Todo";
 import Gallery from "./pages/Gallery";
 import Progress from "./pages/Progress";
 import CreateWorkspace from "./pages/CreateWorkspace";
 import NestedLayout from "./components/NestedLayout";
-
 import { useAppDispatch } from "./redux/store/hooks";
 import { updateUser } from "./redux/slices/authSlice";
 import Setting from "./pages/Setting";
+import TodoPage from "./pages/Todo";
+
+const Login = React.lazy(() => import("./pages/Login"));
+const NotFound = React.lazy(() => import("./pages/404"));
+const Home = React.lazy(() => import("./pages/Home"));
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
 
-  const { data } = useQuery("user-data", async function () {
-    const res = await axios.get("/auth/user");
-    return res.data;
-  });
+  const { data } = useQuery(
+    "user-data",
+    async function () {
+      const res = await axios.get("/auth/user");
+      return res.data;
+    },
+    {}
+  );
 
   useEffect(() => {
     if (data?.user) {
@@ -32,7 +36,7 @@ const App: React.FC = () => {
   }, [data?.user, dispatch]);
 
   return (
-    <main className="h-screen overflow-hidden bg-[#18191a]">
+    <main className="h-screen overflow-hidden bg-[#18191a] font-poppins text-base">
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />}>
@@ -40,7 +44,7 @@ const App: React.FC = () => {
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="chat" element={<Chat />} />
-            <Route path="todo" element={<Todo />} />
+            <Route path="todo" element={<TodoPage />} />
             <Route path="gallery" element={<Gallery />} />
             <Route path="progress" element={<Progress />} />
             <Route path="setting" element={<Setting />} />

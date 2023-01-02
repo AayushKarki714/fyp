@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
+import axios from "../api/axios";
+import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
+import { useMutation } from "react-query";
+import cogoToast from "cogo-toast";
+import { useNavigate } from "react-router-dom";
 
 interface IButton {
   type?: "submit" | "button" | "reset";
@@ -55,11 +60,31 @@ const FormItem: React.FC<IFormItem> = ({
 };
 
 const CreateWorkspace: React.FC = () => {
+  const { user } = useAppSelector((state) => state.auth);
   const [preview, setPreview] = useState<string | null>(null);
   const [title, setTitle] = useState<string>("");
   const [lancerValues, setLancerValues] = useState([{ email: "" }]);
   const [clientValues, setClientValues] = useState([{ email: "" }]);
   const [selectedFile, setSelectedFile] = useState<null | File>(null);
+  const navigate = useNavigate();
+
+  const { mutate } = useMutation(
+    async (data: any) => {
+      console.log(data);
+      const res = await axios.post("/workspace/create-workspace", data);
+      console.log(res);
+      return res;
+    },
+    {
+      onSuccess: (data) => {
+        navigate("/dashboard");
+        cogoToast.success("Workspace Created SucessFully");
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    }
+  );
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files![0];
@@ -105,9 +130,16 @@ const CreateWorkspace: React.FC = () => {
 
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("title", title);
-    console.log("lancerValues", lancerValues);
-    console.log("clientValues", clientValues);
+    const formData = new FormData();
+    if (!selectedFile) return;
+    console.log(selectedFile.name, selectedFile);
+
+    formData.append(selectedFile.name, selectedFile);
+    formData.append("name", title);
+    formData.append("adminId", user.id);
+    formData.append("lancerValues", JSON.stringify(lancerValues));
+    formData.append("clientValues", JSON.stringify(clientValues)); // const payload = {
+    mutate(formData);
   };
 
   useEffect(() => {
@@ -118,9 +150,15 @@ const CreateWorkspace: React.FC = () => {
     return () => URL.revokeObjectURL(objectUrl);
   }, [selectedFile]);
 
+  useEffect(() => {
+    const res = axios.get(`/workspace/workspaces/${user.id}`).then((res) => {
+      console.log(res.data);
+    });
+  }, []);
+
   return (
     <ProtectedRoute>
-      <div className="custom-scrollbar h-[90vh] w-full flex flex-col items-center  overflow-y-auto bg-[#18191a] ">
+      <div className="custom-scrollbar h-[90vh] w-full flex flex-col items-center  overflow-y-auto bg-custom-black ">
         <h2 className="text-3xl font-medium my-3 ">Create Workspace</h2>
 
         <form onSubmit={handleFormSubmit}>
