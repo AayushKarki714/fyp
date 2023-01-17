@@ -4,10 +4,10 @@ import prisma from "../utils/prisma";
 
 const handleCreateWorkspace: RequestHandler = async function (req, res) {
   const { name, lancerValues, clientValues, adminId } = req.body;
-  console.log(lancerValues);
   const files = req.files!;
   const file = files[Object.keys(files)[0]] as any;
   const filePath = path.join(__dirname, "..", "..", "public", file.name);
+
   file.mv(filePath, (err: any) => {
     if (err) return res.status(400).json({ message: "Invalid Logo" });
   });
@@ -19,6 +19,7 @@ const handleCreateWorkspace: RequestHandler = async function (req, res) {
       adminId: adminId,
     },
   });
+
   const lancers = JSON.parse(lancerValues).map(async (lancer: any) => {
     const val = await prisma.user.findUnique({
       where: { email: lancer.email },
@@ -35,24 +36,36 @@ const handleCreateWorkspace: RequestHandler = async function (req, res) {
 
   const lancersData = await Promise.all(lancers);
   const clientsData = await Promise.all(clients);
+  console.log("lancersData", lancersData);
+  console.log("clientsData", clientsData);
 
-  const members = await prisma.member.createMany({
-    data: [
-      {
-        userId: (req.user as any).id,
-        role: "ADMIN",
-        workspaceId: workspace.id,
+  try {
+    const members = await prisma.member.createMany({
+      data: [
+        {
+          userId: (req.user as any).id,
+          role: "ADMIN",
+          workspaceId: workspace.id,
+        },
+        ...lancersData,
+        ...clientsData,
+      ],
+    });
+  } catch (error) {
+    await prisma.workspace.delete({
+      where: {
+        id: workspace.id,
       },
-      ...lancersData,
-      ...clientsData,
-    ],
-  });
+    });
+    console.log("Error is over here man", (error as any).message);
+    return res.status(400).json({ message: (error as any).message });
+  }
+
   return res.status(200).json({ workspace });
 };
 
 const handleGetWorkspace: RequestHandler = async function (req, res) {
   const { userId } = req.params;
-  console.log(userId);
   const workspaces = await prisma.member.findMany({
     where: {
       userId: userId,

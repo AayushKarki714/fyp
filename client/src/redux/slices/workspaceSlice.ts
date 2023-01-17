@@ -1,19 +1,27 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+enum Role {
+  ADMIN = "ADMIN",
+  LANCER = "LANCER",
+  CLIENT = "CLIENT",
+}
 interface WorkspaceState {
   workspaceId: string;
+  role: Role;
 }
 
 const initialState: WorkspaceState = {
-  workspaceId: "32424q",
+  workspaceId: "",
+  role: Role.CLIENT,
 };
 
 export const workspaceSlice = createSlice({
   name: "workspace",
   initialState,
   reducers: {
-    switchWorkSpace: (state, action: PayloadAction<any>) => {
-      state.workspaceId = action.payload.workspaceId;
+    switchWorkSpace: (state, action: PayloadAction<WorkspaceState>) => {
+      state = action.payload;
+      return state;
     },
   },
 });

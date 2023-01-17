@@ -10,13 +10,13 @@ import EmojiPicker, {
 import { motion } from "framer-motion";
 import useOnClickOutside from "../hooks/useOnClickOutside";
 import handleStopPropagation from "../utils/handleStopPropagation";
+import useNavigateToDashboard from "../hooks/useNavigateToDashboard";
 
 const Chat: React.FC = () => {
   const emojiRef = useRef(null) as RefObject<HTMLDivElement>;
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>("");
   const [showPicker, setShowPicker] = useState<boolean>(false);
-  // const { workspaceId } = useAppSelector((state) => state.workspace);
 
   const handleMessageSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -36,6 +36,8 @@ const Chat: React.FC = () => {
   useOnClickOutside(emojiRef, () => {
     setShowPicker(false);
   });
+
+  useNavigateToDashboard();
 
   return (
     <div className="h-full flex rounded-md overflow-hidden border-2  border-custom-light-dark">

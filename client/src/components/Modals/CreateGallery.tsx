@@ -1,10 +1,18 @@
+import cogoToast from "cogo-toast";
 import React, { useState } from "react";
 
-const CreateGallery: React.FC = () => {
+interface Props {
+  onSubmit: (title: string) => void;
+}
+const CreateGallery: React.FC<Props> = ({ onSubmit }) => {
   const [galleryTitle, setGalleryTitle] = useState("");
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    if (!galleryTitle) {
+      return cogoToast.info("Please Enter a Title for the Gallery Container");
+    }
+    onSubmit(galleryTitle);
   };
 
   return (

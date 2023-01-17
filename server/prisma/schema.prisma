@@ -20,12 +20,13 @@ model User {
 }
 
 model Workspace {
-    id      String   @id @default(uuid())
+    id      String             @id @default(uuid())
     name    String
     logo    String
-    admin   User     @relation(fields: [adminId], references: [id])
+    admin   User               @relation(fields: [adminId], references: [id])
     adminId String
     Member  Member[]
+    Gallery GalleryContainer[]
 }
 
 model Member {
@@ -35,6 +36,21 @@ model Member {
     userId      String
     workspace   Workspace @relation(fields: [workspaceId], references: [id])
     workspaceId String
+}
+
+model GalleryContainer {
+    id          String    @id @default(uuid())
+    title       String
+    workspace   Workspace @relation(fields: [workspaceId], references: [id])
+    workspaceId String
+    Photo       Photo[]
+}
+
+model Photo {
+    id                 String           @id @default(uuid())
+    url                String
+    galleryContainer   GalleryContainer @relation(fields: [galleryContainerId], references: [id])
+    galleryContainerId String
 }
 
 enum Role {

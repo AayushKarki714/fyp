@@ -7,6 +7,7 @@ import { Strategy } from "passport-google-oauth20";
 import prisma from "./utils/prisma";
 import workspaceRouter from "./routes/workspace.router";
 import path from "path";
+import galleryRouter from "./routes/gallery.router";
 
 const AUTH_OPTIONS = {
   clientID: process.env.CLIENT_ID!,
@@ -65,5 +66,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use("/auth", authRouter);
 app.use("/workspace", workspaceRouter);
+app.use("/gallery", galleryRouter);
 
 export default app;

@@ -8,6 +8,7 @@ import Overlay from "../components/Modals/Overlay";
 import Modal from "../components/Modals/Modal";
 import CreateTodo from "../components/Modals/CreateTodo";
 import useOnClickOutside from "../hooks/useOnClickOutside";
+import useNavigateToDashboard from "../hooks/useNavigateToDashboard";
 
 interface TodoContainerProps {
   text: string;
@@ -159,6 +160,7 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text }) => {
 const TodoPage: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
+  useNavigateToDashboard();
   return (
     <section className="flex flex-col gap-3">
       <button

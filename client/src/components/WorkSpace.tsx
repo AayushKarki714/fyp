@@ -8,15 +8,14 @@ import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { switchWorkSpace } from "../redux/slices/workspaceSlice";
 
 const Workspace: React.FC<any> = ({ logo, name, id, role }) => {
-  console.log(id);
   const popUpRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch();
-  const { workspaceId } = useAppSelector((state) => state.workspace);
+  const workspace = useAppSelector((state) => state.workspace);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   useOnClickOutside(popUpRef, () => setIsPopupVisible(false));
   const isActive =
-    workspaceId === id
+    workspace.workspaceId === id
       ? " border-custom-light-green z-10"
       : " border-transparent";
 
@@ -24,8 +23,8 @@ const Workspace: React.FC<any> = ({ logo, name, id, role }) => {
     <motion.div
       layout
       whileHover={{ scale: 1.05 }}
-      onClick={() => dispatch(switchWorkSpace({ workspaceId: id }))}
-      className={`flex relative flex-col gap-3 bg-[#27292a] border-2  p-3 rounded-lg h-full cursor-pointer w-full  ${isActive} group hover:shadow  `}
+      onClick={() => dispatch(switchWorkSpace({ workspaceId: id, role }))}
+      className={`flex relative flex-col gap-3 bg-[#27292a] border-2   p-3 rounded-lg h-full cursor-pointer w-full ${isActive}   group hover:shadow  `}
     >
       <div className="absolute bg-custom-light-green  text-base top-4 -right-1 w-[100px] text-center">
         <span>{role}</span>

@@ -10,12 +10,14 @@ import {
   WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
 import { AnimatePresence } from "framer-motion";
+import { useAppSelector } from "../redux/store/hooks";
 
 interface Props {
   isSideBarOpen: boolean;
 }
 
 const Sidebar: React.FC<Props> = ({ isSideBarOpen }) => {
+  const { role } = useAppSelector((state) => state.workspace);
   const asideVariants: Variants = {
     initial: {
       width: isSideBarOpen ? "16rem" : "4.5rem",
@@ -27,6 +29,7 @@ const Sidebar: React.FC<Props> = ({ isSideBarOpen }) => {
       },
     },
   };
+
   return (
     <AnimatePresence initial={false}>
       <motion.aside
@@ -67,13 +70,15 @@ const Sidebar: React.FC<Props> = ({ isSideBarOpen }) => {
           >
             Progress
           </SideNavLink>
-          <SideNavLink
-            url="/setting"
-            Icon={WrenchScrewdriverIcon}
-            isOpen={isSideBarOpen}
-          >
-            Setting
-          </SideNavLink>
+          {role === "ADMIN" && (
+            <SideNavLink
+              url="/setting"
+              Icon={WrenchScrewdriverIcon}
+              isOpen={isSideBarOpen}
+            >
+              Setting
+            </SideNavLink>
+          )}
         </div>
       </motion.aside>
     </AnimatePresence>

@@ -7,34 +7,6 @@ import Workspace from "../components/WorkSpace";
 import axios from "../api/axios";
 import { useQuery } from "react-query";
 
-const workspaceData = [
-  {
-    id: "32424q",
-    text: "Uber",
-    img: "https://images.unsplash.com/photo-1665686440627-936e9700a100?ixlib=rb-1.2.1&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80",
-  },
-  {
-    id: "sfdasz",
-    text: "Apple",
-    img: "https://images.unsplash.com/photo-1665686440627-936e9700a100?ixlib=rb-1.2.1&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80",
-  },
-  {
-    id: "lkljk",
-    text: "Microsoft",
-    img: "https://images.unsplash.com/photo-1665686440627-936e9700a100?ixlib=rb-1.2.1&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80",
-  },
-  {
-    id: "sdfsakl;lk",
-    text: "Amazon",
-    img: "https://images.unsplash.com/photo-1665686440627-936e9700a100?ixlib=rb-1.2.1&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80",
-  },
-  {
-    id: "dfsjklsadk",
-    text: "Netlify",
-    img: "https://images.unsplash.com/photo-1665686440627-936e9700a100?ixlib=rb-1.2.1&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80",
-  },
-];
-
 const Dashboard: React.FC = () => {
   let navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
@@ -50,13 +22,13 @@ const Dashboard: React.FC = () => {
   if (isLoading) {
     return <p>Loading...</p>;
   }
-  console.log(data);
+  console.log("data", data);
   return (
     <section className="flex flex-col gap-4">
       <h2 className="text-2xl md:text-3xl">
         Welcome to the Dashboard, {user?.displayName}
       </h2>
-      <motion.ul className="grid grid-cols-responsive auto-rows-[220px] gap-3 p-3 ">
+      <motion.ul className="grid grid-cols-responsive auto-rows-[220px] gap-6 p-3 ">
         {data?.data.map((item: any, index: number) => (
           <Workspace
             key={item.workspaceId}

@@ -5,6 +5,7 @@ import Modal from "../components/Modals/Modal";
 import Overlay from "../components/Modals/Overlay";
 import ProgressModal from "../components/Modals/ProgressModal";
 import CreateProgress from "../components/Modals/CreateProgress";
+import useNavigateToDashboard from "../hooks/useNavigateToDashboard";
 
 interface ProgressBarProps {
   width: number;
@@ -71,6 +72,9 @@ const Progress: React.FC = () => {
   const closeModal = () => {
     setIsOpen(false);
   };
+
+  useNavigateToDashboard();
+
   return (
     <div className="flex flex-col gap-3">
       <button

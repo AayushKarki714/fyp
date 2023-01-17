@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
 import axios from "../api/axios";
-import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
+import { useAppSelector } from "../redux/store/hooks";
 import { useMutation } from "react-query";
 import cogoToast from "cogo-toast";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 interface IButton {
   type?: "submit" | "button" | "reset";
   children: React.ReactNode;
+  disabled?: boolean;
   onClick?: () => void;
   style?: object;
 }
@@ -17,13 +18,15 @@ const Button: React.FC<IButton> = ({
   type = "button",
   children,
   onClick,
+  disabled = false,
   style = {},
   ...otherProps
 }) => {
   return (
     <button
-      className="bg-[#8ad85c] text-black px-4 py-1 rounded-md font-medium"
+      className="bg-[#8ad85c] text-black px-4 py-1 rounded-md font-medium disabled:cursor-not-allowed disabled:bg-slate-400"
       type={type}
+      disabled={disabled}
       onClick={onClick}
       style={{ ...style }}
       {...otherProps}
@@ -68,11 +71,9 @@ const CreateWorkspace: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<null | File>(null);
   const navigate = useNavigate();
 
-  const { mutate } = useMutation(
+  const { mutate, isLoading } = useMutation(
     async (data: any) => {
-      console.log(data);
       const res = await axios.post("/workspace/create-workspace", data);
-      console.log(res);
       return res;
     },
     {
@@ -80,8 +81,8 @@ const CreateWorkspace: React.FC = () => {
         navigate("/dashboard");
         cogoToast.success("Workspace Created SucessFully");
       },
-      onError: (error) => {
-        console.log(error);
+      onError: (error: any) => {
+        cogoToast.error(error?.response?.data?.message || error.message);
       },
     }
   );
@@ -131,15 +132,44 @@ const CreateWorkspace: React.FC = () => {
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const formData = new FormData();
-    if (!selectedFile) return;
-    console.log(selectedFile.name, selectedFile);
+    let isValid = true;
+    if (!selectedFile) return cogoToast.error("Please Select a Logo");
+    if (!title) return cogoToast.error("Please Enter a title");
 
+    const clientMap: Record<string, string> = {};
+
+    clientValues.forEach((client) => {
+      if (!client.email) {
+        isValid = false;
+        return cogoToast.error("Please Fill a Client Email");
+      } else if (!clientMap[client.email]) {
+        clientMap[client.email] = client.email;
+      } else {
+        isValid = false;
+        return cogoToast.error("Duplicate Client Email Encountered");
+      }
+    });
+
+    if (!isValid) return;
+
+    const lancerMap: Record<string, string> = {};
+    lancerValues.forEach((lancer) => {
+      if (!lancer.email) {
+        isValid = false;
+        return cogoToast.error("Please Fill a Lancer Email");
+      } else if (!lancerMap[lancer.email] && !clientMap[lancer.email]) {
+        lancerMap[lancer.email] = lancer.email;
+      } else {
+        isValid = false;
+        return cogoToast.error("Duplicate Email Encountered in Lancers Fields");
+      }
+    });
     formData.append(selectedFile.name, selectedFile);
     formData.append("name", title);
     formData.append("adminId", user.id);
     formData.append("lancerValues", JSON.stringify(lancerValues));
     formData.append("clientValues", JSON.stringify(clientValues)); // const payload = {
-    mutate(formData);
+    if (isValid) mutate(formData);
   };
 
   useEffect(() => {
@@ -149,12 +179,6 @@ const CreateWorkspace: React.FC = () => {
 
     return () => URL.revokeObjectURL(objectUrl);
   }, [selectedFile]);
-
-  useEffect(() => {
-    const res = axios.get(`/workspace/workspaces/${user.id}`).then((res) => {
-      console.log(res.data);
-    });
-  }, []);
 
   return (
     <ProtectedRoute>
@@ -233,10 +257,11 @@ const CreateWorkspace: React.FC = () => {
 
           <div className="text-center mt-10">
             <Button
+              disabled={isLoading}
               style={{ paddingTop: "0.5rem", paddingBottom: "0.5rem" }}
               type="submit"
             >
-              Create Workspace
+              {isLoading ? "Creating Workspace..." : "Create Workspace"}
             </Button>
           </div>
         </form>
