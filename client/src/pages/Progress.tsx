@@ -6,6 +6,10 @@ import Overlay from "../components/Modals/Overlay";
 import ProgressModal from "../components/Modals/ProgressModal";
 import CreateProgress from "../components/Modals/CreateProgress";
 import useNavigateToDashboard from "../hooks/useNavigateToDashboard";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import axios from "../api/axios";
+import { useAppSelector } from "../redux/store/hooks";
+import cogoToast from "cogo-toast";
 
 interface ProgressBarProps {
   width: number;
@@ -28,10 +32,14 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ width, text }) => {
 };
 
 interface ProgressContainerProps {
-  text: string;
+  title: string;
+  progressContainerId: string;
 }
 
-const ProgressContainer: React.FC<ProgressContainerProps> = ({ text }) => {
+const ProgressContainer: React.FC<ProgressContainerProps> = ({
+  title,
+  progressContainerId,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <>
@@ -47,7 +55,7 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({ text }) => {
       </Overlay>
       <div className="flex flex-col gap-4 border-2 border-custom-light-dark rounded-md p-3 group">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl">{text}</h2>
+          <h2 className="text-2xl">{title}</h2>
           <button
             onClick={() => setIsOpen(true)}
             className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
@@ -67,13 +75,56 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({ text }) => {
 };
 
 const Progress: React.FC = () => {
+  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
+  const { workspaceId } = useAppSelector((state) => state.workspace);
+
+  const progressContainerQuery = useQuery(
+    "progress-container-query",
+    async () => {
+      const res = await axios.get(`progress/${workspaceId}/progress-container`);
+      return res;
+    }
+  );
+
+  const progressContainerMutation = useMutation(
+    async (payload: any) => {
+      const res = await axios.post(
+        `/progress/${workspaceId}/create-progress-container`,
+        payload
+      );
+      return res;
+    },
+    {
+      onError: (error: any) => {
+        setIsOpen(false);
+        cogoToast.info(error?.response?.data?.message);
+      },
+      onSuccess: (data) => {
+        if (data?.status === 201) {
+          setIsOpen(false);
+          queryClient.invalidateQueries("progress-container-query");
+          cogoToast.success(data?.data?.message);
+        }
+      },
+    }
+  );
 
   const closeModal = () => {
     setIsOpen(false);
   };
 
+  const handleOnCreateProgressContainer = (title: string) => {
+    progressContainerMutation.mutate({ title });
+  };
+
   useNavigateToDashboard();
+
+  if (progressContainerQuery.isLoading) {
+    return <h1>Loading...</h1>;
+  }
+
+  const progressContainerData = progressContainerQuery?.data?.data?.data || [];
 
   return (
     <div className="flex flex-col gap-3">
@@ -85,13 +136,19 @@ const Progress: React.FC = () => {
       </button>
       <Overlay isOpen={isOpen} onClick={closeModal}>
         <Modal onClick={closeModal}>
-          <CreateProgress />
+          <CreateProgress
+            onSubmit={(data: string) => handleOnCreateProgressContainer(data)}
+          />
         </Modal>
       </Overlay>
       <div className="flex flex-col gap-4">
-        <ProgressContainer text="Front-end" />
-        <ProgressContainer text="Back-end" />
-        <ProgressContainer text="Dev-Ops" />
+        {progressContainerData.map((progressContainer: any) => (
+          <ProgressContainer
+            key={progressContainer.id}
+            title={progressContainer.title}
+            progressContainerId={progressContainer.id}
+          />
+        ))}
       </div>
     </div>
   );

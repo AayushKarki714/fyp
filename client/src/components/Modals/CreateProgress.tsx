@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 
-const CreateProgress: React.FC = () => {
+interface Props {
+  onSubmit: (data: string) => void;
+}
+
+const CreateProgress: React.FC<Props> = ({ onSubmit }) => {
   const [progressTitle, setProgressTitle] = useState("");
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    onSubmit(progressTitle);
   };
 
   return (

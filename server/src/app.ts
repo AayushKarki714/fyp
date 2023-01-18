@@ -8,6 +8,7 @@ import prisma from "./utils/prisma";
 import workspaceRouter from "./routes/workspace.router";
 import path from "path";
 import galleryRouter from "./routes/gallery.router";
+import progressRouter from "./routes/progress.router";
 
 const AUTH_OPTIONS = {
   clientID: process.env.CLIENT_ID!,
@@ -67,5 +68,6 @@ app.use(passport.session());
 app.use("/auth", authRouter);
 app.use("/workspace", workspaceRouter);
 app.use("/gallery", galleryRouter);
+app.use("/progress", progressRouter);
 
 export default app;
