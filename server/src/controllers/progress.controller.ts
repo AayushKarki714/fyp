@@ -47,4 +47,59 @@ const getAllProgressContainer: RequestHandler = async (req, res) => {
   }
 };
 
-export { handleCreateProgressContainer, getAllProgressContainer };
+const handleCreateProgressBar: RequestHandler = async (req, res) => {
+  const { title, progressPercent } = req.body;
+  const { progressContainerId } = req.params;
+
+  if (!title || !progressPercent)
+    return res.status(400).json({ message: "Missing Required Fields" });
+
+  if (!Number(progressPercent))
+    return res
+      .status(400)
+      .json({ messasge: "progressPercent is not in the currect Formatk" });
+
+  try {
+    const progressBar = await prisma.progress.create({
+      data: {
+        title,
+        progressPercent: Number(progressPercent),
+        progressContainerId,
+      },
+    });
+    return res.status(201).json({
+      message: `${progressBar.title} was SuccessFully Created!!`,
+      data: progressBar,
+    });
+  } catch (error: any) {
+    return res
+      .status(400)
+      .json({ message: error.message || "Unexpected Error Encountered" });
+  }
+};
+
+const getAllProgressInProgressContainer: RequestHandler = async (req, res) => {
+  const { progressContainerId } = req.params;
+  try {
+    const progressBars = await prisma.progress.findMany({
+      where: { progressContainerId },
+      orderBy: {
+        progressPercent: "desc",
+      },
+    });
+
+    return res.status(200).json({
+      message: "Progress Bars Fetched SuccessFully",
+      data: progressBars,
+    });
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+export {
+  handleCreateProgressContainer,
+  getAllProgressContainer,
+  handleCreateProgressBar,
+  getAllProgressInProgressContainer,
+};

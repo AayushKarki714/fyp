@@ -40,7 +40,55 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
   title,
   progressContainerId,
 }) => {
+  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
+
+  const progressBarQuery = useQuery(
+    ["progress-bar-query", progressContainerId],
+    async () => {
+      const res = await axios.get(
+        `/progress/${progressContainerId}/progress-bar`
+      );
+      return res;
+    }
+  );
+
+  const progressMutation = useMutation(
+    async (data: any) => {
+      const res = await axios.post(
+        `/progress/${progressContainerId}/create-progress-bar`,
+        data
+      );
+      return res;
+    },
+    {
+      onError: (data) => {
+        console.log("error", data);
+      },
+      onSuccess: (data) => {
+        if (data?.status === 201) {
+          queryClient.invalidateQueries([
+            "progress-bar-query",
+            progressContainerId,
+          ]);
+          setIsOpen(false);
+          console.log("success", data);
+          cogoToast.success(data?.data?.message);
+        }
+      },
+    }
+  );
+  const handleProgressUpload = (data: any) => {
+    console.log("handleProgressUpload", data);
+    progressMutation.mutate(data);
+  };
+
+  if (progressBarQuery.isLoading) {
+    return <h2>Loading...</h2>;
+  }
+
+  const progressBarData = progressBarQuery.data?.data?.data || [];
+
   return (
     <>
       <Overlay
@@ -50,7 +98,7 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
         }}
       >
         <Modal onClick={() => setIsOpen(false)}>
-          <ProgressModal />
+          <ProgressModal onSubmit={handleProgressUpload} />
         </Modal>
       </Overlay>
       <div className="flex flex-col gap-4 border-2 border-custom-light-dark rounded-md p-3 group">
@@ -64,10 +112,13 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
           </button>
         </div>
         <div className="grid  gap-2">
-          <ProgressBar width={100} text="React" />
-          <ProgressBar width={80} text="Golang" />
-          <ProgressBar width={50} text="Typscript" />
-          <ProgressBar width={30} text="Pre-react" />
+          {progressBarData.map((progressBar: any) => (
+            <ProgressBar
+              key={progressBar.id}
+              text={progressBar.title}
+              width={progressBar.progressPercent}
+            />
+          ))}
         </div>
       </div>
     </>

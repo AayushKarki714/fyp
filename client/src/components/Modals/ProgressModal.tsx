@@ -1,10 +1,13 @@
-import React from "react";
+import cogoToast from "cogo-toast";
+import React, { useState } from "react";
 
 interface FormItemProps {
   id: string;
   type: "text" | "number";
   label: string;
   placeholder: string;
+  value: any;
+  onChange: (event: any) => void;
 }
 
 const FormItem: React.FC<FormItemProps> = ({
@@ -12,6 +15,8 @@ const FormItem: React.FC<FormItemProps> = ({
   type,
   label,
   placeholder,
+  value,
+  onChange,
 }) => {
   return (
     <div className="flex flex-col gap-3">
@@ -20,15 +25,33 @@ const FormItem: React.FC<FormItemProps> = ({
         id={id}
         type={type}
         placeholder={placeholder}
+        value={value}
+        onChange={onChange}
         className="bg-[#09090a] rounded px-3 py-2 focus:outline-none"
       />
     </div>
   );
 };
 
-const ProgressModal = () => {
+interface Props {
+  onSubmit: (data: any) => void;
+}
+
+const ProgressModal = ({ onSubmit }: Props) => {
+  const [progressTitle, setProgressTitle] = useState<string>("");
+  const [progressPercent, setProgressPercent] = useState<string>("");
+
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+
+    if (!progressTitle || !progressPercent)
+      return cogoToast.info("Please Fill all the Required Fields");
+
+    if (!Number(progressPercent))
+      return cogoToast.info("Progress Percent is not in the Current Format");
+
+    const payload = { title: progressTitle, progressPercent };
+    onSubmit(payload);
   };
 
   return (
@@ -40,12 +63,16 @@ const ProgressModal = () => {
         id="progess-bar-name"
         type="text"
         label="Title"
+        value={progressTitle}
+        onChange={(event) => setProgressTitle(event.target.value)}
         placeholder="Enter a title"
       />
       <FormItem
         id="progess-bar-percentage"
         type="number"
         label="Percentage"
+        value={progressPercent}
+        onChange={(event) => setProgressPercent(event.target.value)}
         placeholder="Enter a percent"
       />
       <button className="px-6 py-2 bg-custom-light-green rounded-md text-black font-medium">

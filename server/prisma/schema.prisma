@@ -58,7 +58,7 @@ model ProgressContainer {
 model Progress {
     id                  String            @id @default(uuid())
     title               String
-    progressPercent     String
+    progressPercent     Int
     progressContainer   ProgressContainer @relation(fields: [progressContainerId], references: [id])
     progressContainerId String
 }
