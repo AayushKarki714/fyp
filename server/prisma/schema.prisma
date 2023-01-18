@@ -20,13 +20,14 @@ model User {
 }
 
 model Workspace {
-    id      String             @id @default(uuid())
-    name    String
-    logo    String
-    admin   User               @relation(fields: [adminId], references: [id])
-    adminId String
-    Member  Member[]
-    Gallery GalleryContainer[]
+    id       String              @id @default(uuid())
+    name     String
+    logo     String
+    admin    User                @relation(fields: [adminId], references: [id])
+    adminId  String
+    Member   Member[]
+    Gallery  GalleryContainer[]
+    Progress ProgressContainer[]
 }
 
 model Member {
@@ -44,6 +45,22 @@ model GalleryContainer {
     workspace   Workspace @relation(fields: [workspaceId], references: [id])
     workspaceId String
     Photo       Photo[]
+}
+
+model ProgressContainer {
+    id          String     @id @default(uuid())
+    title       String
+    workspace   Workspace  @relation(fields: [workspaceId], references: [id])
+    workspaceId String
+    Progress    Progress[]
+}
+
+model Progress {
+    id                  String            @id @default(uuid())
+    title               String
+    progressPercent     String
+    progressContainer   ProgressContainer @relation(fields: [progressContainerId], references: [id])
+    progressContainerId String
 }
 
 model Photo {
