@@ -4,6 +4,8 @@ import {
   getAllProgressInProgressContainer,
   handleCreateProgressBar,
   handleCreateProgressContainer,
+  handleDeleteProgressBarContainer,
+  handleProgressTitleUpdate,
 } from "../controllers/progress.controller";
 import verifyAuth from "../middlewares/verifyAuth.middlware";
 
@@ -31,6 +33,18 @@ progressRouter.get(
   "/:progressContainerId/progress-bar",
   verifyAuth,
   getAllProgressInProgressContainer
+);
+
+progressRouter.delete(
+  "/:progressContainerId/delete-progress-container",
+  verifyAuth,
+  handleDeleteProgressBarContainer
+);
+
+progressRouter.patch(
+  "/:progressContainerId/update-progress-title",
+  verifyAuth,
+  handleProgressTitleUpdate
 );
 
 export default progressRouter;

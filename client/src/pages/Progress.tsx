@@ -1,6 +1,9 @@
-import React, { useState } from "react";
-import { PlusCircleIcon, FolderPlusIcon } from "@heroicons/react/24/outline";
-
+import React, { useRef, useState } from "react";
+import {
+  PlusCircleIcon,
+  FolderPlusIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 import Modal from "../components/Modals/Modal";
 import Overlay from "../components/Modals/Overlay";
 import ProgressModal from "../components/Modals/ProgressModal";
@@ -10,6 +13,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import axios from "../api/axios";
 import { useAppSelector } from "../redux/store/hooks";
 import cogoToast from "cogo-toast";
+import useOnClickOutside from "../hooks/useOnClickOutside";
 
 interface ProgressBarProps {
   width: number;
@@ -41,7 +45,10 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
   progressContainerId,
 }) => {
   const queryClient = useQueryClient();
-  const [isOpen, setIsOpen] = useState(false);
+  const progressContainerRef = useRef<HTMLDivElement>(null);
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const [progressTitle, setProgressTitle] = useState<string>(title);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const progressBarQuery = useQuery(
     ["progress-bar-query", progressContainerId],
@@ -50,6 +57,28 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
         `/progress/${progressContainerId}/progress-bar`
       );
       return res;
+    }
+  );
+
+  const updateProgressTitleMutation = useMutation(
+    async (payload: any) => {
+      const res = await axios.patch(
+        `/progress/${progressContainerId}/update-progress-title`,
+        payload
+      );
+      return res;
+    },
+    {
+      onError: (data) => {
+        console.log("error", data);
+      },
+      onSuccess: (data) => {
+        if (data.status === 200) {
+          queryClient.invalidateQueries("progress-container-query");
+          setEditMode(false);
+          cogoToast.success(data?.data?.message);
+        }
+      },
     }
   );
 
@@ -78,10 +107,44 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
       },
     }
   );
+
+  const deleteProgressContainerMutation = useMutation(
+    async (deleteProgressContainerId: string) => {
+      const res = await axios.delete(
+        `/progress/${deleteProgressContainerId}/delete-progress-container`
+      );
+      return res;
+    },
+    {
+      onError: (data) => {
+        console.log("error", data);
+      },
+      onSuccess: (data) => {
+        queryClient.invalidateQueries("progress-container-query");
+        cogoToast.success(data?.data?.message);
+      },
+    }
+  );
+
+  const handleDeleteProgresssContainer = () => {
+    deleteProgressContainerMutation.mutate(progressContainerId);
+  };
+
   const handleProgressUpload = (data: any) => {
     console.log("handleProgressUpload", data);
     progressMutation.mutate(data);
   };
+
+  const handleProgressTitleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!progressTitle) return cogoToast.info("Please Fill the Required Field");
+    updateProgressTitleMutation.mutate({ title: progressTitle });
+  };
+
+  useOnClickOutside(progressContainerRef, () => {
+    setEditMode(false);
+    setProgressTitle(title);
+  });
 
   if (progressBarQuery.isLoading) {
     return <h2>Loading...</h2>;
@@ -101,15 +164,39 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
           <ProgressModal onSubmit={handleProgressUpload} />
         </Modal>
       </Overlay>
-      <div className="flex flex-col gap-4 border-2 border-custom-light-dark rounded-md p-3 group">
+      <div
+        ref={progressContainerRef}
+        className="flex flex-col gap-4 border-2 border-custom-light-dark rounded-md p-3 group"
+      >
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl">{title}</h2>
-          <button
-            onClick={() => setIsOpen(true)}
-            className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
-          >
-            <PlusCircleIcon className="h-5" />
-          </button>
+          {editMode ? (
+            <form onSubmit={handleProgressTitleSubmit}>
+              <input
+                type="text"
+                value={progressTitle}
+                onChange={(event) => setProgressTitle(event.target.value)}
+                className="outline-none bg-custom-light-dark px-2 py-1 text-base rounded-sm text-white"
+              />
+            </form>
+          ) : (
+            <h2 onClick={() => setEditMode(true)} className="text-2xl">
+              {title}
+            </h2>
+          )}
+          <div className="flex gap-2 items-center ">
+            <button
+              onClick={() => setIsOpen(true)}
+              className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
+            >
+              <PlusCircleIcon className="h-5" />
+            </button>
+            <button
+              onClick={handleDeleteProgresssContainer}
+              className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
+            >
+              <TrashIcon className="h-5" />
+            </button>
+          </div>
         </div>
         <div className="grid  gap-2">
           {progressBarData.map((progressBar: any) => (
