@@ -9,6 +9,7 @@ import workspaceRouter from "./routes/workspace.router";
 import path from "path";
 import galleryRouter from "./routes/gallery.router";
 import progressRouter from "./routes/progress.router";
+import verifyAuth from "./middlewares/verifyAuth.middlware";
 
 const AUTH_OPTIONS = {
   clientID: process.env.CLIENT_ID!,
@@ -66,6 +67,7 @@ app.use(express.static(path.join(__dirname, "..", "public")));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use("/auth", authRouter);
+app.use(verifyAuth);
 app.use("/workspace", workspaceRouter);
 app.use("/gallery", galleryRouter);
 app.use("/progress", progressRouter);

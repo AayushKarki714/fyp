@@ -25,6 +25,9 @@ const getAllGalleryContainer: RequestHandler = async (req, res) => {
       where: {
         workspaceId,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
     return res.status(200).json(allGalleryContainer);
   } catch (error: any) {

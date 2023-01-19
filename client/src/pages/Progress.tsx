@@ -14,23 +14,80 @@ import axios from "../api/axios";
 import { useAppSelector } from "../redux/store/hooks";
 import cogoToast from "cogo-toast";
 import useOnClickOutside from "../hooks/useOnClickOutside";
+import ProgressBarModal from "../components/Modals/ProgressBarModal";
 
 interface ProgressBarProps {
   width: number;
   text: string;
+  progressContainerId: string;
+  progressId: string;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ width, text }) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({
+  width,
+  text,
+  progressId,
+  progressContainerId,
+}) => {
+  const queryClient = useQueryClient();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const percentRef = useRef<number>(width);
+
+  const updatePercentMutation = useMutation(
+    async (payload: any) => {
+      const res = await axios.patch(
+        `/progress/${progressContainerId}/${progressId}/update-progress-bar`,
+        payload
+      );
+      return res;
+    },
+    {
+      onError: (data) => {
+        console.log("error", data);
+      },
+      onSuccess: (data) => {
+        if (data.status === 200) {
+          queryClient.invalidateQueries([
+            "progress-bar-query",
+            progressContainerId,
+          ]);
+          handleModalClose();
+          cogoToast.success(data?.data?.message);
+        }
+      },
+    }
+  );
+
+  function handleModalClose() {
+    setIsModalOpen(false);
+  }
+
+  const handleProgressUpdate = (progressPercent: number) => {
+    updatePercentMutation.mutate({ progressPercent });
+  };
+
   return (
     <>
-      <p className="text-sm self-center">{text}</p>
-      <div className="relative w-full h-[20px] overflow-hidden">
-        <div
-          style={{ width: `${width}%` }}
-          title={`${width}%`}
-          className="absolute left-0 top-0 h-full bg-custom-light-green rounded-md "
-        />
+      <div onDoubleClick={() => setIsModalOpen(true)}>
+        <p className="text-sm self-center">{text}</p>
+        <div className="relative w-full h-[20px] overflow-hidden">
+          <div
+            style={{ width: `${width}%` }}
+            title={`${width}%`}
+            className="absolute left-0 top-0 h-full bg-custom-light-green rounded-md "
+          />
+        </div>
       </div>
+      <Overlay isOpen={isModalOpen} onClick={handleModalClose}>
+        <Modal onClick={handleModalClose}>
+          <ProgressBarModal
+            title={text}
+            percent={width}
+            onSubmit={handleProgressUpdate}
+            prevPercent={percentRef.current}
+          />
+        </Modal>
+      </Overlay>
     </>
   );
 };
@@ -101,7 +158,6 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
             progressContainerId,
           ]);
           setIsOpen(false);
-          console.log("success", data);
           cogoToast.success(data?.data?.message);
         }
       },
@@ -203,6 +259,8 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
             <ProgressBar
               key={progressBar.id}
               text={progressBar.title}
+              progressId={progressBar.id}
+              progressContainerId={progressContainerId}
               width={progressBar.progressPercent}
             />
           ))}

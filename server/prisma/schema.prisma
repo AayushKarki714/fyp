@@ -44,6 +44,7 @@ model GalleryContainer {
     title       String
     workspace   Workspace @relation(fields: [workspaceId], references: [id])
     workspaceId String
+    createdAt   DateTime  @default(now())
     Photo       Photo[]
 }
 
@@ -52,6 +53,7 @@ model ProgressContainer {
     title       String
     workspace   Workspace  @relation(fields: [workspaceId], references: [id])
     workspaceId String
+    createdAt   DateTime   @default(now())
     Progress    Progress[]
 }
 

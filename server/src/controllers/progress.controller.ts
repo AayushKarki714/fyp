@@ -35,6 +35,9 @@ const getAllProgressContainer: RequestHandler = async (req, res) => {
   try {
     const progressContainers = await prisma.progressContainer.findMany({
       where: { workspaceId },
+      orderBy: {
+        createdAt: "asc",
+      },
     });
     return res.status(200).json({
       message: "Progress Container was Fetched SuccessFully",
@@ -136,6 +139,55 @@ const handleProgressTitleUpdate: RequestHandler = async (req, res) => {
   }
 };
 
+const handleProgressBarUpdate: RequestHandler = async (req, res) => {
+  const progressPercent = Number(req.body.progressPercent);
+  if (!progressPercent)
+    return res.status(400).json({ message: "Missing Required Field" });
+
+  const { progressContainerId, progressBarId } = req.params;
+
+  try {
+    const progressContainer = await prisma.progressContainer.findUnique({
+      where: { id: progressContainerId },
+    });
+
+    if (!progressContainer)
+      return res
+        .status(400)
+        .json({ message: "Progress Container Was not Found" });
+
+    const progressBar = await prisma.progress.findUnique({
+      where: { id: progressBarId },
+    });
+
+    if (!progressBar)
+      return res.status(400).json({ message: "Progresss Bar was not Found" });
+
+    if (progressBar?.progressContainerId !== progressContainer.id) {
+      return res.status(400).json({
+        message: "Progress Bar doesn't belong to the Specified Container",
+      });
+    }
+
+    if (progressBar.progressPercent >= progressPercent) {
+      return res
+        .status(400)
+        .json({ message: "Progress Percent can't go from Higher to Lower" });
+    }
+
+    const updatedProgressBar = await prisma.progress.update({
+      where: { id: progressBarId },
+      data: { progressPercent },
+    });
+    return res.status(200).json({
+      message: `${progressBar.title} was updated to ${progressPercent}% successfully`,
+      data: updatedProgressBar,
+    });
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
 export {
   handleCreateProgressContainer,
   getAllProgressContainer,
@@ -143,4 +195,5 @@ export {
   getAllProgressInProgressContainer,
   handleDeleteProgressBarContainer,
   handleProgressTitleUpdate,
+  handleProgressBarUpdate,
 };
