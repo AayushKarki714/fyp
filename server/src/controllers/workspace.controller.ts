@@ -57,7 +57,6 @@ const handleCreateWorkspace: RequestHandler = async function (req, res) {
         id: workspace.id,
       },
     });
-    console.log("Error is over here man", (error as any).message);
     return res.status(400).json({ message: (error as any).message });
   }
 
@@ -69,6 +68,9 @@ const handleGetWorkspace: RequestHandler = async function (req, res) {
   const workspaces = await prisma.member.findMany({
     where: {
       userId: userId,
+    },
+    orderBy: {
+      createdAt: "asc",
     },
     include: {
       workspace: true,

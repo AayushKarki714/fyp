@@ -6,6 +6,7 @@ const Login: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
   const location = useLocation();
   const redirectPath = location.state?.from?.pathname || "/dashboard";
+  console.log("redirectPath", redirectPath);
 
   const google = () => {
     window.open("http://localhost:8000/auth/google", "_self");

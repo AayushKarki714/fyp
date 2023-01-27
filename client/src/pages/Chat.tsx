@@ -37,7 +37,7 @@ const Chat: React.FC = () => {
     setShowPicker(false);
   });
 
-  useNavigateToDashboard();
+  // useNavigateToDashboard();
 
   return (
     <div className="h-full flex rounded-md overflow-hidden border-2  border-custom-light-dark">

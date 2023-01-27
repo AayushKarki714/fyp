@@ -10,6 +10,7 @@ import path from "path";
 import galleryRouter from "./routes/gallery.router";
 import progressRouter from "./routes/progress.router";
 import verifyAuth from "./middlewares/verifyAuth.middlware";
+import todoRouter from "./routes/todo.router";
 
 const AUTH_OPTIONS = {
   clientID: process.env.CLIENT_ID!,
@@ -71,5 +72,6 @@ app.use(verifyAuth);
 app.use("/workspace", workspaceRouter);
 app.use("/gallery", galleryRouter);
 app.use("/progress", progressRouter);
+app.use("/todo", todoRouter);
 
 export default app;

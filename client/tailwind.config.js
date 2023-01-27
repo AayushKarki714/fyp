@@ -9,7 +9,7 @@ module.exports = {
       gridTemplateColumns: {
         responsive: "repeat(auto-fill,minmax(240px,1fr))",
         "responsive-gallery": "repeat(auto-fill,minmax(200px,1fr))",
-        "responsive-todo": "repeat(auto-fit,minmax(272px,1fr))",
+        "responsive-todo": "repeat(auto-fill,minmax(280px,1fr))",
       },
       colors: {
         "custom-light-dark": "#27292a",

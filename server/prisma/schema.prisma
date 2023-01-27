@@ -20,14 +20,16 @@ model User {
 }
 
 model Workspace {
-    id       String              @id @default(uuid())
-    name     String
-    logo     String
-    admin    User                @relation(fields: [adminId], references: [id])
-    adminId  String
-    Member   Member[]
-    Gallery  GalleryContainer[]
-    Progress ProgressContainer[]
+    id            String              @id @default(uuid())
+    name          String
+    logo          String
+    admin         User                @relation(fields: [adminId], references: [id])
+    adminId       String
+    createdAt     DateTime            @default(now())
+    Member        Member[]
+    Gallery       GalleryContainer[]
+    Progress      ProgressContainer[]
+    TodoContainer TodoContainer[]
 }
 
 model Member {
@@ -35,6 +37,7 @@ model Member {
     user        User      @relation(fields: [userId], references: [id])
     role        Role
     userId      String
+    createdAt   DateTime  @default(now())
     workspace   Workspace @relation(fields: [workspaceId], references: [id])
     workspaceId String
 }
@@ -70,6 +73,33 @@ model Photo {
     url                String
     galleryContainer   GalleryContainer @relation(fields: [galleryContainerId], references: [id])
     galleryContainerId String
+}
+
+model TodoContainer {
+    id          String     @id @default(uuid())
+    title       String
+    workspace   Workspace  @relation(fields: [workspaceId], references: [id])
+    workspaceId String
+    createdAt   DateTime   @default(now())
+    TodoCard    TodoCard[]
+}
+
+model TodoCard {
+    id              String        @id @default(uuid())
+    title           String
+    createdAt       DateTime      @default(now())
+    todoContainer   TodoContainer @relation(fields: [todoContainerId], references: [id])
+    todoContainerId String
+    Todo            Todo[]
+}
+
+model Todo {
+    id         String   @id @default(uuid())
+    text       String
+    dueDate    DateTime
+    createdAt  DateTime @default(now())
+    todoCard   TodoCard @relation(fields: [todoCardId], references: [id])
+    todoCardId String
 }
 
 enum Role {
