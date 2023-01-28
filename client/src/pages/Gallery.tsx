@@ -55,8 +55,8 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
       return res;
     },
     {
-      onError: (data) => {
-        console.log("error", data);
+      onError: (error: any) => {
+        cogoToast.error(error?.response?.data?.message);
       },
       onSuccess: (data) => {
         if (data.status === 200) {
@@ -263,7 +263,8 @@ const Gallery: React.FC = () => {
       return res;
     },
     {
-      onError: (error) => {
+      onError: (error: any) => {
+        cogoToast.error(error?.response?.data?.message);
         console.log("error", error);
       },
       onSuccess: (data) => {

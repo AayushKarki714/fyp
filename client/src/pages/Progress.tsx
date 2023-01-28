@@ -293,8 +293,7 @@ const Progress: React.FC = () => {
     },
     {
       onError: (error: any) => {
-        setIsOpen(false);
-        cogoToast.info(error?.response?.data?.message);
+        cogoToast.error(error?.response?.data?.message);
       },
       onSuccess: (data) => {
         if (data?.status === 201) {

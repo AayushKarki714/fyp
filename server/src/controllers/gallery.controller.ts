@@ -6,6 +6,20 @@ const handleCreateGalleryContainer: RequestHandler = async (req, res) => {
   const { title } = req.body;
   const { workspaceId } = req.params;
   try {
+    const findGalleryByTitle = await prisma.galleryContainer.findFirst({
+      where: {
+        title,
+        workspaceId,
+      },
+    });
+
+    if (findGalleryByTitle)
+      return res
+        .status(400)
+        .json({
+          message: `${findGalleryByTitle.title} already exists as a Gallery Container`,
+        });
+
     const galleryContainer = await prisma.galleryContainer.create({
       data: {
         title: title,

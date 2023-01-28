@@ -39,7 +39,8 @@ const TodoPage: React.FC = () => {
       return res;
     },
     {
-      onError: (error) => {
+      onError: (error: any) => {
+        cogoToast.error(error?.response?.data?.message);
         console.log("error", error);
       },
       onSuccess: (data) => {

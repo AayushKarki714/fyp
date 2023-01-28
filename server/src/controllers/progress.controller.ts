@@ -11,6 +11,18 @@ const handleCreateProgressContainer: RequestHandler = async (req, res) => {
       .json({ message: "Progress Container Title was not Provided!!" });
 
   try {
+    const findByTitle = await prisma.progressContainer.findFirst({
+      where: {
+        title,
+        workspaceId,
+      },
+    });
+
+    if (findByTitle)
+      return res.status(400).json({
+        message: `${findByTitle.title} already exists as a Progress Container`,
+      });
+
     const progressContainer = await prisma.progressContainer.create({
       data: {
         title,

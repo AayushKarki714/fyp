@@ -5,6 +5,18 @@ const handleCreateTodoContainer: RequestHandler = async (req, res) => {
   const { title } = req.body;
   const { workspaceId } = req.params;
   try {
+    const findByTitle = await prisma.todoContainer.findFirst({
+      where: {
+        title,
+        workspaceId,
+      },
+    });
+
+    if (findByTitle)
+      return res.status(400).json({
+        message: `${findByTitle.title} already Exists as a Todo container `,
+      });
+
     const todoContainer = await prisma.todoContainer.create({
       data: {
         title,
