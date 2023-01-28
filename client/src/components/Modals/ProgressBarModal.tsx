@@ -1,5 +1,5 @@
-import cogoToast from "cogo-toast";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 interface FormItemProps {
   id: string;
@@ -49,7 +49,7 @@ const ProgressBarModal = ({ title, percent, prevPercent, onSubmit }: Props) => {
     event.preventDefault();
 
     if (prevPercent >= Number(progressPercent))
-      return cogoToast.error("Percent can't go from high to low!!");
+      return toast("Percent can't go from high to low!!");
     onSubmit(Number(progressPercent));
   };
 

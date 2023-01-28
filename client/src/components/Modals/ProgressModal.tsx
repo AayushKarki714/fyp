@@ -1,5 +1,5 @@
-import cogoToast from "cogo-toast";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 interface FormItemProps {
   id: string;
@@ -45,10 +45,10 @@ const ProgressModal = ({ onSubmit }: Props) => {
     event.preventDefault();
 
     if (!progressTitle || !progressPercent)
-      return cogoToast.info("Please Fill all the Required Fields");
+      return toast("Please Fill all the Required Fields");
 
     if (!Number(progressPercent))
-      return cogoToast.info("Progress Percent is not in the Current Format");
+      return toast("Progress Percent is not in the Current Format");
 
     const payload = { title: progressTitle, progressPercent };
     onSubmit(payload);

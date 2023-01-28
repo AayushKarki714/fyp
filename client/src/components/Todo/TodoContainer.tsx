@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import axios from "../../api/axios";
 import { useAppSelector } from "../../redux/store/hooks";
 import { useQueryClient, useQuery, useMutation } from "react-query";
-import cogoToast from "cogo-toast";
 import TodoCard from "./TodoCard";
 import { ITodoCardPayload } from "../../types/types";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { toast } from "react-toastify";
 
 interface TodoContainerProps {
   id: string;
@@ -36,7 +36,7 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
         if (data.status === 201) {
           setTodoCardTitle("");
           queryClient.invalidateQueries(["todo-card-query", id]);
-          cogoToast.success(data?.data?.message);
+          toast(data?.data?.message);
         }
       },
       onError: (error) => {
@@ -47,8 +47,7 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!todoCardTitle)
-      return cogoToast.error("Please Fill the Required Fields*");
+    if (!todoCardTitle) return toast("Please Fill the Required Fields*");
     todoCardMutation.mutate({ title: todoCardTitle });
   };
 
@@ -58,54 +57,56 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
   const todoCardData = todoCardQuery?.data?.data || [];
 
   return (
-    <div className="flex flex-col gap-3 border-2 border-custom-light-dark p-3 rounded-md ">
-      <h2 className="text-2xl">{text}</h2>
-      <div className="grid grid-cols-responsive-todo items-start gap-3">
-        {todoCardData.map(({ id, title, todoContainerId }: any) => (
-          <TodoCard
-            key={id}
-            id={id}
-            title={title}
-            todoContainerId={todoContainerId}
-          />
-        ))}
-
-        {showTodoCard ? (
-          <form onSubmit={handleFormSubmit} className="flex flex-col gap-2">
-            <textarea
-              autoFocus
-              value={todoCardTitle}
-              placeholder="Enter a title for todo card..."
-              onChange={(event) => setTodoCardTitle(event.target.value)}
-              className="w-full resize-none h-16 rounded-md bg-custom-light-dark px-3 py-2 text-base custom-scrollbar text-gray-300 shadow"
+    <>
+      <div className="flex flex-col gap-3 border-2 border-custom-light-dark p-3 rounded-md ">
+        <h2 className="text-2xl">{text}</h2>
+        <div className="grid grid-cols-responsive-todo items-start gap-3">
+          {todoCardData.map(({ id, title, todoContainerId }: any) => (
+            <TodoCard
+              key={id}
+              id={id}
+              title={title}
+              todoContainerId={todoContainerId}
             />
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                className="bg-custom-light-green  px-4 py-2 rounded-md text-black font-medium text-base"
-              >
-                Add
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowTodoCard(false)}
-                className="bg-custom-light-green  px-4 py-2 rounded-md text-black font-medium text-base"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        ) : (
-          <button
-            onClick={() => setShowTodoCard(true)}
-            className="flex gap-3 text-black px-4 py-2 items-center justify-center bg-custom-light-green text-base rounded-md"
-          >
-            <PlusIcon className="h-5 w-5" />
-            Add a Todo Card
-          </button>
-        )}
+          ))}
+
+          {showTodoCard ? (
+            <form onSubmit={handleFormSubmit} className="flex flex-col gap-2">
+              <textarea
+                autoFocus
+                value={todoCardTitle}
+                placeholder="Enter a title for todo card..."
+                onChange={(event) => setTodoCardTitle(event.target.value)}
+                className="w-full resize-none h-16 rounded-md bg-custom-light-dark px-3 py-2 text-base custom-scrollbar text-gray-300 shadow"
+              />
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="bg-custom-light-green  px-4 py-2 rounded-md text-black font-medium text-base"
+                >
+                  Add
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowTodoCard(false)}
+                  className="bg-custom-light-green  px-4 py-2 rounded-md text-black font-medium text-base"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : (
+            <button
+              onClick={() => setShowTodoCard(true)}
+              className="flex gap-3 text-black px-4 py-2 items-center justify-center bg-custom-light-green text-base rounded-md"
+            >
+              <PlusIcon className="h-5 w-5" />
+              Add a Todo Card
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

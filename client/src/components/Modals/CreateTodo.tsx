@@ -1,5 +1,4 @@
 import React from "react";
-import cogoToast from "cogo-toast";
 import { Formik } from "formik";
 import { CreateTodoProps } from "../../types/types";
 
@@ -13,8 +12,6 @@ const validateValues = (values: any) => {
 
 const CreateTodo: React.FC<CreateTodoProps> = ({ onSubmit }) => {
   const handleSubmit = ({ title }: any) => {
-    console.log("title", title);
-    if (!title) cogoToast.error("Please Fill the Required Fields");
     onSubmit({ title });
   };
 

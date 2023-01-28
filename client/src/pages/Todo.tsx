@@ -11,10 +11,10 @@ import {
   CreateTodoContainerPayload,
   ITodoContainerPayload,
 } from "../types/types";
-import cogoToast from "cogo-toast";
 import TodoContainer from "../components/Todo/TodoContainer";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { toast } from "react-toastify";
 
 const TodoPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -40,14 +40,14 @@ const TodoPage: React.FC = () => {
     },
     {
       onError: (error: any) => {
-        cogoToast.error(error?.response?.data?.message);
+        toast(error?.response?.data?.message);
         console.log("error", error);
       },
       onSuccess: (data) => {
         if (data?.status === 201) {
           queryClient.invalidateQueries("todo-container-query");
           setIsOpen(false);
-          cogoToast.success(data?.data?.message);
+          toast(data?.data?.message);
         }
       },
     }
@@ -66,26 +66,28 @@ const TodoPage: React.FC = () => {
   const todoContainerData = todoContainerQuery.data?.data || [];
 
   return (
-    <section className="flex flex-col gap-3">
-      <button
-        className="flex items-center justify-center p-2 w-10 h-10 rounded-full ml-auto text-gray-400 hover:text-custom-light-green"
-        onClick={() => setIsOpen(true)}
-      >
-        <FolderPlusIcon className="h-6" />
-      </button>
-      <Overlay isOpen={isOpen} onClick={() => setIsOpen(false)}>
-        <Modal onClick={() => setIsOpen(false)}>
-          <CreateTodo onSubmit={handleOnCreateTodoContainer} />
-        </Modal>
-      </Overlay>
-      <DndProvider backend={HTML5Backend}>
-        <div className="flex flex-col gap-4">
-          {todoContainerData.map(({ id, title }: ITodoContainerPayload) => {
-            return <TodoContainer key={id} id={id} text={title} />;
-          })}
-        </div>
-      </DndProvider>
-    </section>
+    <>
+      <section className="flex flex-col gap-3">
+        <button
+          className="flex items-center justify-center p-2 w-10 h-10 rounded-full ml-auto text-gray-400 hover:text-custom-light-green"
+          onClick={() => setIsOpen(true)}
+        >
+          <FolderPlusIcon className="h-6" />
+        </button>
+        <Overlay isOpen={isOpen} onClick={() => setIsOpen(false)}>
+          <Modal onClick={() => setIsOpen(false)}>
+            <CreateTodo onSubmit={handleOnCreateTodoContainer} />
+          </Modal>
+        </Overlay>
+        <DndProvider backend={HTML5Backend}>
+          <div className="flex flex-col gap-4">
+            {todoContainerData.map(({ id, title }: ITodoContainerPayload) => {
+              return <TodoContainer key={id} id={id} text={title} />;
+            })}
+          </div>
+        </DndProvider>
+      </section>
+    </>
   );
 };
 

@@ -3,8 +3,8 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import axios from "../api/axios";
 import { useAppSelector } from "../redux/store/hooks";
 import { useMutation } from "react-query";
-import cogoToast from "cogo-toast";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 interface IButton {
   type?: "submit" | "button" | "reset";
@@ -79,10 +79,10 @@ const CreateWorkspace: React.FC = () => {
     {
       onSuccess: (data) => {
         navigate("/dashboard");
-        cogoToast.success("Workspace Created SucessFully");
+        toast("Workspace Created SucessFully");
       },
       onError: (error: any) => {
-        cogoToast.error(error?.response?.data?.message || error.message);
+        toast(error?.response?.data?.message || error.message);
       },
     }
   );
@@ -133,20 +133,20 @@ const CreateWorkspace: React.FC = () => {
     event.preventDefault();
     const formData = new FormData();
     let isValid = true;
-    if (!selectedFile) return cogoToast.error("Please Select a Logo");
-    if (!title) return cogoToast.error("Please Enter a title");
+    if (!selectedFile) return toast("Please Select a Logo");
+    if (!title) return toast("Please Enter a title");
 
     const clientMap: Record<string, string> = {};
 
     clientValues.forEach((client) => {
       if (!client.email) {
         isValid = false;
-        return cogoToast.error("Please Fill a Client Email");
+        return toast("Please Fill a Client Email");
       } else if (!clientMap[client.email]) {
         clientMap[client.email] = client.email;
       } else {
         isValid = false;
-        return cogoToast.error("Duplicate Client Email Encountered");
+        return toast("Duplicate Client Email Encountered");
       }
     });
 
@@ -156,12 +156,12 @@ const CreateWorkspace: React.FC = () => {
     lancerValues.forEach((lancer) => {
       if (!lancer.email) {
         isValid = false;
-        return cogoToast.error("Please Fill a Lancer Email");
+        return toast("Please Fill a Lancer Email");
       } else if (!lancerMap[lancer.email] && !clientMap[lancer.email]) {
         lancerMap[lancer.email] = lancer.email;
       } else {
         isValid = false;
-        return cogoToast.error("Duplicate Email Encountered in Lancers Fields");
+        return toast("Duplicate Email Encountered in Lancers Fields");
       }
     });
     formData.append(selectedFile.name, selectedFile);

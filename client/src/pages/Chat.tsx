@@ -10,7 +10,6 @@ import EmojiPicker, {
 import { motion } from "framer-motion";
 import useOnClickOutside from "../hooks/useOnClickOutside";
 import handleStopPropagation from "../utils/handleStopPropagation";
-import useNavigateToDashboard from "../hooks/useNavigateToDashboard";
 
 const Chat: React.FC = () => {
   const emojiRef = useRef(null) as RefObject<HTMLDivElement>;

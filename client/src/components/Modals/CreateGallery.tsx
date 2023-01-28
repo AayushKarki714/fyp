@@ -1,5 +1,5 @@
-import cogoToast from "cogo-toast";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 interface Props {
   onSubmit: (title: string) => void;
@@ -10,7 +10,7 @@ const CreateGallery: React.FC<Props> = ({ onSubmit }) => {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!galleryTitle) {
-      return cogoToast.info("Please Enter a Title for the Gallery Container");
+      return toast("Please Enter a Title for the Gallery Container");
     }
     onSubmit(galleryTitle);
   };

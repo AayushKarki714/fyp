@@ -14,9 +14,9 @@ import useNavigateToDashboard from "../hooks/useNavigateToDashboard";
 import { useQueryClient, useMutation, useQuery } from "react-query";
 import axios from "../api/axios";
 import { useAppSelector } from "../redux/store/hooks";
-import cogoToast from "cogo-toast";
 import useOnClickOutside from "../hooks/useOnClickOutside";
 import DotContainer from "../components/DotContainer";
+import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 
 interface GalleryContainerProps {
@@ -56,13 +56,13 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     },
     {
       onError: (error: any) => {
-        cogoToast.error(error?.response?.data?.message);
+        toast(error?.response?.data?.message);
       },
       onSuccess: (data) => {
         if (data.status === 200) {
           queryClient.invalidateQueries("gallery-container-query");
           setEditMode(false);
-          cogoToast.success(data?.data?.message);
+          toast(data?.data?.message);
         }
       },
     }
@@ -80,7 +80,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
       onError: (error) => {},
       onSuccess: (data) => {
         if (data.status === 201) {
-          cogoToast.success("Image Upload SuccessFully!!");
+          toast("Image Upload SuccessFully!!");
           queryClient.invalidateQueries([
             "gallery-images-query",
             galleryContainerId,
@@ -103,7 +103,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
       },
       onSuccess: (data) => {
         queryClient.invalidateQueries("gallery-container-query");
-        cogoToast.success(data?.data?.message);
+        toast(data?.data?.message);
       },
     }
   );
@@ -113,7 +113,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files![0];
-    if (!file) return cogoToast.info("Please Select an Image ");
+    if (!file) return toast("Please Select an Image ");
     const formData = new FormData();
     formData.append(file.name, file);
     uploadImageMutation.mutate(formData);
@@ -121,7 +121,7 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
 
   const handleGalleryTitleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!galleryTitle) return cogoToast.info("Please Fill the Required Field");
+    if (!galleryTitle) return toast("Please Fill the Required Field");
     updateGalleryTitleMutation.mutate({ title: galleryTitle });
   };
 
@@ -264,14 +264,14 @@ const Gallery: React.FC = () => {
     },
     {
       onError: (error: any) => {
-        cogoToast.error(error?.response?.data?.message);
+        toast(error?.response?.data?.message);
         console.log("error", error);
       },
       onSuccess: (data) => {
         if (data.status === 201) {
           setIsOpen(false);
           queryClient.invalidateQueries("gallery-container-query");
-          return cogoToast.success(
+          toast(
             `${data?.data?.title} Gallery Container Was SucessFully Created`
           );
         }
@@ -312,38 +312,42 @@ const Gallery: React.FC = () => {
   const galleryContainerData = galleryContainerQuery.data?.data || [];
 
   return (
-    <div className="flex flex-col gap-3  h-full">
-      <button
-        className="flex items-center justify-center p-2 w-10 h-10 rounded-full ml-auto text-gray-400 hover:text-custom-light-green"
-        onClick={() => setIsOpen(true)}
-      >
-        <FolderPlusIcon className="h-6" />
-      </button>
-      <Overlay isOpen={isOpen} onClick={closeModal}>
-        <Modal onClick={closeModal}>
-          <CreateGallery
-            onSubmit={(title: string) => handleOnCreateGalleryContainer(title)}
-          />
-        </Modal>
-      </Overlay>
-      {galleryContainerData.length > 0 ? (
-        <div className="flex flex-col gap-4">
-          {galleryContainerData.map((galleryContainer: any) => {
-            return (
-              <GalleryContainer
-                key={galleryContainer.id}
-                galleryContainerId={galleryContainer.id}
-                text={galleryContainer.title}
-              />
-            );
-          })}
-        </div>
-      ) : (
-        <p className="mt-28 text-gray-400 text-center">
-          Empty Gallery Container
-        </p>
-      )}
-    </div>
+    <>
+      <div className="flex flex-col gap-3  h-full">
+        <button
+          className="flex items-center justify-center p-2 w-10 h-10 rounded-full ml-auto text-gray-400 hover:text-custom-light-green"
+          onClick={() => setIsOpen(true)}
+        >
+          <FolderPlusIcon className="h-6" />
+        </button>
+        <Overlay isOpen={isOpen} onClick={closeModal}>
+          <Modal onClick={closeModal}>
+            <CreateGallery
+              onSubmit={(title: string) =>
+                handleOnCreateGalleryContainer(title)
+              }
+            />
+          </Modal>
+        </Overlay>
+        {galleryContainerData.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            {galleryContainerData.map((galleryContainer: any) => {
+              return (
+                <GalleryContainer
+                  key={galleryContainer.id}
+                  galleryContainerId={galleryContainer.id}
+                  text={galleryContainer.title}
+                />
+              );
+            })}
+          </div>
+        ) : (
+          <p className="mt-28 text-gray-400 text-center">
+            Empty Gallery Container
+          </p>
+        )}
+      </div>
+    </>
   );
 };
 

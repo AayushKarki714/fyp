@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import axios from "../../api/axios";
 import { useQueryClient, useQuery, useMutation } from "react-query";
-import cogoToast from "cogo-toast";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { ITodo, ITodoPayload } from "../../types/types";
@@ -9,6 +8,7 @@ import Todo from "./Todo";
 import { useDrop } from "react-dnd";
 import { ItemTypes } from "../../utils/ItemTypes";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 
 interface TodoCardProps {
   id: string;
@@ -79,7 +79,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
           ["todo-query", data.prevTodoCardId],
           context.snapshotOfPrevTodoCard
         );
-        cogoToast.error(error.message);
+        toast(error.message);
       },
     }
   );
@@ -112,7 +112,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
       onSuccess: (data) => {
         if (data.status === 201) {
           queryClient.invalidateQueries(["todo-query", id]);
-          cogoToast.success(data?.data?.message);
+          toast(data?.data?.message);
         }
       },
     }
@@ -133,68 +133,72 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
   const todoData = todoQuery.data || [];
 
   return (
-    <div
-      ref={drop}
-      className={`flex flex-col gap-2 bg-custom-black border-2 ${
-        isOver ? "border-custom-light-green border-dotted" : "border-dark-gray"
-      } rounded-md p-3`}
-    >
-      <h2 className="text-lg">{title}</h2>
-      <motion.div layout className="flex flex-col gap-3">
-        {todoData.map((todo: ITodo) => (
-          <Todo
-            key={todo.id}
-            title={todo.text}
-            todo={todo}
-            todoContainerId={todoContainerId}
-          />
-        ))}
-        {showAddTodo ? (
-          <motion.form
-            layout
-            ref={todoCardRef}
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-2"
-          >
-            <textarea
-              autoFocus
-              value={todoTitle}
-              placeholder="Enter a todo..."
-              className="w-full resize-none h-16 rounded-md bg-custom-light-dark px-3 py-2 text-base custom-scrollbar text-gray-300 shadow"
-              onChange={(event) => setTodoTitle(event.target.value)}
+    <>
+      <div
+        ref={drop}
+        className={`flex flex-col gap-2 bg-custom-black border-2 ${
+          isOver
+            ? "border-custom-light-green border-dotted"
+            : "border-dark-gray"
+        } rounded-md p-3`}
+      >
+        <h2 className="text-lg">{title}</h2>
+        <motion.div layout className="flex flex-col gap-3">
+          {todoData.map((todo: ITodo) => (
+            <Todo
+              key={todo.id}
+              title={todo.text}
+              todo={todo}
+              todoContainerId={todoContainerId}
             />
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                className="bg-custom-light-green  px-4 py-2 rounded-md text-black font-medium text-base"
-              >
-                Add
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAddTodo(false);
-                }}
-                className="bg-custom-light-green  px-4 py-2 rounded-md text-black font-medium text-base"
-              >
-                Cancel
-              </button>
-            </div>
-          </motion.form>
-        ) : (
-          <motion.button
-            layout
-            className="flex mt-3 self-start items-center  gap-1 text-base hover:text-custom-light-green"
-            onClick={(event) => {
-              setShowAddTodo(true);
-            }}
-          >
-            <PlusIcon className="h-5" />
-            Add a Todo
-          </motion.button>
-        )}
-      </motion.div>
-    </div>
+          ))}
+          {showAddTodo ? (
+            <motion.form
+              layout
+              ref={todoCardRef}
+              onSubmit={handleSubmit}
+              className="flex flex-col gap-2"
+            >
+              <textarea
+                autoFocus
+                value={todoTitle}
+                placeholder="Enter a todo..."
+                className="w-full resize-none h-16 rounded-md bg-custom-light-dark px-3 py-2 text-base custom-scrollbar text-gray-300 shadow"
+                onChange={(event) => setTodoTitle(event.target.value)}
+              />
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="bg-custom-light-green  px-4 py-2 rounded-md text-black font-medium text-base"
+                >
+                  Add
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddTodo(false);
+                  }}
+                  className="bg-custom-light-green  px-4 py-2 rounded-md text-black font-medium text-base"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.form>
+          ) : (
+            <motion.button
+              layout
+              className="flex mt-3 self-start items-center  gap-1 text-base hover:text-custom-light-green"
+              onClick={(event) => {
+                setShowAddTodo(true);
+              }}
+            >
+              <PlusIcon className="h-5" />
+              Add a Todo
+            </motion.button>
+          )}
+        </motion.div>
+      </div>
+    </>
   );
 };
 

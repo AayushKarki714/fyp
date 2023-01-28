@@ -4,7 +4,6 @@ import Overlay from "../Modals/Overlay";
 import { useDrag } from "react-dnd/dist/hooks";
 import { ItemTypes } from "../../utils/ItemTypes";
 import { motion } from "framer-motion";
-import TodoEditModal from "../Modals/TodoEditModal";
 import { Formik } from "formik";
 
 interface TodoProps {

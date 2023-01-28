@@ -12,9 +12,10 @@ import useNavigateToDashboard from "../hooks/useNavigateToDashboard";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import axios from "../api/axios";
 import { useAppSelector } from "../redux/store/hooks";
-import cogoToast from "cogo-toast";
 import useOnClickOutside from "../hooks/useOnClickOutside";
 import ProgressBarModal from "../components/Modals/ProgressBarModal";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface ProgressBarProps {
   width: number;
@@ -52,7 +53,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
             progressContainerId,
           ]);
           handleModalClose();
-          cogoToast.success(data?.data?.message);
+          toast(data?.data?.message);
         }
       },
     }
@@ -133,7 +134,7 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
         if (data.status === 200) {
           queryClient.invalidateQueries("progress-container-query");
           setEditMode(false);
-          cogoToast.success(data?.data?.message);
+          toast(data?.data?.message);
         }
       },
     }
@@ -158,7 +159,7 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
             progressContainerId,
           ]);
           setIsOpen(false);
-          cogoToast.success(data?.data?.message);
+          toast(data?.data?.message);
         }
       },
     }
@@ -177,7 +178,7 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
       },
       onSuccess: (data) => {
         queryClient.invalidateQueries("progress-container-query");
-        cogoToast.success(data?.data?.message);
+        toast(data?.data?.message);
       },
     }
   );
@@ -193,7 +194,7 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
 
   const handleProgressTitleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!progressTitle) return cogoToast.info("Please Fill the Required Field");
+    if (!progressTitle) return toast("Please Fill the Required Field");
     updateProgressTitleMutation.mutate({ title: progressTitle });
   };
 
@@ -293,13 +294,13 @@ const Progress: React.FC = () => {
     },
     {
       onError: (error: any) => {
-        cogoToast.error(error?.response?.data?.message);
+        toast(error?.response?.data?.message);
       },
       onSuccess: (data) => {
         if (data?.status === 201) {
           setIsOpen(false);
           queryClient.invalidateQueries("progress-container-query");
-          cogoToast.success(data?.data?.message);
+          toast(data?.data?.message);
         }
       },
     }
@@ -322,30 +323,32 @@ const Progress: React.FC = () => {
   const progressContainerData = progressContainerQuery?.data?.data?.data || [];
 
   return (
-    <div className="flex flex-col gap-3">
-      <button
-        className="flex items-center justify-center p-2 w-10 h-10 rounded-full ml-auto text-gray-400 hover:text-custom-light-green"
-        onClick={() => setIsOpen(true)}
-      >
-        <FolderPlusIcon className="h-6" />
-      </button>
-      <Overlay isOpen={isOpen} onClick={closeModal}>
-        <Modal onClick={closeModal}>
-          <CreateProgress
-            onSubmit={(data: string) => handleOnCreateProgressContainer(data)}
-          />
-        </Modal>
-      </Overlay>
-      <div className="flex flex-col gap-4">
-        {progressContainerData.map((progressContainer: any) => (
-          <ProgressContainer
-            key={progressContainer.id}
-            title={progressContainer.title}
-            progressContainerId={progressContainer.id}
-          />
-        ))}
+    <>
+      <div className="flex flex-col gap-3">
+        <button
+          className="flex items-center justify-center p-2 w-10 h-10 rounded-full ml-auto text-gray-400 hover:text-custom-light-green"
+          onClick={() => setIsOpen(true)}
+        >
+          <FolderPlusIcon className="h-6" />
+        </button>
+        <Overlay isOpen={isOpen} onClick={closeModal}>
+          <Modal onClick={closeModal}>
+            <CreateProgress
+              onSubmit={(data: string) => handleOnCreateProgressContainer(data)}
+            />
+          </Modal>
+        </Overlay>
+        <div className="flex flex-col gap-4">
+          {progressContainerData.map((progressContainer: any) => (
+            <ProgressContainer
+              key={progressContainer.id}
+              title={progressContainer.title}
+              progressContainerId={progressContainer.id}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
