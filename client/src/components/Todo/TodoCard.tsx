@@ -8,6 +8,7 @@ import { ITodo, ITodoPayload } from "../../types/types";
 import Todo from "./Todo";
 import { useDrop } from "react-dnd";
 import { ItemTypes } from "../../utils/ItemTypes";
+import { motion } from "framer-motion";
 
 interface TodoCardProps {
   id: string;
@@ -21,21 +22,80 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
   const [todoTitle, setTodoTitle] = useState("");
   const todoCardRef = useRef<any>(null);
 
+  const todoQuery = useQuery(["todo-query", id], async () => {
+    const { data } = await axios.get(`/todo/${todoContainerId}/${id}/todo`);
+    return data?.data;
+  });
+
+  const todoUpdateMutation = useMutation(
+    async ({ todoId, prevTodoCardId }: any) => {
+      const res = await axios.post(`/todo/${id}/${todoId}/update-todo-status`, {
+        status: title,
+      });
+      return { ...res, prevTodoCardId };
+    },
+    {
+      onMutate: async (newTodo) => {
+        await queryClient.cancelQueries(["todo-query", id]);
+        await queryClient.cancelQueries(["todo-query", newTodo.prevTodoCardId]);
+        const snapshotOfPrevTodoCard: any = queryClient.getQueryData([
+          "todo-query",
+          newTodo.prevTodoCardId,
+        ]);
+        const snapshotOfCurrTodoCard = queryClient.getQueryData([
+          "todo-query",
+          id,
+        ]);
+        const updateTodo = snapshotOfPrevTodoCard.find(
+          (todo: any) => todo.id === newTodo.todoId
+        );
+        updateTodo.status = title;
+        updateTodo.todoCardId = id;
+        queryClient.setQueryData(
+          ["todo-query", newTodo.prevTodoCardId],
+          (old: any) => old.filter((t: any) => t.id !== newTodo.todoId)
+        );
+        queryClient.setQueryData(["todo-query", id], (old: any) => [
+          ...old,
+          updateTodo,
+        ]);
+
+        return {
+          snapshotOfPrevTodoCard,
+          snapshotOfCurrTodoCard,
+        };
+      },
+      onSuccess: (data) => {
+        queryClient.invalidateQueries(["todo-query", id]);
+        queryClient.invalidateQueries(["todo-query", data.prevTodoCardId]);
+      },
+      onError: (error: any, data: any, context: any) => {
+        queryClient.setQueryData(
+          ["todo-query", id],
+          context.snapshotOfCurrTodoCard
+        );
+
+        queryClient.setQueryData(
+          ["todo-query", data.prevTodoCardId],
+          context.snapshotOfPrevTodoCard
+        );
+        cogoToast.error(error.message);
+      },
+    }
+  );
+
   const [{ isOver }, drop] = useDrop(() => ({
     accept: `${ItemTypes.Todo}--${todoContainerId}`,
     drop: (data: any) => {
       // if the todo is dropped in the same card then don't do anything at all
       if (data.todoCardId === id) return;
-
-      console.log("inside the drop data", data);
+      todoUpdateMutation.mutate({
+        todoId: data.id,
+        prevTodoCardId: data.todoCardId,
+      });
     },
     collect: (monitor) => ({ isOver: !!monitor.isOver() }),
   }));
-
-  const todoQuery = useQuery(["todo-query", id], async () => {
-    const res = await axios.get(`/todo/${todoContainerId}/${id}/todo`);
-    return res.data;
-  });
 
   const todoMutation = useMutation(
     async (payload: ITodoPayload) => {
@@ -62,7 +122,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
     event.preventDefault();
 
     if (!todoTitle) return;
-    todoMutation.mutate({ text: todoTitle });
+    todoMutation.mutate({ text: todoTitle, status: title });
     setTodoTitle("");
   };
 
@@ -70,10 +130,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
     setShowAddTodo(false);
   });
 
-  if (todoQuery.isLoading) {
-    return <h1>loading...</h1>;
-  }
-  const todoData = todoQuery.data?.data || [];
+  const todoData = todoQuery.data || [];
 
   return (
     <div
@@ -83,7 +140,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
       } rounded-md p-3`}
     >
       <h2 className="text-lg">{title}</h2>
-      <div className="flex flex-col gap-3">
+      <motion.div layout className="flex flex-col gap-3">
         {todoData.map((todo: ITodo) => (
           <Todo
             key={todo.id}
@@ -93,7 +150,8 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
           />
         ))}
         {showAddTodo ? (
-          <form
+          <motion.form
+            layout
             ref={todoCardRef}
             onSubmit={handleSubmit}
             className="flex flex-col gap-2"
@@ -122,9 +180,10 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
                 Cancel
               </button>
             </div>
-          </form>
+          </motion.form>
         ) : (
-          <button
+          <motion.button
+            layout
             className="flex mt-3 self-start items-center  gap-1 text-base hover:text-custom-light-green"
             onClick={(event) => {
               setShowAddTodo(true);
@@ -132,9 +191,9 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
           >
             <PlusIcon className="h-5" />
             Add a Todo
-          </button>
+          </motion.button>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };

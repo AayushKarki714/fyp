@@ -21,10 +21,14 @@ const TodoPage: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { workspaceId } = useAppSelector((state) => state.workspace);
 
-  const todoContainerQuery = useQuery("todo-container-query", async () => {
-    const res = await axios.get(`/todo/${workspaceId}/todo-container`);
-    return res.data;
-  });
+  const todoContainerQuery = useQuery(
+    "todo-container-query",
+    async () => {
+      const res = await axios.get(`/todo/${workspaceId}/todo-container`);
+      return res.data;
+    },
+    { enabled: !!workspaceId }
+  );
 
   const todoContainerMutation = useMutation(
     async (payload: CreateTodoContainerPayload) => {

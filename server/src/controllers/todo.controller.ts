@@ -103,7 +103,7 @@ const getAllTodoCardInTodoContainer: RequestHandler = async (req, res) => {
 };
 
 const handleCreateTodo: RequestHandler = async (req, res) => {
-  const { text } = req.body;
+  const { text, status } = req.body;
   const { todoContainerId, todoCardId } = req.params;
   if (!text)
     return res.status(400).json({ message: "Missing Required Field (text)" });
@@ -129,6 +129,7 @@ const handleCreateTodo: RequestHandler = async (req, res) => {
     const todo = await prisma.todo.create({
       data: {
         text,
+        status,
         dueDate: new Date(),
         todoCardId,
       },
@@ -173,6 +174,28 @@ const getAllTodosInTodoCard: RequestHandler = async (req, res) => {
   }
 };
 
+const handleUpdateTodoStatus: RequestHandler = async (req, res) => {
+  const { todoId, todoCardId } = req.params;
+  const { status } = req.body;
+  try {
+    const findTodo = await prisma.todo.findUnique({ where: { id: todoId } });
+    const deletedTodo = await prisma.todo.delete({ where: { id: todoId } });
+    console.log("deletedTodo", deletedTodo);
+    if (!deletedTodo || !findTodo)
+      return res.status(400).json({ message: "Not found my boi!!" });
+    const newTodo = await prisma.todo.create({
+      data: {
+        ...deletedTodo,
+        todoCardId: todoCardId,
+        status,
+      },
+    });
+    return res.status(200).json({ message: "Updated SucessFully", data: null });
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message, data: null });
+  }
+};
+
 export {
   handleCreateTodoContainer,
   getAllTodoContainer,
@@ -180,4 +203,5 @@ export {
   getAllTodoCardInTodoContainer,
   handleCreateTodo,
   getAllTodosInTodoCard,
+  handleUpdateTodoStatus,
 };

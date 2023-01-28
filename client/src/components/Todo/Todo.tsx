@@ -1,10 +1,11 @@
-import React, { useState, useRef } from "react";
-import useOnClickOutside from "../../hooks/useOnClickOutside";
+import React, { useState } from "react";
 import Modal from "../Modals/Modal";
 import Overlay from "../Modals/Overlay";
-import { PencilIcon } from "@heroicons/react/24/outline";
 import { useDrag } from "react-dnd/dist/hooks";
 import { ItemTypes } from "../../utils/ItemTypes";
+import { motion } from "framer-motion";
+import TodoEditModal from "../Modals/TodoEditModal";
+import { Formik } from "formik";
 
 interface TodoProps {
   title: string;
@@ -13,10 +14,8 @@ interface TodoProps {
 }
 
 const Todo: React.FC<TodoProps> = ({ title, todo, todoContainerId }) => {
+  const [editTitleMode, setEditTitleMode] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [todotext, setTodoText] = useState(title);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [showInput, setShowInput] = useState(false);
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: `${ItemTypes.Todo}--${todoContainerId}`,
@@ -27,42 +26,49 @@ const Todo: React.FC<TodoProps> = ({ title, todo, todoContainerId }) => {
   }));
 
   const closeModal = () => {
+    setEditTitleMode(false);
     setIsOpen(false);
   };
 
-  useOnClickOutside(inputRef, () => {
-    setShowInput(false);
-  });
+  const handleTitleSubmit = (values: any) => {
+    console.log("values", values);
+  };
 
   return (
     <>
       <Overlay isOpen={isOpen} onClick={closeModal}>
-        <Modal onClick={closeModal}>this is {title}</Modal>
+        <Modal onClick={closeModal}>
+          <div className="w-[400px] h-[400px]">
+            {editTitleMode ? (
+              <Formik
+                onSubmit={handleTitleSubmit}
+                initialValues={{ editTodoTitle: title }}
+              >
+                {(formik) => (
+                  <input
+                    id="edit-todo-title"
+                    className="bg-transparent border-none outline-none text-base text-white"
+                    {...formik.getFieldProps("editTodoTitle")}
+                  />
+                )}
+              </Formik>
+            ) : (
+              <h2 onDoubleClick={() => setEditTitleMode(true)}>{title}</h2>
+            )}
+          </div>
+        </Modal>
       </Overlay>
-      <div ref={drag}>
-        {showInput ? (
-          <input
-            type="text"
-            ref={inputRef}
-            value={todotext}
-            className="text-black"
-            onChange={(event) => setTodoText(event.target.value)}
-          />
-        ) : (
-          <p
-            onDoubleClick={() => setIsOpen(true)}
-            className="relative flex items-center text-base bg-custom-light-dark px-3 py-2  rounded-md hover:shadow cursor-pointer group"
-          >
-            {title}
-            <span
-              onClick={() => setShowInput(true)}
-              className="absolute right-2 top-2 bg-dark-gray p-1 hidden rounded-md  group-hover:block text-gray-400"
-            >
-              <PencilIcon className="h-4" />
-            </span>
-          </p>
-        )}
-      </div>
+      <motion.div>
+        <p
+          ref={drag}
+          onDoubleClick={() => setIsOpen(true)}
+          className={`relative flex items-center text-base ${
+            isDragging ? "bg-custom-light-green " : "bg-custom-light-dark"
+          } px-3 py-2  rounded-md hover:shadow cursor-pointer group`}
+        >
+          {title}
+        </p>
+      </motion.div>
     </>
   );
 };

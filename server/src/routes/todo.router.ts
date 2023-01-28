@@ -6,6 +6,7 @@ import {
   handleCreateTodo,
   handleCreateTodoCard,
   handleCreateTodoContainer,
+  handleUpdateTodoStatus,
 } from "../controllers/todo.controller";
 
 const todoRouter = express.Router();
@@ -35,5 +36,9 @@ todoRouter.post(
 todoRouter.post("/:todoContainerId/:todoCardId/create-todo", handleCreateTodo);
 todoRouter.get("/:todoContainerId/:todoCardId/todo", getAllTodosInTodoCard);
 todoRouter.post("/:todoContainerId/:todoCardId/create-todo", handleCreateTodo);
+todoRouter.post(
+  "/:todoCardId/:todoId/update-todo-status",
+  handleUpdateTodoStatus
+);
 
 export default todoRouter;

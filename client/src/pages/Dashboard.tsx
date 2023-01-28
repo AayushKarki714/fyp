@@ -22,7 +22,6 @@ const Dashboard: React.FC = () => {
   if (isLoading) {
     return <p>Loading...</p>;
   }
-  console.log("data", data);
   return (
     <section className="flex flex-col gap-4">
       <h2 className="text-2xl md:text-3xl">

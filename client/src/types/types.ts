@@ -17,6 +17,7 @@ interface ITodoCardPayload {
 
 interface ITodoPayload {
   text: string;
+  status: string;
 }
 
 interface ITodo {
