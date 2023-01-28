@@ -208,6 +208,21 @@ const handleUpdateTodoStatus: RequestHandler = async (req, res) => {
   }
 };
 
+const handleDeleteTodoContainer: RequestHandler = async (req, res) => {
+  const { workspaceId, todoContainerId } = req.params;
+  try {
+    const deletedTodoContainer = await prisma.todoContainer.delete({
+      where: { id: todoContainerId },
+    });
+    return res.status(200).json({
+      message: `${deletedTodoContainer.title} was SuccessFully Deleted`,
+      data: deletedTodoContainer,
+    });
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message, data: null });
+  }
+};
+
 export {
   handleCreateTodoContainer,
   getAllTodoContainer,
@@ -216,4 +231,5 @@ export {
   handleCreateTodo,
   getAllTodosInTodoCard,
   handleUpdateTodoStatus,
+  handleDeleteTodoContainer,
 };
