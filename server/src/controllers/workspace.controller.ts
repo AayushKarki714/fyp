@@ -36,11 +36,9 @@ const handleCreateWorkspace: RequestHandler = async function (req, res) {
 
   const lancersData = await Promise.all(lancers);
   const clientsData = await Promise.all(clients);
-  console.log("lancersData", lancersData);
-  console.log("clientsData", clientsData);
 
   try {
-    const members = await prisma.member.createMany({
+    await prisma.member.createMany({
       data: [
         {
           userId: (req.user as any).id,
@@ -79,4 +77,31 @@ const handleGetWorkspace: RequestHandler = async function (req, res) {
   return res.status(200).json({ data: workspaces });
 };
 
-export { handleCreateWorkspace, handleGetWorkspace };
+const handleDeleteWorkspace: RequestHandler = async (req, res) => {
+  const { workspaceId, userId } = req.params;
+
+  try {
+    const member = await prisma.member.findFirst({
+      where: { userId, workspaceId },
+    });
+
+    const isAdmin = member?.role === "ADMIN";
+
+    if (!isAdmin) {
+      return res
+        .status(403)
+        .json({ message: "Role must be admin to delete workspace" });
+    }
+    const deleteWorkspace = await prisma.workspace.delete({
+      where: { id: workspaceId },
+    });
+
+    return res
+      .status(200)
+      .json({ message: `${deleteWorkspace.name} was deleted Successfully!!` });
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+export { handleCreateWorkspace, handleGetWorkspace, handleDeleteWorkspace };

@@ -6,18 +6,49 @@ import useOnClickOutside from "../hooks/useOnClickOutside";
 import handleStopPropagation from "../utils/handleStopPropagation";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { switchWorkSpace } from "../redux/slices/workspaceSlice";
+import { useMutation, useQueryClient } from "react-query";
+import axios from "../api/axios";
 
 const Workspace: React.FC<any> = ({ logo, name, id, role }) => {
+  const queryClient = useQueryClient();
   const popUpRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch();
-  const workspace = useAppSelector((state) => state.workspace);
+  const { workspace, auth } = useAppSelector((state) => state);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  console.log("auth.user", auth.user);
 
-  useOnClickOutside(popUpRef, () => setIsPopupVisible(false));
+  const deleteWorkspaceMutation = useMutation(
+    async () => {
+      const res = await axios.delete(
+        `/workspace/${workspace.workspaceId}/${auth.user.id}`
+      );
+      console.log("res", res);
+      return res.data;
+    },
+    {
+      onSuccess: (success: any) => {
+        queryClient.invalidateQueries("workspace-query");
+        console.log("success", success);
+      },
+      onError: (error: any) => {
+        console.log("error", error);
+      },
+    }
+  );
+
   const isActive =
     workspace.workspaceId === id
       ? " border-custom-light-green z-10"
       : " border-transparent";
+
+  console.log("isPopupVisible", isPopupVisible);
+
+  const handleDeleteWorkspace = () => {
+    setIsPopupVisible(false);
+    deleteWorkspaceMutation.mutate();
+  };
+
+  useOnClickOutside(popUpRef, () => setIsPopupVisible(false));
 
   return (
     <motion.div
@@ -41,7 +72,6 @@ const Workspace: React.FC<any> = ({ logo, name, id, role }) => {
         <h2 className="text-xl">{name}</h2>
         {role === "ADMIN" && (
           <motion.div
-            ref={popUpRef}
             whileTap={{ scale: 0.96 }}
             onClick={() => setIsPopupVisible(!isPopupVisible)}
             className=" items-center justify-center rounded-full overflow-hidden w-7 h-7 hover:bg-dark-gray group select-none hidden group-hover:flex"
@@ -51,18 +81,26 @@ const Workspace: React.FC<any> = ({ logo, name, id, role }) => {
         )}
         {isPopupVisible && (
           <motion.div
+            ref={popUpRef}
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             onClick={handleStopPropagation}
             className="absolute flex flex-col gap-1 top-9 right-4 w-[200px]  bg-custom-light-dark border-2 border-dark-gray  rounded-md shadow-md  origin-top-right p-2"
           >
-            <div className="flex items-center gap-2 p-2 hover:bg-[#434343] rounded-md">
-              <PencilIcon className="h-4" />
-              <p className="text-sm">Rename</p>
+            <div className="flex  items-center gap-2 p-2 hover:bg-[#434343] rounded-md">
+              <button className="text-sm flex items-center gap-2">
+                <PencilIcon className="h-4" />
+                Rename
+              </button>
             </div>
-            <div className="flex items-center gap-2 p-2 hover:bg-[#434343] rounded-md">
-              <TrashIcon className="h-4" />
-              <p className="text-sm">Delete</p>
+            <div
+              onClick={handleDeleteWorkspace}
+              className="flex items-center gap-2 p-2 hover:bg-[#434343] rounded-md"
+            >
+              <button className="text-sm flex items-center gap-2 ">
+                <TrashIcon className="h-4" />
+                Delete
+              </button>
             </div>
           </motion.div>
         )}
