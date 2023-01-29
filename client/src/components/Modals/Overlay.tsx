@@ -15,7 +15,7 @@ const Overlay: React.FC<Props> = ({ children, isOpen, onClick }) => {
       {isOpen ? (
         <div
           onClick={onClick}
-          className="fixed flex justify-center items-center top-0 left-0 right-0 bottom-0 bg-[#000000cb]"
+          className="fixed flex justify-center items-center top-0 left-0 right-0 bottom-0 bg-[#000000cb] z-50"
         >
           {children}
         </div>

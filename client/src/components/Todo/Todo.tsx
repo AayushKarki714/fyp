@@ -4,7 +4,6 @@ import Overlay from "../Modals/Overlay";
 import { useDrag } from "react-dnd/dist/hooks";
 import { ItemTypes } from "../../utils/ItemTypes";
 import { motion } from "framer-motion";
-import { Formik } from "formik";
 
 interface TodoProps {
   title: string;
@@ -13,7 +12,8 @@ interface TodoProps {
 }
 
 const Todo: React.FC<TodoProps> = ({ title, todo, todoContainerId }) => {
-  const [editTitleMode, setEditTitleMode] = useState(false);
+  const [editTitleMode, setEditTitleMode] = useState<boolean>(false);
+  const [editTodoTitle, setEditTodoTitle] = useState<string>(title);
   const [isOpen, setIsOpen] = useState(false);
 
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -29,28 +29,18 @@ const Todo: React.FC<TodoProps> = ({ title, todo, todoContainerId }) => {
     setIsOpen(false);
   };
 
-  const handleTitleSubmit = (values: any) => {
-    console.log("values", values);
-  };
-
   return (
     <>
       <Overlay isOpen={isOpen} onClick={closeModal}>
         <Modal onClick={closeModal}>
           <div className="w-[400px] h-[400px]">
             {editTitleMode ? (
-              <Formik
-                onSubmit={handleTitleSubmit}
-                initialValues={{ editTodoTitle: title }}
-              >
-                {(formik) => (
-                  <input
-                    id="edit-todo-title"
-                    className="bg-transparent border-none outline-none text-base text-white"
-                    {...formik.getFieldProps("editTodoTitle")}
-                  />
-                )}
-              </Formik>
+              <input
+                id="edit-todo-title"
+                value={editTodoTitle}
+                onChange={(event) => setEditTodoTitle(event.target.value)}
+                className="bg-transparent border-none outline-none text-base text-white"
+              />
             ) : (
               <h2 onDoubleClick={() => setEditTitleMode(true)}>{title}</h2>
             )}

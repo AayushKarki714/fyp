@@ -104,4 +104,42 @@ const handleDeleteWorkspace: RequestHandler = async (req, res) => {
   }
 };
 
-export { handleCreateWorkspace, handleGetWorkspace, handleDeleteWorkspace };
+const handleUpdateWorkspaceTitle: RequestHandler = async (req, res) => {
+  const { name } = req.body;
+  const { workspaceId, userId } = req.params;
+
+  if (!name)
+    return res.status(400).json({ message: "Updated title can't be Emtpy" });
+
+  try {
+    const member = await prisma.member.findFirst({
+      where: { userId, workspaceId },
+    });
+
+    const isAdmin = member?.role === "ADMIN";
+
+    if (!isAdmin) {
+      return res
+        .status(403)
+        .json({ message: "Role must be admin to delete workspace" });
+    }
+
+    const updateWorkspace = await prisma.workspace.update({
+      data: { name },
+      where: { id: workspaceId },
+    });
+
+    return res
+      .status(200)
+      .json({ message: `${updateWorkspace.name} was updated Successfully!!` });
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+export {
+  handleCreateWorkspace,
+  handleGetWorkspace,
+  handleDeleteWorkspace,
+  handleUpdateWorkspaceTitle,
+};

@@ -27,4 +27,5 @@ export const workspaceSlice = createSlice({
 });
 
 export const { switchWorkSpace } = workspaceSlice.actions;
+export { Role };
 export default workspaceSlice.reducer;
