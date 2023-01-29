@@ -75,6 +75,17 @@ const handleCreateProgressBar: RequestHandler = async (req, res) => {
       .json({ messasge: "progressPercent is not in the currect Formatk" });
 
   try {
+    const findProgressByTitle = await prisma.progress.findFirst({
+      where: { title, progressContainerId },
+    });
+
+    if (findProgressByTitle)
+      return res.status(400).json({
+        message: `${findProgressByTitle.title} already Exists!!
+        `,
+        data: null,
+      });
+
     const progressBar = await prisma.progress.create({
       data: {
         title,
@@ -115,9 +126,6 @@ const getAllProgressInProgressContainer: RequestHandler = async (req, res) => {
 const handleDeleteProgressBarContainer: RequestHandler = async (req, res) => {
   const { progressContainerId } = req.params;
   try {
-    const deleteProgressBar = await prisma.progress.deleteMany({
-      where: { progressContainerId },
-    });
     const deleteProgressContainer = await prisma.progressContainer.delete({
       where: { id: progressContainerId },
     });

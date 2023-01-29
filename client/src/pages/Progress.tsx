@@ -16,6 +16,7 @@ import useOnClickOutside from "../hooks/useOnClickOutside";
 import ProgressBarModal from "../components/Modals/ProgressBarModal";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { error } from "console";
 
 interface ProgressBarProps {
   width: number;
@@ -149,8 +150,8 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
       return res;
     },
     {
-      onError: (data) => {
-        console.log("error", data);
+      onError: (error: any) => {
+        toast(error?.response?.data?.message, { position: "top-center" });
       },
       onSuccess: (data) => {
         if (data?.status === 201) {

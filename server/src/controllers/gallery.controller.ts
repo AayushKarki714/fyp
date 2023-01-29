@@ -85,12 +85,10 @@ const getAllPhotosInGalleryContainer: RequestHandler = async (req, res) => {
 const handleDeleteGalleryContainer: RequestHandler = async (req, res) => {
   const { galleryContainerId } = req.params;
   try {
-    const deletePhotos = await prisma.photo.deleteMany({
-      where: { galleryContainerId },
-    });
     const deleteGalleryContainer = await prisma.galleryContainer.delete({
       where: { id: galleryContainerId },
     });
+
     return res.status(200).json({
       message: `${deleteGalleryContainer.title} GalleryContainer was SuccessFully deleted`,
       data: getAllGalleryContainer,
@@ -98,7 +96,10 @@ const handleDeleteGalleryContainer: RequestHandler = async (req, res) => {
   } catch (error: any) {
     return res
       .status(400)
-      .json({ message: error.message || "Unexpected Error Encountered" });
+      .json({
+        message: error.message || "Unexpected Error Encountered",
+        data: null,
+      });
   }
 };
 
