@@ -119,7 +119,9 @@ const GalleryContainer: React.FC<GalleryContainerProps> = ({
     uploadImageMutation.mutate(formData);
   };
 
-  const handleGalleryTitleSubmit = (event: React.FormEvent) => {
+  const handleGalleryTitleSubmit = (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault();
     if (!galleryTitle) return toast("Please Fill the Required Field");
     updateGalleryTitleMutation.mutate({ title: galleryTitle });

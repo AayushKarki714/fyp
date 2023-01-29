@@ -209,7 +209,7 @@ const handleUpdateTodoStatus: RequestHandler = async (req, res) => {
 };
 
 const handleDeleteTodoContainer: RequestHandler = async (req, res) => {
-  const { workspaceId, todoContainerId } = req.params;
+  const { todoContainerId } = req.params;
   try {
     const deletedTodoContainer = await prisma.todoContainer.delete({
       where: { id: todoContainerId },
@@ -223,6 +223,35 @@ const handleDeleteTodoContainer: RequestHandler = async (req, res) => {
   }
 };
 
+const handleTodoTitleUpdate: RequestHandler = async (req, res) => {
+  const { title } = req.body;
+  const { todoContainerId } = req.params;
+
+  if (!title)
+    return res
+      .status(200)
+      .json({ message: "Missing Required Fields", data: null });
+
+  try {
+    const updateTodo = await prisma.todoContainer.update({
+      data: {
+        title,
+      },
+      where: {
+        id: todoContainerId,
+      },
+    });
+    return res.status(200).json({
+      message: `TodoContainer title SuccessFully Update to ${updateTodo.title}`,
+      data: updateTodo,
+    });
+  } catch (error: any) {
+    return res
+      .status(400)
+      .json({ message: error.message || "Unexpected Error Encountered" });
+  }
+};
+
 export {
   handleCreateTodoContainer,
   getAllTodoContainer,
@@ -232,4 +261,5 @@ export {
   getAllTodosInTodoCard,
   handleUpdateTodoStatus,
   handleDeleteTodoContainer,
+  handleTodoTitleUpdate,
 };

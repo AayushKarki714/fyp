@@ -78,7 +78,7 @@ model Photo {
 model TodoContainer {
     id          String     @id @default(uuid())
     title       String
-    workspace   Workspace  @relation(fields: [workspaceId], references: [id])
+    workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId String
     createdAt   DateTime   @default(now())
     TodoCard    TodoCard[]
@@ -88,7 +88,7 @@ model TodoCard {
     id              String        @id @default(uuid())
     title           String
     createdAt       DateTime      @default(now())
-    todoContainer   TodoContainer @relation(fields: [todoContainerId], references: [id])
+    todoContainer   TodoContainer @relation(fields: [todoContainerId], references: [id], onDelete: Cascade)
     todoContainerId String
     Todo            Todo[]
 }
@@ -99,7 +99,7 @@ model Todo {
     dueDate    DateTime
     status     String
     createdAt  DateTime @default(now())
-    todoCard   TodoCard @relation(fields: [todoCardId], references: [id])
+    todoCard   TodoCard @relation(fields: [todoCardId], references: [id], onDelete: Cascade)
     todoCardId String
 }
 

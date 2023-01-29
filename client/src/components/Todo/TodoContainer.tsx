@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import axios from "../../api/axios";
 import { useAppSelector } from "../../redux/store/hooks";
 import { useQueryClient, useQuery, useMutation } from "react-query";
 import TodoCard from "./TodoCard";
 import { ITodoCardPayload } from "../../types/types";
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { toast } from "react-toastify";
+import useOnClickOutside from "../../hooks/useOnClickOutside";
 
 interface TodoContainerProps {
   id: string;
@@ -14,7 +15,12 @@ interface TodoContainerProps {
 
 const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
   const queryClient = useQueryClient();
+  const todoContainerRef = useRef<HTMLDivElement>(null);
   const [todoCardTitle, setTodoCardTitle] = useState<string>("");
+  const [todoContainerTitle, setTodoContainerTitle] = useState<string>(
+    text || ""
+  );
+  const [editMode, setEditMode] = useState<boolean>(false);
   const [showTodoCard, setShowTodoCard] = useState<boolean>(false);
   const { workspaceId } = useAppSelector((state) => state.workspace);
 
@@ -22,6 +28,44 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
     const res = await axios.get(`/todo/${workspaceId}/${id}/todo-card`);
     return res.data;
   });
+
+  const deleteTodoContainerMutation = useMutation(
+    async () => {
+      const res = await axios.delete(`/todo/${id}/delete-todo-container`);
+      return res.data;
+    },
+    {
+      onError: (error: any) => {
+        console.log("error", error);
+      },
+      onSuccess: (data) => {
+        queryClient.invalidateQueries("todo-container-query");
+        toast(data?.message, { position: "bottom-right" });
+      },
+    }
+  );
+
+  const updateTodoContainerTitleMutation = useMutation(
+    async (payload: any) => {
+      const res = await axios.patch(
+        `/todo/${id}/update-todocontainer-title`,
+        payload
+      );
+      return res;
+    },
+    {
+      onError: (data) => {
+        console.log("error", data);
+      },
+      onSuccess: (data) => {
+        if (data.status === 200) {
+          queryClient.invalidateQueries("todo-container-query");
+          setEditMode(false);
+          toast(data?.data?.message, { position: "bottom-right" });
+        }
+      },
+    }
+  );
 
   const todoCardMutation = useMutation(
     async (payload: ITodoCardPayload) => {
@@ -51,6 +95,26 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
     todoCardMutation.mutate({ title: todoCardTitle });
   };
 
+  const handleDeleteTodoContainer = () => {
+    deleteTodoContainerMutation.mutate();
+  };
+
+  const handleTodoContainerTitleSubmit = (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    if (!todoContainerTitle)
+      return toast("TodoContainer Title can't be Empty!!", {
+        position: "top-center",
+      });
+    updateTodoContainerTitleMutation.mutate({ title: todoContainerTitle });
+  };
+
+  useOnClickOutside(todoContainerRef, () => {
+    setEditMode(false);
+    setTodoContainerTitle(text);
+  });
+
   if (todoCardQuery.isLoading) {
     return <h1>loading...</h1>;
   }
@@ -58,8 +122,34 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
 
   return (
     <>
-      <div className="flex flex-col gap-3 border-2 border-custom-light-dark p-3 rounded-md ">
-        <h2 className="text-2xl">{text}</h2>
+      <div
+        ref={todoContainerRef}
+        className="group flex flex-col gap-4 border-2 border-custom-light-dark p-3 rounded-md "
+      >
+        <div className="text-2xl flex justify-between items-center">
+          {editMode ? (
+            <form onSubmit={handleTodoContainerTitleSubmit}>
+              <input
+                type="text"
+                value={todoContainerTitle}
+                onChange={(event) => setTodoContainerTitle(event.target.value)}
+                className="outline-none bg-custom-light-dark px-2 py-1 text-base rounded-sm text-white"
+              />
+            </form>
+          ) : (
+            <h2 onClick={() => setEditMode(true)} className="text-2xl">
+              {text}
+            </h2>
+          )}
+          <div>
+            <button
+              onClick={handleDeleteTodoContainer}
+              className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
+            >
+              <TrashIcon className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
         <div className="grid grid-cols-responsive-todo items-start gap-3">
           {todoCardData.map(({ id, title, todoContainerId }: any) => (
             <TodoCard

@@ -47,7 +47,7 @@ const TodoPage: React.FC = () => {
         if (data?.status === 201) {
           queryClient.invalidateQueries("todo-container-query");
           setIsOpen(false);
-          toast(data?.data?.message);
+          toast(data?.data?.message, { position: "bottom-right" });
         }
       },
     }

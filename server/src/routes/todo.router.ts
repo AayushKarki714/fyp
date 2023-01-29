@@ -6,6 +6,8 @@ import {
   handleCreateTodo,
   handleCreateTodoCard,
   handleCreateTodoContainer,
+  handleDeleteTodoContainer,
+  handleTodoTitleUpdate,
   handleUpdateTodoStatus,
 } from "../controllers/todo.controller";
 
@@ -36,9 +38,20 @@ todoRouter.post(
 todoRouter.post("/:todoContainerId/:todoCardId/create-todo", handleCreateTodo);
 todoRouter.get("/:todoContainerId/:todoCardId/todo", getAllTodosInTodoCard);
 todoRouter.post("/:todoContainerId/:todoCardId/create-todo", handleCreateTodo);
+
 todoRouter.post(
   "/:todoCardId/:todoId/update-todo-status",
   handleUpdateTodoStatus
+);
+
+todoRouter.delete(
+  "/:todoContainerId/delete-todo-container",
+  handleDeleteTodoContainer
+);
+
+todoRouter.patch(
+  "/:todoContainerId/update-todocontainer-title",
+  handleTodoTitleUpdate
 );
 
 export default todoRouter;
