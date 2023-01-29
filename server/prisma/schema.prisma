@@ -23,7 +23,7 @@ model Workspace {
     id            String              @id @default(uuid())
     name          String
     logo          String
-    admin         User                @relation(fields: [adminId], references: [id])
+    admin         User                @relation(fields: [adminId], references: [id], onDelete: Cascade)
     adminId       String
     createdAt     DateTime            @default(now())
     Member        Member[]
@@ -34,18 +34,18 @@ model Workspace {
 
 model Member {
     id          String    @id @default(uuid())
-    user        User      @relation(fields: [userId], references: [id])
+    user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
     role        Role
     userId      String
     createdAt   DateTime  @default(now())
-    workspace   Workspace @relation(fields: [workspaceId], references: [id])
+    workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId String
 }
 
 model GalleryContainer {
     id          String    @id @default(uuid())
     title       String
-    workspace   Workspace @relation(fields: [workspaceId], references: [id])
+    workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId String
     createdAt   DateTime  @default(now())
     Photo       Photo[]
@@ -54,7 +54,7 @@ model GalleryContainer {
 model ProgressContainer {
     id          String     @id @default(uuid())
     title       String
-    workspace   Workspace  @relation(fields: [workspaceId], references: [id])
+    workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId String
     createdAt   DateTime   @default(now())
     Progress    Progress[]
@@ -64,14 +64,14 @@ model Progress {
     id                  String            @id @default(uuid())
     title               String
     progressPercent     Int
-    progressContainer   ProgressContainer @relation(fields: [progressContainerId], references: [id])
+    progressContainer   ProgressContainer @relation(fields: [progressContainerId], references: [id], onDelete: Cascade)
     progressContainerId String
 }
 
 model Photo {
     id                 String           @id @default(uuid())
     url                String
-    galleryContainer   GalleryContainer @relation(fields: [galleryContainerId], references: [id])
+    galleryContainer   GalleryContainer @relation(fields: [galleryContainerId], references: [id], onDelete: Cascade)
     galleryContainerId String
 }
 
