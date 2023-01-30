@@ -4,16 +4,19 @@ import Overlay from "../Modals/Overlay";
 import { useDrag } from "react-dnd/dist/hooks";
 import { ItemTypes } from "../../utils/ItemTypes";
 import { motion } from "framer-motion";
+import { formatDistance } from "date-fns";
 
 interface TodoProps {
   title: string;
-  todo: object;
+  todo: any;
   todoContainerId: string;
 }
 
 const Todo: React.FC<TodoProps> = ({ title, todo, todoContainerId }) => {
+  const { createdAt } = todo;
   const [editTitleMode, setEditTitleMode] = useState<boolean>(false);
   const [editTodoTitle, setEditTodoTitle] = useState<string>(title);
+  const [todoDescription, setTodoDescription] = useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
 
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -28,6 +31,10 @@ const Todo: React.FC<TodoProps> = ({ title, todo, todoContainerId }) => {
     setEditTitleMode(false);
     setIsOpen(false);
   };
+
+  const formatTime = formatDistance(new Date(createdAt), new Date(), {
+    addSuffix: true,
+  });
 
   return (
     <>
@@ -44,6 +51,18 @@ const Todo: React.FC<TodoProps> = ({ title, todo, todoContainerId }) => {
             ) : (
               <h2 onDoubleClick={() => setEditTitleMode(true)}>{title}</h2>
             )}
+            <h3>Created {formatTime}</h3>
+            <div>
+              <h3>Description:</h3>
+              <textarea
+                autoFocus
+                value={todoDescription}
+                placeholder="Enter a detailed description of the todo..."
+                className="w-full resize-none h-24 rounded-md bg-custom-light-dark px-3 py-2 text-base custom-scrollbar text-gray-300 shadow"
+                onChange={(event) => setTodoDescription(event.target.value)}
+              />
+            </div>
+            <input type="date" min={new Date().toString()} />
           </div>
         </Modal>
       </Overlay>

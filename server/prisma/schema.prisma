@@ -94,13 +94,15 @@ model TodoCard {
 }
 
 model Todo {
-    id         String   @id @default(uuid())
-    text       String
-    dueDate    DateTime
-    status     String
-    createdAt  DateTime @default(now())
-    todoCard   TodoCard @relation(fields: [todoCardId], references: [id], onDelete: Cascade)
-    todoCardId String
+    id             String    @id @default(uuid())
+    text           String
+    dueDate        DateTime
+    status         String
+    description    String?
+    completionDate DateTime?
+    createdAt      DateTime  @default(now())
+    todoCard       TodoCard  @relation(fields: [todoCardId], references: [id], onDelete: Cascade)
+    todoCardId     String
 }
 
 enum Role {
