@@ -178,6 +178,7 @@ const getAllTodosInTodoCard: RequestHandler = async (req, res) => {
         todoCardId,
       },
     });
+
     return res
       .status(200)
       .json({ message: "Todos Fetched SucessFully", data: todos });
@@ -192,10 +193,10 @@ const handleUpdateTodoStatus: RequestHandler = async (req, res) => {
   try {
     const findTodo = await prisma.todo.findUnique({ where: { id: todoId } });
     const deletedTodo = await prisma.todo.delete({ where: { id: todoId } });
-    console.log("deletedTodo", deletedTodo);
+
     if (!deletedTodo || !findTodo)
       return res.status(400).json({ message: "Not found my boi!!" });
-    const newTodo = await prisma.todo.create({
+    await prisma.todo.create({
       data: {
         ...deletedTodo,
         todoCardId: todoCardId,
