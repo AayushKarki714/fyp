@@ -400,6 +400,50 @@ const handleTodoCompletionUpdate: RequestHandler = async (req, res) => {
   }
 };
 
+const handleTodoCompletedUpdate: RequestHandler = async (req, res) => {
+  const completed = Boolean(req.body.completed);
+  const { todoCardId, todoId } = req.params;
+
+  try {
+    const todoCard = await prisma.todoCard.findUnique({
+      where: { id: todoCardId },
+    });
+
+    if (!todoCard)
+      return res.status(400).json({
+        message: "Invalid Todo Id was Provided, Not Found!!",
+        data: null,
+      });
+
+    const todo = await prisma.todo.findUnique({
+      where: { id_todoCardId: { id: todoId, todoCardId } },
+    });
+
+    if (!todo)
+      return res.status(400).json({
+        message:
+          "Invalid Todo Id, Todo was not Found in the Specified Todo card",
+        data: null,
+      });
+
+    const updateTodo = await prisma.todo.update({
+      data: {
+        completed,
+      },
+      where: {
+        id_todoCardId: { id: todoId, todoCardId },
+      },
+    });
+
+    return res.status(200).json({
+      message: `${updateTodo.text} was successfully completed`,
+      data: updateTodo,
+    });
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message, data: null });
+  }
+};
+
 export {
   handleCreateTodoContainer,
   getAllTodoContainer,
@@ -413,4 +457,5 @@ export {
   handleTodoTitleUpdate,
   handleTodoDescriptionUpdate,
   handleTodoCompletionUpdate,
+  handleTodoCompletedUpdate,
 };
