@@ -99,6 +99,7 @@ model Todo {
     dueDate        DateTime
     status         String
     description    String?
+    completed      Boolean   @default(false)
     completionDate DateTime?
     createdAt      DateTime  @default(now())
     todoCard       TodoCard  @relation(fields: [todoCardId], references: [id], onDelete: Cascade)
