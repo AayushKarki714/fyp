@@ -98,14 +98,16 @@ function TodoEditModal({ todo, title }: Props) {
     event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
-    console.log(
-      "This is the only thing that could be done and the nicest thing that could be done is the only one"
-    );
     if (!todoDescription)
       return toast("Edited Todo description can't be Empty!!", {
         position: "top-center",
       });
     updateDescriptionMutation.mutate({ description: todoDescription });
+  };
+
+  const changeDate = (date: Date) => {
+    console.log("date", date);
+    setEndDate(date);
   };
 
   const formatTime = formatDistance(new Date(createdAt), new Date(), {
@@ -206,9 +208,7 @@ function TodoEditModal({ todo, title }: Props) {
           maxDate={addMonths(new Date(createdAt), 1)}
           endDate={endDate}
           selectsEnd
-          onChange={(endDate: any) => {
-            setEndDate(endDate);
-          }}
+          onChange={changeDate}
         />
       </div>
       <div>

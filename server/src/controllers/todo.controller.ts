@@ -351,6 +351,55 @@ const handleTodoDescriptionUpdate: RequestHandler = async (req, res) => {
   }
 };
 
+const handleTodoCompletionUpdate: RequestHandler = async (req, res) => {
+  const { completionDate } = req.body;
+  const { todoCardId, todoId } = req.params;
+
+  if (!completionDate)
+    return res
+      .status(400)
+      .json({ message: "Updated  Completion date can't be Emtpy!!" });
+
+  try {
+    const todoCard = await prisma.todoCard.findUnique({
+      where: { id: todoCardId },
+    });
+
+    if (!todoCard)
+      return res.status(400).json({
+        message: "Invalid Todo Id was Provided, Not Found!!",
+        data: null,
+      });
+
+    const todo = await prisma.todo.findUnique({
+      where: { id_todoCardId: { id: todoId, todoCardId } },
+    });
+
+    if (!todo)
+      return res.status(400).json({
+        message:
+          "Invalid Todo Id, Todo was not Found in the Specified Todo card",
+        data: null,
+      });
+
+    const updateTodo = await prisma.todo.update({
+      data: {
+        completionDate: new Date(completionDate),
+      },
+      where: {
+        id_todoCardId: { id: todoId, todoCardId },
+      },
+    });
+
+    return res.status(200).json({
+      message: `Completion date was sucessfully assigned to ${completionDate}`,
+      data: updateTodo,
+    });
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message, data: null });
+  }
+};
+
 export {
   handleCreateTodoContainer,
   getAllTodoContainer,
@@ -363,4 +412,5 @@ export {
   handleTodoContainerTitleUpdate,
   handleTodoTitleUpdate,
   handleTodoDescriptionUpdate,
+  handleTodoCompletionUpdate,
 };

@@ -66,4 +66,9 @@ todoRouter.patch(
   handleTodoDescriptionUpdate
 );
 
+todoRouter.patch(
+  "/:todoCardId/:todoId/update-todo-completion-date",
+  handleTodoDescriptionUpdate
+);
+
 export default todoRouter;
