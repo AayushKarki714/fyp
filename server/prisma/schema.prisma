@@ -103,6 +103,8 @@ model Todo {
     createdAt      DateTime  @default(now())
     todoCard       TodoCard  @relation(fields: [todoCardId], references: [id], onDelete: Cascade)
     todoCardId     String
+
+    @@unique([id, todoCardId])
 }
 
 enum Role {

@@ -46,6 +46,8 @@ const Todo: React.FC<TodoProps> = ({ title, todo, todoContainerId }) => {
     setIsOpen(false);
   };
 
+  const handleTodoTitleUpdate = () => {};
+
   const formatTime = formatDistance(new Date(createdAt), new Date(), {
     addSuffix: true,
   });
@@ -64,12 +66,14 @@ const Todo: React.FC<TodoProps> = ({ title, todo, todoContainerId }) => {
           <div className="w-[550px] h-[400px]">
             <div className="flex flex-col gap-2 mb-4">
               {editTitleMode ? (
-                <input
-                  id="edit-todo-title"
-                  value={editTodoTitle}
-                  onChange={(event) => setEditTodoTitle(event.target.value)}
-                  className="bg-transparent border-none outline-none text-white text-2xl"
-                />
+                <form onSubmit={handleTodoTitleUpdate}>
+                  <input
+                    id="edit-todo-title"
+                    value={editTodoTitle}
+                    onChange={(event) => setEditTodoTitle(event.target.value)}
+                    className="bg-transparent border-none outline-none text-white text-2xl w-ful"
+                  />
+                </form>
               ) : (
                 <h2
                   className="text-2xl"
@@ -101,7 +105,7 @@ const Todo: React.FC<TodoProps> = ({ title, todo, todoContainerId }) => {
                 />
               ) : (
                 <div
-                  className="mt-1"
+                  className="mt-1 text-gray-400"
                   onClick={() => setEditDescriptionMode(true)}
                 >
                   <p>{todoDescription}</p>

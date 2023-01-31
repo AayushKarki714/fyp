@@ -224,7 +224,7 @@ const handleDeleteTodoContainer: RequestHandler = async (req, res) => {
   }
 };
 
-const handleTodoTitleUpdate: RequestHandler = async (req, res) => {
+const handleTodoContainerTitleUpdate: RequestHandler = async (req, res) => {
   const { title } = req.body;
   const { todoContainerId } = req.params;
 
@@ -253,6 +253,8 @@ const handleTodoTitleUpdate: RequestHandler = async (req, res) => {
   }
 };
 
+const handleTodoTitleUpdate: RequestHandler = (req, res) => {};
+
 export {
   handleCreateTodoContainer,
   getAllTodoContainer,
@@ -262,5 +264,5 @@ export {
   getAllTodosInTodoCard,
   handleUpdateTodoStatus,
   handleDeleteTodoContainer,
-  handleTodoTitleUpdate,
+  handleTodoContainerTitleUpdate,
 };
