@@ -8,6 +8,7 @@ import {
   handleCreateTodoContainer,
   handleDeleteTodoContainer,
   handleTodoContainerTitleUpdate,
+  handleTodoDescriptionUpdate,
   handleTodoTitleUpdate,
   handleUpdateTodoStatus,
 } from "../controllers/todo.controller";
@@ -58,6 +59,11 @@ todoRouter.patch(
 todoRouter.patch(
   "/:todoCardId/:todoId/update-todo-title",
   handleTodoTitleUpdate
+);
+
+todoRouter.patch(
+  "/:todoCardId/:todoId/update-todo-description",
+  handleTodoDescriptionUpdate
 );
 
 export default todoRouter;

@@ -1,8 +1,4 @@
 import React, { useRef, useState } from "react";
-import Modal from "../Modals/Modal";
-import Overlay from "../Modals/Overlay";
-import { useDrag } from "react-dnd/dist/hooks";
-import { ItemTypes } from "../../utils/ItemTypes";
 import { motion } from "framer-motion";
 import { addMonths, formatDistance } from "date-fns";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
@@ -25,7 +21,7 @@ interface ITitlePayload {
 
 function TodoEditModal({ todo, title }: Props) {
   const queryClient = useQueryClient();
-  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const descriptionRef = useRef<any>(null);
   const {
     createdAt,
     completionDate,
@@ -59,6 +55,7 @@ function TodoEditModal({ todo, title }: Props) {
       onSuccess: (data) => {
         setEditTitleMode(false);
         queryClient.invalidateQueries(["todo-query", todoCardId]);
+        toast(data?.message, { position: "top-center" });
         console.log("data", data);
       },
     }
@@ -103,7 +100,7 @@ function TodoEditModal({ todo, title }: Props) {
         )}
       </div>
       <h3 className="text-custom-light-green mb-4">Created {formatTime}</h3>
-      <div className="flex flex-col  mb-4 ">
+      <form className="flex flex-col  mb-4 ">
         <label
           htmlFor="todo-description"
           className="hover:text-custom-light-green"
@@ -111,15 +108,33 @@ function TodoEditModal({ todo, title }: Props) {
           Description:{" "}
         </label>
         {editDescriptionMode ? (
-          <textarea
-            ref={descriptionRef}
-            autoFocus
-            id="todo-description "
-            value={todoDescription}
-            placeholder="Enter a detailed description of the todo..."
-            className="w-full mt-2 resize-none h-24 rounded-md bg-custom-light-dark px-3 py-2 text-base custom-scrollbar text-gray-300 shadow"
-            onChange={(event) => setTodoDescription(event.target.value)}
-          />
+          <div ref={descriptionRef}>
+            <textarea
+              id="todo-description "
+              value={todoDescription}
+              placeholder="Enter a detailed description of the todo..."
+              className="w-full mt-2 resize-none h-24 rounded-md bg-custom-light-dark px-3 py-2 text-base custom-scrollbar text-gray-300 shadow"
+              onChange={(event) => setTodoDescription(event.target.value)}
+            />
+            <div className="flex justify-end items-center gap-3 mt-2">
+              <button
+                type="submit"
+                className="bg-[#8ad85c] text-black px-4 py-1 rounded-md font-medium disabled:cursor-not-allowed disabled:bg-slate-400 hover:opacity-90"
+              >
+                Save
+              </button>
+              {description && (
+                <button
+                  onClick={() => {
+                    setEditDescriptionMode(false);
+                  }}
+                  className="bg-[#8ad85c] text-black px-4 py-1 rounded-md font-medium disabled:cursor-not-allowed disabled:bg-slate-400 hover:opacity-90"
+                >
+                  cancel
+                </button>
+              )}
+            </div>
+          </div>
         ) : (
           <div
             className="mt-1 text-gray-400"
@@ -128,7 +143,7 @@ function TodoEditModal({ todo, title }: Props) {
             <p>{todoDescription}</p>
           </div>
         )}
-      </div>
+      </form>
       <div className="flex flex-col gap-2">
         <label
           htmlFor="date-picker"
