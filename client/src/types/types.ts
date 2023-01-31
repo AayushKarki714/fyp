@@ -22,6 +22,7 @@ interface ITodoPayload {
 
 interface ITodo {
   id: string;
+  todoCardId: string;
   text: string;
   completionDate: Date;
   createdAt: Date;

@@ -11,11 +11,13 @@ import {
   ClockIcon,
 } from "@heroicons/react/24/outline";
 import { differenceInDays } from "date-fns";
-import { useMutation } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import axios from "../../api/axios";
 import handleStopPropagation from "../../utils/handleStopPropagation";
 
 interface TodoProps {
+  id: string;
+  todoCardId: string;
   title: string;
   todo: any;
   todoContainerId: string;
@@ -25,13 +27,16 @@ interface TodoProps {
 }
 
 const Todo: React.FC<TodoProps> = ({
+  id,
   title,
+  todoCardId,
   todo,
   todoContainerId,
   createdAt,
   completionDate,
   completed,
 }) => {
+  const queryClient = useQueryClient();
   const [isChecked, setIsChecked] = useState<boolean>(completed);
   const [isHoveredDate, setIsHoveredDate] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -43,17 +48,15 @@ const Todo: React.FC<TodoProps> = ({
   const completeUpdateMutation = useMutation(
     async (payload: { completed: boolean }) => {
       const res = await axios.patch(
-        `/todo/${todo.todoCardId}/${todo.id}/update-todo-completed`,
+        `/todo/${todoCardId}/${id}/update-todo-completed`,
         payload
       );
       return res.data;
     },
     {
-      onError: (error) => {
-        console.log("error", error);
-      },
+      onError: (error) => {},
       onSuccess: (data) => {
-        console.log("data", data);
+        queryClient.invalidateQueries(["todo-query", todoCardId]);
       },
     }
   );
@@ -65,6 +68,7 @@ const Todo: React.FC<TodoProps> = ({
       isDragging: !!monitor.isDragging(),
     }),
   }));
+
   let display;
   let dateClassName = "";
   if (completionDate) {
@@ -72,9 +76,11 @@ const Todo: React.FC<TodoProps> = ({
       new Date(completionDate),
       new Date(createdAt)
     );
-    display = `${remainingDays} days`;
-    if (remainingDays > 15) {
+    display = `${remainingDays} ${remainingDays > 1 ? "days" : "day"}`;
+    if (completed) {
       dateClassName = "bg-green-600";
+    } else if (remainingDays > 15) {
+      dateClassName = "bg-blue-600";
     } else if (remainingDays > 10) {
       dateClassName = "bg-yellow-600";
     } else if (remainingDays > 4) {
@@ -92,7 +98,6 @@ const Todo: React.FC<TodoProps> = ({
     completeUpdateMutation.mutate({ completed: checked });
   };
 
-  console.log("display", display);
   return (
     <>
       <Overlay isOpen={isOpen} onClick={closeModal}>
@@ -117,13 +122,13 @@ const Todo: React.FC<TodoProps> = ({
               <button
                 onMouseEnter={() => setIsHoveredDate(true)}
                 onMouseLeave={() => setIsHoveredDate(false)}
-                className={`flex items-center ${dateClassName} gap-1 p-1 rounded-md `}
+                className={`flex items-center ${dateClassName}  gap-1 p-2 rounded-md `}
               >
                 {isHoveredDate ? (
                   <input
                     type="checkbox"
                     checked={isChecked}
-                    className="w-4 h-4 bg-red-600 outline-none"
+                    className="h-4 w-4 focus:ring-offset-0 border-white border-2  rounded-md bg-transparent focus:outline-none checked:outline-none checked:bg-green-600 hover:checked:bg-green-600  hover:checked:border-white checked:border-white active:outline-none focus:ring-transparent"
                     onChange={handleCheckChange}
                   />
                 ) : (
@@ -131,7 +136,7 @@ const Todo: React.FC<TodoProps> = ({
                 )}
                 {display}
               </button>
-              <button className="flex items-center gap-1 hover:bg-custom-black hover:text-custom-light-green p-1 rounded-md">
+              <button className="flex items-center gap-1 hover:bg-custom-black hover:text-custom-light-green p-2 rounded-md">
                 <ChatBubbleLeftEllipsisIcon className="h-4 w-4 " />
                 12
               </button>

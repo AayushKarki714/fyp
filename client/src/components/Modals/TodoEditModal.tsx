@@ -3,12 +3,13 @@ import { motion } from "framer-motion";
 import { addMonths, formatDistance } from "date-fns";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { FaceSmileIcon, PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { CalendarDaysIcon } from "@heroicons/react/24/outline";
 import { useMutation, useQueryClient } from "react-query";
 import axios from "../../api/axios";
 import { toast } from "react-toastify";
+// import "react-datepicker/dist/react-datepicker.css";
+import "../../styles/datepicker.css";
 
 interface Props {
   title: string;
@@ -37,10 +38,10 @@ function TodoEditModal({ todo, title }: Props) {
     id: todoId,
     todoCardId,
   } = todo;
-  const [startDate, setStartDate] = useState<Date | null>(new Date(createdAt));
-  const [endDate, setEndDate] = useState<Date | null>(
-    new Date(completionDate) || null
-  );
+  const [startDate] = useState<Date>(new Date(createdAt));
+  const [endDate, setEndDate] = useState<Date>(() => {
+    return completionDate ? new Date(completionDate) : new Date();
+  });
   const [editTitleMode, setEditTitleMode] = useState<boolean>(false);
   const [editTodoTitle, setEditTodoTitle] = useState<string>(title);
   const [todoDescription, setTodoDescription] = useState<string>(
@@ -188,7 +189,7 @@ function TodoEditModal({ todo, title }: Props) {
             <div className="flex justify-end items-center gap-3 mt-2">
               <button
                 type="submit"
-                className="bg-[#8ad85c] text-black px-4 py-1 rounded-md font-medium disabled:cursor-not-allowed disabled:bg-slate-400 hover:opacity-90"
+                className="bg-[#8ad85c]  text-black px-4 py-1 rounded-md font-medium disabled:cursor-not-allowed disabled:bg-slate-400 hover:opacity-90"
               >
                 Save
               </button>
@@ -225,16 +226,17 @@ function TodoEditModal({ todo, title }: Props) {
           </span>
         </label>
         <DatePicker
-          className="bg-custom-light-dark px-4 py-2  rounded-md"
           id="date-picker"
           selected={endDate}
+          endDate={endDate}
+          dateFormat="yyyy/MM/dd"
+          minDate={new Date(createdAt)}
+          onChange={changeDate}
+          className="bg-custom-light-dark px-4 py-2  rounded-md"
           startDate={startDate}
           placeholderText="Pick a Completion Date:"
-          minDate={new Date()}
           maxDate={addMonths(new Date(createdAt), 1)}
-          endDate={endDate}
           selectsEnd
-          onChange={changeDate}
         />
       </div>
       <div>

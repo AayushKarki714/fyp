@@ -131,7 +131,6 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
   });
 
   const todoData = todoQuery.data || [];
-  console.log("todoData", todoData);
 
   return (
     <>
@@ -148,6 +147,8 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
           {todoData.map((todo: ITodo) => (
             <Todo
               key={todo.id}
+              id={todo.id}
+              todoCardId={todo.todoCardId}
               title={todo.text}
               todo={todo}
               createdAt={todo.createdAt}
