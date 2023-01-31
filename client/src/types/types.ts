@@ -23,6 +23,8 @@ interface ITodoPayload {
 interface ITodo {
   id: string;
   text: string;
+  completionDate: Date;
+  createdAt: Date;
 }
 
 export type {

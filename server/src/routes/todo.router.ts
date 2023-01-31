@@ -7,6 +7,7 @@ import {
   handleCreateTodoCard,
   handleCreateTodoContainer,
   handleDeleteTodoContainer,
+  handleTodoCompletionUpdate,
   handleTodoContainerTitleUpdate,
   handleTodoDescriptionUpdate,
   handleTodoTitleUpdate,
@@ -68,7 +69,7 @@ todoRouter.patch(
 
 todoRouter.patch(
   "/:todoCardId/:todoId/update-todo-completion-date",
-  handleTodoDescriptionUpdate
+  handleTodoCompletionUpdate
 );
 
 export default todoRouter;

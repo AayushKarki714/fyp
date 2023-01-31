@@ -23,6 +23,10 @@ interface IDescriptionPayload {
   description: string;
 }
 
+interface ICompletionDatePayload {
+  completionDate: Date;
+}
+
 function TodoEditModal({ todo, title }: Props) {
   const queryClient = useQueryClient();
   const descriptionRef = useRef<any>(null);
@@ -34,7 +38,9 @@ function TodoEditModal({ todo, title }: Props) {
     todoCardId,
   } = todo;
   const [startDate, setStartDate] = useState<Date | null>(new Date(createdAt));
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(
+    new Date(completionDate) || null
+  );
   const [editTitleMode, setEditTitleMode] = useState<boolean>(false);
   const [editTodoTitle, setEditTodoTitle] = useState<string>(title);
   const [todoDescription, setTodoDescription] = useState<string>(
@@ -85,6 +91,26 @@ function TodoEditModal({ todo, title }: Props) {
     }
   );
 
+  const updateCompletionMutation = useMutation(
+    async (payload: ICompletionDatePayload) => {
+      const res = await axios.patch(
+        `/todo/${todoCardId}/${todoId}/update-todo-completion-date `,
+        payload
+      );
+      return res.data;
+    },
+    {
+      onError: (error) => {
+        console.log("error", error);
+      },
+      onSuccess: (data) => {
+        queryClient.invalidateQueries(["todo-query", todoCardId]);
+        toast(data?.message, { position: "top-center" });
+        console.log("data", data);
+      },
+    }
+  );
+
   const handleTodoTitleUpdate = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!editTodoTitle)
@@ -106,8 +132,8 @@ function TodoEditModal({ todo, title }: Props) {
   };
 
   const changeDate = (date: Date) => {
-    console.log("date", date);
     setEndDate(date);
+    updateCompletionMutation.mutate({ completionDate: date });
   };
 
   const formatTime = formatDistance(new Date(createdAt), new Date(), {

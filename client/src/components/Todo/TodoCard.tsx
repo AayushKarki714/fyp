@@ -150,7 +150,9 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
               key={todo.id}
               title={todo.text}
               todo={todo}
+              createdAt={todo.createdAt}
               todoContainerId={todoContainerId}
+              completionDate={todo.completionDate}
             />
           ))}
           {showAddTodo ? (
