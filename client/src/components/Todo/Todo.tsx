@@ -11,12 +11,16 @@ import {
   ClockIcon,
 } from "@heroicons/react/24/outline";
 import { differenceInDays } from "date-fns";
+import { useMutation } from "react-query";
+import axios from "../../api/axios";
+import handleStopPropagation from "../../utils/handleStopPropagation";
 
 interface TodoProps {
   title: string;
   todo: any;
   todoContainerId: string;
   createdAt: Date;
+  completed: boolean;
   completionDate: Date;
 }
 
@@ -26,14 +30,34 @@ const Todo: React.FC<TodoProps> = ({
   todoContainerId,
   createdAt,
   completionDate,
+  completed,
 }) => {
-  const [isChecked, setIsChecked] = useState<boolean>(false);
+  const [isChecked, setIsChecked] = useState<boolean>(completed);
   const [isHoveredDate, setIsHoveredDate] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState(false);
 
   const closeModal = () => {
     setIsOpen(false);
   };
+
+  const completeUpdateMutation = useMutation(
+    async (payload: { completed: boolean }) => {
+      const res = await axios.patch(
+        `/todo/${todo.todoCardId}/${todo.id}/update-todo-completed`,
+        payload
+      );
+      return res.data;
+    },
+    {
+      onError: (error) => {
+        console.log("error", error);
+      },
+      onSuccess: (data) => {
+        console.log("data", data);
+      },
+    }
+  );
+
   const [{ isDragging }, drag] = useDrag(() => ({
     type: `${ItemTypes.Todo}--${todoContainerId}`,
     item: { ...todo },
@@ -42,13 +66,31 @@ const Todo: React.FC<TodoProps> = ({
     }),
   }));
   let display;
-  const displayStyles = { backgroundColor: "#18191a", color: "#8ad85c" };
+  let dateClassName = "";
   if (completionDate) {
-    display =
-      differenceInDays(new Date(completionDate), new Date(createdAt)) + " days";
+    const remainingDays = differenceInDays(
+      new Date(completionDate),
+      new Date(createdAt)
+    );
+    display = `${remainingDays} days`;
+    if (remainingDays > 15) {
+      dateClassName = "bg-green-600";
+    } else if (remainingDays > 10) {
+      dateClassName = "bg-yellow-600";
+    } else if (remainingDays > 4) {
+      dateClassName = "bg-orange-600";
+    } else {
+      dateClassName = "bg-red-600";
+    }
   } else {
     display = null;
   }
+
+  const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = event.target.checked;
+    setIsChecked(checked);
+    completeUpdateMutation.mutate({ completed: checked });
+  };
 
   console.log("display", display);
   return (
@@ -68,18 +110,21 @@ const Todo: React.FC<TodoProps> = ({
         >
           <p>{title}</p>
           {completionDate ? (
-            <div className="text-xs flex gap-2 items-center">
+            <div
+              onClick={handleStopPropagation}
+              className="text-xs flex gap-2 items-center"
+            >
               <button
                 onMouseEnter={() => setIsHoveredDate(true)}
                 onMouseLeave={() => setIsHoveredDate(false)}
-                className="flex items-center gap-1 hover:bg-custom-black hover:text-custom-light-green p-1 rounded-md"
-                style={displayStyles}
+                className={`flex items-center ${dateClassName} gap-1 p-1 rounded-md `}
               >
                 {isHoveredDate ? (
                   <input
                     type="checkbox"
                     checked={isChecked}
-                    onChange={(event) => setIsChecked(event.target.checked)}
+                    className="w-4 h-4 bg-red-600 outline-none"
+                    onChange={handleCheckChange}
                   />
                 ) : (
                   <ClockIcon className="h-4 w-4 " />

@@ -25,6 +25,7 @@ interface ITodo {
   text: string;
   completionDate: Date;
   createdAt: Date;
+  completed: boolean;
 }
 
 export type {

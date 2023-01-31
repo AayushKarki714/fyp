@@ -151,6 +151,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
               title={todo.text}
               todo={todo}
               createdAt={todo.createdAt}
+              completed={todo.completed}
               todoContainerId={todoContainerId}
               completionDate={todo.completionDate}
             />

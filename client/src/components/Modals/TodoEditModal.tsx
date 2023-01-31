@@ -230,7 +230,7 @@ function TodoEditModal({ todo, title }: Props) {
           selected={endDate}
           startDate={startDate}
           placeholderText="Pick a Completion Date:"
-          minDate={new Date(createdAt)}
+          minDate={new Date()}
           maxDate={addMonths(new Date(createdAt), 1)}
           endDate={endDate}
           selectsEnd
