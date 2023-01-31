@@ -19,6 +19,10 @@ interface ITitlePayload {
   text: string;
 }
 
+interface IDescriptionPayload {
+  description: string;
+}
+
 function TodoEditModal({ todo, title }: Props) {
   const queryClient = useQueryClient();
   const descriptionRef = useRef<any>(null);
@@ -60,6 +64,26 @@ function TodoEditModal({ todo, title }: Props) {
       },
     }
   );
+  const updateDescriptionMutation = useMutation(
+    async (payload: IDescriptionPayload) => {
+      const res = await axios.patch(
+        `/todo/${todoCardId}/${todoId}/update-todo-description `,
+        payload
+      );
+      return res.data;
+    },
+    {
+      onError: (error) => {
+        console.log("error", error);
+      },
+      onSuccess: (data) => {
+        setEditDescriptionMode(false);
+        queryClient.invalidateQueries(["todo-query", todoCardId]);
+        toast(data?.message, { position: "top-center" });
+        console.log("data", data);
+      },
+    }
+  );
 
   const handleTodoTitleUpdate = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -68,6 +92,20 @@ function TodoEditModal({ todo, title }: Props) {
         position: "top-center",
       });
     updateTitleMutation.mutate({ text: editTodoTitle });
+  };
+
+  const handleTodoDescriptionlUpdate = (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    console.log(
+      "This is the only thing that could be done and the nicest thing that could be done is the only one"
+    );
+    if (!todoDescription)
+      return toast("Edited Todo description can't be Empty!!", {
+        position: "top-center",
+      });
+    updateDescriptionMutation.mutate({ description: todoDescription });
   };
 
   const formatTime = formatDistance(new Date(createdAt), new Date(), {
@@ -100,7 +138,10 @@ function TodoEditModal({ todo, title }: Props) {
         )}
       </div>
       <h3 className="text-custom-light-green mb-4">Created {formatTime}</h3>
-      <form className="flex flex-col  mb-4 ">
+      <form
+        onSubmit={handleTodoDescriptionlUpdate}
+        className="flex flex-col  mb-4 "
+      >
         <label
           htmlFor="todo-description"
           className="hover:text-custom-light-green"
@@ -126,6 +167,7 @@ function TodoEditModal({ todo, title }: Props) {
               {description && (
                 <button
                   onClick={() => {
+                    setTodoDescription(description);
                     setEditDescriptionMode(false);
                   }}
                   className="bg-[#8ad85c] text-black px-4 py-1 rounded-md font-medium disabled:cursor-not-allowed disabled:bg-slate-400 hover:opacity-90"
