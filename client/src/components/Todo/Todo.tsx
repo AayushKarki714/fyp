@@ -10,8 +10,8 @@ import {
   ChatBubbleLeftEllipsisIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
-import { differenceInDays } from "date-fns";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { differenceInDays, format, getDay, getMonth } from "date-fns";
+import { useMutation, useQueryClient } from "react-query";
 import axios from "../../api/axios";
 import handleStopPropagation from "../../utils/handleStopPropagation";
 
@@ -69,27 +69,39 @@ const Todo: React.FC<TodoProps> = ({
     }),
   }));
 
-  let display;
+  let daysLeft;
   let dateClassName = "";
+  let dateInDayMonthFormat = "";
+
   if (completionDate) {
+    const formattedCompletionDate = new Date(completionDate);
+    const formattedCreatedAtDate = new Date(createdAt);
+    const monthFormat = format(formattedCompletionDate, "LLL");
+    const dayFormat = format(formattedCompletionDate, "dd");
+
+    dateInDayMonthFormat = `${monthFormat} ${dayFormat}`;
+
     const remainingDays = differenceInDays(
-      new Date(completionDate),
-      new Date(createdAt)
+      formattedCompletionDate,
+      formattedCreatedAtDate
     );
-    display = `${remainingDays} ${remainingDays > 1 ? "days" : "day"}`;
+    daysLeft = `${remainingDays} ${remainingDays > 1 ? "days" : "day"}`;
+
     if (completed) {
       dateClassName = "bg-green-600";
-    } else if (remainingDays > 15) {
+    } else if (remainingDays >= 15) {
       dateClassName = "bg-blue-600";
-    } else if (remainingDays > 10) {
+    } else if (remainingDays >= 10) {
+      dateClassName = "bg-purple-600";
+    } else if (remainingDays >= 5) {
       dateClassName = "bg-yellow-600";
-    } else if (remainingDays > 4) {
+    } else if (remainingDays > 0) {
       dateClassName = "bg-orange-600";
     } else {
       dateClassName = "bg-red-600";
     }
   } else {
-    display = null;
+    daysLeft = null;
   }
 
   const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,7 +114,14 @@ const Todo: React.FC<TodoProps> = ({
     <>
       <Overlay isOpen={isOpen} onClick={closeModal}>
         <Modal onClick={closeModal}>
-          <TodoEditModal title={title} todo={todo} />
+          <TodoEditModal
+            completed={completed}
+            dateInDayMonthFormat={dateInDayMonthFormat}
+            daysLeft={daysLeft}
+            dateClass={dateClassName}
+            title={title}
+            todo={todo}
+          />
         </Modal>
       </Overlay>
       <motion.div>
@@ -123,6 +142,7 @@ const Todo: React.FC<TodoProps> = ({
                 onMouseEnter={() => setIsHoveredDate(true)}
                 onMouseLeave={() => setIsHoveredDate(false)}
                 className={`flex items-center ${dateClassName}  gap-1 p-2 rounded-md `}
+                title={daysLeft || ""}
               >
                 {isHoveredDate ? (
                   <input
@@ -134,7 +154,7 @@ const Todo: React.FC<TodoProps> = ({
                 ) : (
                   <ClockIcon className="h-4 w-4 " />
                 )}
-                {display}
+                {dateInDayMonthFormat}
               </button>
               <button className="flex items-center gap-1 hover:bg-custom-black hover:text-custom-light-green p-2 rounded-md">
                 <ChatBubbleLeftEllipsisIcon className="h-4 w-4 " />

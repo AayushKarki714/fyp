@@ -4,17 +4,22 @@ import { addMonths, formatDistance } from "date-fns";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
 import DatePicker from "react-datepicker";
 import { FaceSmileIcon, PaperAirplaneIcon } from "@heroicons/react/24/solid";
-import { CalendarDaysIcon } from "@heroicons/react/24/outline";
+import {
+  CalendarDaysIcon,
+  CheckCircleIcon,
+  ClockIcon,
+} from "@heroicons/react/24/outline";
 import { useMutation, useQueryClient } from "react-query";
 import axios from "../../api/axios";
 import { toast } from "react-toastify";
 // import "react-datepicker/dist/react-datepicker.css";
 import "../../styles/datepicker.css";
-
-interface Props {
-  title: string;
-  todo: any;
-}
+import EmojiPicker, {
+  EmojiClickData,
+  EmojiStyle,
+  Theme,
+} from "emoji-picker-react";
+import handleStopPropagation from "../../utils/handleStopPropagation";
 
 interface ITitlePayload {
   text: string;
@@ -28,7 +33,23 @@ interface ICompletionDatePayload {
   completionDate: Date;
 }
 
-function TodoEditModal({ todo, title }: Props) {
+interface Props {
+  title: string;
+  todo: any;
+  dateInDayMonthFormat: string;
+  daysLeft: string | null;
+  dateClass: string;
+  completed: boolean;
+}
+
+function TodoEditModal({
+  todo,
+  title,
+  dateInDayMonthFormat,
+  daysLeft,
+  dateClass,
+  completed,
+}: Props) {
   const queryClient = useQueryClient();
   const descriptionRef = useRef<any>(null);
   const {
@@ -38,6 +59,9 @@ function TodoEditModal({ todo, title }: Props) {
     id: todoId,
     todoCardId,
   } = todo;
+  const emojiRef = useRef<HTMLDivElement>(null);
+  const [contents, setContents] = useState<string>("");
+  const [showPicker, setShowPicker] = useState<boolean>(false);
   const [startDate] = useState<Date>(new Date(createdAt));
   const [endDate, setEndDate] = useState<Date>(() => {
     return completionDate ? new Date(completionDate) : new Date();
@@ -132,6 +156,14 @@ function TodoEditModal({ todo, title }: Props) {
     updateDescriptionMutation.mutate({ description: todoDescription });
   };
 
+  const handleCommentSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+  };
+
+  const onEmojiClick = (emojiObject: EmojiClickData, event: MouseEvent) => {
+    setContents(contents + emojiObject.emoji);
+  };
+
   const changeDate = (date: Date) => {
     setEndDate(date);
     updateCompletionMutation.mutate({ completionDate: date });
@@ -148,8 +180,12 @@ function TodoEditModal({ todo, title }: Props) {
     }
   });
 
+  useOnClickOutside(emojiRef, () => {
+    setShowPicker(false);
+  });
+
   return (
-    <div className="w-[550px] h-[400px]">
+    <div className="custom-scrollbar w-[550px] p-2 h-[400px] overflow-y-auto">
       <div className="flex flex-col gap-2 mb-4">
         {editTitleMode ? (
           <form onSubmit={handleTodoTitleUpdate}>
@@ -166,7 +202,25 @@ function TodoEditModal({ todo, title }: Props) {
           </h2>
         )}
       </div>
-      <h3 className="text-custom-light-green mb-4">Created {formatTime}</h3>
+      <button
+        className={`flex items-center gap-1 px-4 py-2 rounded-md hover:brightness-90 ${
+          completed ? "bg-green-600" : "bg-red-600"
+        } text-white mb-4`}
+        title={`${dateInDayMonthFormat} (${daysLeft} Left)`}
+      >
+        {completed ? (
+          <>
+            <CheckCircleIcon className="h-5 w-5 " />
+            Completed
+          </>
+        ) : (
+          <>
+            <ClockIcon className="h-5 w-5 " />
+            Due
+          </>
+        )}
+      </button>
+      <p className="text-custom-light-green mb-4">Created {formatTime}</p>
       <form
         onSubmit={handleTodoDescriptionlUpdate}
         className="flex flex-col  mb-4 "
@@ -239,21 +293,59 @@ function TodoEditModal({ todo, title }: Props) {
           selectsEnd
         />
       </div>
-      <div>
-        <form>
-          <input type="text" placeholder="Enter a comment in todo" />
-          <div className="flex gap-2 items-center">
-            <button>
-              <FaceSmileIcon className="h-5 w-5 text-gray-400" />
-            </button>
-            <motion.button
-              whileTap={{ scale: 0.94 }}
-              className="flex items-center justify-center rounded-lg cursor-pointer"
-            >
-              <PaperAirplaneIcon className="h-5 text-gray-400 " />
-            </motion.button>
-          </div>
+
+      <div className="mt-4 relative flex items-center gap-3 ">
+        <form
+          id="submit-message"
+          onSubmit={handleCommentSubmit}
+          className="flex items-center flex-grow"
+        >
+          <input
+            type="text"
+            value={contents}
+            onChange={(event) => setContents(event.target.value)}
+            placeholder="Enter a comment..."
+            className="py-2 pl-2 pr-10 border-2  border-dark-gray w-full bg-custom-light-dark text-gray-300 focus:outline-none text-sm rounded-2xl"
+          />
         </form>
+
+        <div
+          className="absolute right-12 flex items-center justify-center rounded-lg cursor-pointer"
+          onClick={() => setShowPicker(!showPicker)}
+        >
+          <FaceSmileIcon className="h-5 text-gray-400" />
+
+          {showPicker && (
+            <div
+              onClick={handleStopPropagation}
+              className="absolute bottom-16 right-12 text-base origin-bottom-right"
+            >
+              <EmojiPicker
+                width={300}
+                height={300}
+                theme={Theme.DARK}
+                searchDisabled={true}
+                skinTonesDisabled={true}
+                previewConfig={{
+                  showPreview: false,
+                }}
+                lazyLoadEmojis={true}
+                emojiStyle={EmojiStyle.FACEBOOK}
+                autoFocusSearch={false}
+                onEmojiClick={onEmojiClick}
+              />
+            </div>
+          )}
+        </div>
+
+        <motion.button
+          type="submit"
+          form="submit-message"
+          whileTap={{ scale: 0.94 }}
+          className="flex items-center justify-center rounded-lg cursor-pointer"
+        >
+          <PaperAirplaneIcon className="h-5 text-gray-400 " />
+        </motion.button>
       </div>
     </div>
   );
