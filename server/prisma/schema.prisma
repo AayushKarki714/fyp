@@ -17,6 +17,8 @@ model User {
     photo     String
     Member    Member[]
     Workspace Workspace[]
+    comments  Comment[]
+    likes     Like[]
 }
 
 model Workspace {
@@ -104,10 +106,37 @@ model Todo {
     completed      Boolean   @default(false)
     completionDate DateTime?
     createdAt      DateTime  @default(now())
+    comments       Comment[]
     todoCard       TodoCard  @relation(fields: [todoCardId], references: [id], onDelete: Cascade)
     todoCardId     String
 
     @@unique([id, todoCardId])
+}
+
+model Comment {
+    id        String    @id @default(uuid())
+    contents  String
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String
+    todo      Todo      @relation(fields: [todoId], references: [id], onDelete: Cascade)
+    todoId    String
+    parent    Comment?  @relation("ParentChild", fields: [parentId], references: [id], onDelete: Cascade)
+    children  Comment[] @relation("ParentChild")
+    parentId  String?
+    likes     Like[]
+}
+
+model Like {
+    id        String   @id @default(uuid())
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String
+    comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+    commentId String
+    createdAt DateTime @default(now())
+
+    @@unique([userId, commentId])
 }
 
 enum Role {

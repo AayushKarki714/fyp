@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import axios from "../../api/axios";
 import { useQueryClient, useQuery, useMutation } from "react-query";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { ITodo, ITodoPayload } from "../../types/types";
 import Todo from "./Todo";
 import { useDrop } from "react-dnd";
@@ -139,9 +139,14 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
           isOver
             ? "border-custom-light-green border-dotted"
             : "border-dark-gray"
-        } rounded-md p-3`}
+        } rounded-md p-3 group`}
       >
-        <h2 className="text-lg">{title}</h2>
+        <div>
+          <h2 className="text-lg">{title}</h2>
+          <button>
+            <TrashIcon className="h-4 w-4" />
+          </button>
+        </div>
         <div className="flex flex-col gap-3">
           {todoData.map((todo: ITodo) => (
             <Todo
