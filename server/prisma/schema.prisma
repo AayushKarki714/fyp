@@ -91,6 +91,8 @@ model TodoCard {
     todoContainer   TodoContainer @relation(fields: [todoContainerId], references: [id], onDelete: Cascade)
     todoContainerId String
     Todo            Todo[]
+
+    @@unique([id, todoContainerId])
 }
 
 model Todo {

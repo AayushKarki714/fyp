@@ -177,6 +177,9 @@ const getAllTodosInTodoCard: RequestHandler = async (req, res) => {
       where: {
         todoCardId,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return res
