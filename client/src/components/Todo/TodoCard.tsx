@@ -7,7 +7,6 @@ import { ITodo, ITodoPayload } from "../../types/types";
 import Todo from "./Todo";
 import { useDrop } from "react-dnd";
 import { ItemTypes } from "../../utils/ItemTypes";
-import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 
 interface TodoCardProps {
@@ -143,7 +142,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
         } rounded-md p-3`}
       >
         <h2 className="text-lg">{title}</h2>
-        <motion.div layout className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
           {todoData.map((todo: ITodo) => (
             <Todo
               key={todo.id}
@@ -158,8 +157,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
             />
           ))}
           {showAddTodo ? (
-            <motion.form
-              layout
+            <form
               ref={todoCardRef}
               onSubmit={handleSubmit}
               className="flex flex-col gap-2"
@@ -188,10 +186,9 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
                   Cancel
                 </button>
               </div>
-            </motion.form>
+            </form>
           ) : (
-            <motion.button
-              layout
+            <button
               className="flex mt-3 self-start items-center  gap-1 text-base hover:text-custom-light-green"
               onClick={(event) => {
                 setShowAddTodo(true);
@@ -199,9 +196,9 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
             >
               <PlusIcon className="h-5" />
               Add a Todo
-            </motion.button>
+            </button>
           )}
-        </motion.div>
+        </div>
       </div>
     </>
   );
