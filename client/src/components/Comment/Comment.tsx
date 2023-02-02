@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   PencilIcon,
   PencilSquareIcon,
@@ -6,42 +7,12 @@ import {
 } from "@heroicons/react/24/outline";
 import { HeartIcon } from "@heroicons/react/24/solid";
 import { formatDistance } from "date-fns";
-import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import axios from "../../api/axios";
 import { useAppSelector } from "../../redux/store/hooks";
 import CommentForm from "./CommentForm";
 import CommentList from "./CommentList";
-
-interface Props {
-  children?: React.ReactNode;
-  Icon: Function;
-  color?: string;
-  onClick?: (data: any) => void;
-  activeClass?: string;
-
-  type?: "button" | "submit";
-}
-
-function CommentButton({
-  type = "button",
-  children,
-  Icon,
-  color = "",
-  activeClass = "",
-  onClick = () => {},
-}: Props) {
-  return (
-    <button
-      onClick={onClick}
-      type={type}
-      className={`text-xs flex items-center gap-1 ${color}`}
-    >
-      <Icon className={`h-3 w-3 ${activeClass}`} />
-      <span>{children}</span>
-    </button>
-  );
-}
+import CommentButton from "./CommentButton";
 
 function Comment({
   contents,
@@ -69,7 +40,6 @@ function Comment({
   });
 
   const likedQueryData = likedQuery?.data?.data;
-  console.log("likedQueryData", likedQueryData);
 
   const timeFormatter = (createdAt: Date, updatedAt: Date) => {
     const isEqual =
@@ -238,47 +208,6 @@ function Comment({
           </div>
         </div>
       </div>
-      {/* <div className="comment">
-        <div className="header">
-          <img src={user.photo} alt={user.userName} />
-          <h2 className="name">{user.userName}</h2>
-          <span className="date">{createdAt.toString()}</span>
-        </div>
-      </div>
-      <div className="footer flex items-center gap-2">
-        <IconBtn
-          icon={<HeartIcon className="h-4 w-4 bg-red-600" />}
-          aria-label="like"
-        >
-          33
-        </IconBtn>
-        <IconBtn
-          isActive={isReplying}
-          Icon={<PencilIcon />}
-          onClick={() => setIsReplying(!isReplying)}
-          aria-label="reply"
-          children={"Pencil Icon"}
-        />
-
-        {user.id === id && (
-          <>
-            <IconBtn
-              onClick={() => setIsEditing((prev) => !prev)}
-              isActive={isEditing}
-              Icon={<PencilSquareIcon className="h-4 w-4 bg-purple-500" />}
-              aria-label={isEditing ? "Cancel Edit" : "Edit"}
-              children={"Pencil Square Icon"}
-            />
-            <IconBtn
-              Icon={<TrashIcon className="h-4 w-4 bg-red-500" />}
-              aria-label="Delete"
-              onClick={commentDeleteSubmit}
-              color="danger"
-              children={"Trash Icon"}
-            />
-          </>
-        )}
-      </div> */}
 
       {isEditing && (
         <CommentForm

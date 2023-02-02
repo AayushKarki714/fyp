@@ -76,14 +76,11 @@ function TodoEditModal({
       return res.data;
     },
     {
-      onError: (error) => {
-        console.log("error", error);
-      },
+      onError: (error) => {},
       onSuccess: (data) => {
         setEditTitleMode(false);
         queryClient.invalidateQueries(["todo-query", todoCardId]);
         toast(data?.message, { position: "top-center" });
-        console.log("data", data);
       },
     }
   );
@@ -96,14 +93,11 @@ function TodoEditModal({
       return res.data;
     },
     {
-      onError: (error) => {
-        console.log("error", error);
-      },
+      onError: (error) => {},
       onSuccess: (data) => {
         setEditDescriptionMode(false);
         queryClient.invalidateQueries(["todo-query", todoCardId]);
         toast(data?.message, { position: "top-center" });
-        console.log("data", data);
       },
     }
   );
@@ -117,13 +111,10 @@ function TodoEditModal({
       return res.data;
     },
     {
-      onError: (error) => {
-        console.log("error", error);
-      },
+      onError: (error) => {},
       onSuccess: (data) => {
         queryClient.invalidateQueries(["todo-query", todoCardId]);
         toast(data?.message, { position: "top-center" });
-        console.log("data", data);
       },
     }
   );
@@ -179,7 +170,6 @@ function TodoEditModal({
   const formatTime = formatDistance(new Date(createdAt), new Date(), {
     addSuffix: true,
   });
-  console.log("todo", todo);
 
   const createdCommentMutation = useMutation(
     async (data: any) => {
@@ -190,12 +180,9 @@ function TodoEditModal({
       return res.data;
     },
     {
-      onError: (error) => {
-        console.log("error", error);
-      },
+      onError: (error) => {},
       onSuccess: (data) => {
         queryClient.invalidateQueries(["single-todo", todo.id]);
-        console.log("sucess", data);
       },
     }
   );

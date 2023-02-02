@@ -575,9 +575,7 @@ const handleGetTodoCommentLikeCount: RequestHandler = async (req, res) => {
   try {
     const totalLikes = await prisma.like.groupBy({
       by: ["commentId"],
-      where: {
-        commentId,
-      },
+      where: { commentId },
       _count: {
         _all: true,
       },
@@ -590,7 +588,7 @@ const handleGetTodoCommentLikeCount: RequestHandler = async (req, res) => {
     return res.status(200).json({
       data: {
         likedByMe: Boolean(isLiked),
-        totalLikes: totalLikes[0]._count._all,
+        totalLikes: totalLikes[0]?._count?._all ?? 0,
       },
     });
   } catch (error: any) {
@@ -600,7 +598,6 @@ const handleGetTodoCommentLikeCount: RequestHandler = async (req, res) => {
 
 const handleToggleTodoCommentLikes: RequestHandler = async (req, res) => {
   const { userId, commentId } = req.params;
-  console.log("userId,commentId", userId, commentId);
   try {
     const isExist = await prisma.like.findUnique({
       where: { userId_commentId: { userId, commentId } },
