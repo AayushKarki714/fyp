@@ -10,7 +10,7 @@ import {
   ChatBubbleLeftEllipsisIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
-import { differenceInDays, format, getDay, getMonth } from "date-fns";
+import { differenceInDays, format } from "date-fns";
 import { useMutation, useQueryClient } from "react-query";
 import axios from "../../api/axios";
 import handleStopPropagation from "../../utils/handleStopPropagation";

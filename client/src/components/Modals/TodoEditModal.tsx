@@ -1,25 +1,19 @@
-import React, { useRef, useState } from "react";
-import { motion } from "framer-motion";
+import React, { useRef, useState, useMemo } from "react";
 import { addMonths, formatDistance } from "date-fns";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
 import DatePicker from "react-datepicker";
-import { FaceSmileIcon, PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import {
   CalendarDaysIcon,
   CheckCircleIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import axios from "../../api/axios";
 import { toast } from "react-toastify";
-// import "react-datepicker/dist/react-datepicker.css";
 import "../../styles/datepicker.css";
-import EmojiPicker, {
-  EmojiClickData,
-  EmojiStyle,
-  Theme,
-} from "emoji-picker-react";
-import handleStopPropagation from "../../utils/handleStopPropagation";
+import CommentForm from "../Comment/CommentForm";
+import { useAppSelector } from "../../redux/store/hooks";
+import CommentList from "../Comment/CommentList";
 
 interface ITitlePayload {
   text: string;
@@ -59,9 +53,6 @@ function TodoEditModal({
     id: todoId,
     todoCardId,
   } = todo;
-  const emojiRef = useRef<HTMLDivElement>(null);
-  const [contents, setContents] = useState<string>("");
-  const [showPicker, setShowPicker] = useState<boolean>(false);
   const [startDate] = useState<Date>(new Date(createdAt));
   const [endDate, setEndDate] = useState<Date>(() => {
     return completionDate ? new Date(completionDate) : new Date();
@@ -71,6 +62,7 @@ function TodoEditModal({
   const [todoDescription, setTodoDescription] = useState<string>(
     description || ""
   );
+  const { auth } = useAppSelector((state) => state);
   const [editDescriptionMode, setEditDescriptionMode] = useState<boolean>(
     !description
   );
@@ -136,6 +128,29 @@ function TodoEditModal({
     }
   );
 
+  const { data: commentsData } = useQuery(
+    ["single-todo", todo.id],
+    async () => {
+      const res = await axios.get(`/todo/${todo.id}/single-todo`);
+      return res.data?.data;
+    }
+  );
+
+  const commentsByParentId = useMemo(() => {
+    const group: Record<any, any> = {};
+    commentsData?.comments.forEach((comment: any) => {
+      group[comment.parentId] ||= [];
+      group[comment.parentId].push(comment);
+    });
+    return group;
+  }, [commentsData?.comments]);
+
+  function getReplies(parentId: string) {
+    return commentsByParentId[parentId];
+  }
+
+  let rootComments = commentsByParentId["null"];
+
   const handleTodoTitleUpdate = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!editTodoTitle)
@@ -156,14 +171,6 @@ function TodoEditModal({
     updateDescriptionMutation.mutate({ description: todoDescription });
   };
 
-  const handleCommentSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-  };
-
-  const onEmojiClick = (emojiObject: EmojiClickData, event: MouseEvent) => {
-    setContents(contents + emojiObject.emoji);
-  };
-
   const changeDate = (date: Date) => {
     setEndDate(date);
     updateCompletionMutation.mutate({ completionDate: date });
@@ -172,16 +179,35 @@ function TodoEditModal({
   const formatTime = formatDistance(new Date(createdAt), new Date(), {
     addSuffix: true,
   });
+  console.log("todo", todo);
 
+  const createdCommentMutation = useMutation(
+    async (data: any) => {
+      const res = await axios.post(
+        `/todo/${todo.id}/${auth.user.id}/comments`,
+        data
+      );
+      return res.data;
+    },
+    {
+      onError: (error) => {
+        console.log("error", error);
+      },
+      onSuccess: (data) => {
+        queryClient.invalidateQueries(["single-todo", todo.id]);
+        console.log("sucess", data);
+      },
+    }
+  );
+
+  const handleCreateComment = (data: any) => {
+    createdCommentMutation.mutate(data);
+  };
   useOnClickOutside(descriptionRef, () => {
     if (description) {
       setTodoDescription(description);
       setEditDescriptionMode(false);
     }
-  });
-
-  useOnClickOutside(emojiRef, () => {
-    setShowPicker(false);
   });
 
   return (
@@ -294,58 +320,18 @@ function TodoEditModal({
         />
       </div>
 
-      <div className="mt-4 relative flex items-center gap-3 ">
-        <form
-          id="submit-message"
-          onSubmit={handleCommentSubmit}
-          className="flex items-center flex-grow"
-        >
-          <input
-            type="text"
-            value={contents}
-            onChange={(event) => setContents(event.target.value)}
-            placeholder="Enter a comment..."
-            className="py-2 pl-2 pr-10 border-2  border-dark-gray w-full bg-custom-light-dark text-gray-300 focus:outline-none text-sm rounded-2xl"
-          />
-        </form>
-
-        <div
-          className="absolute right-12 flex items-center justify-center rounded-lg cursor-pointer"
-          onClick={() => setShowPicker(!showPicker)}
-        >
-          <FaceSmileIcon className="h-5 text-gray-400" />
-
-          {showPicker && (
-            <div
-              onClick={handleStopPropagation}
-              className="absolute bottom-16 right-12 text-base origin-bottom-right"
-            >
-              <EmojiPicker
-                width={300}
-                height={300}
-                theme={Theme.DARK}
-                searchDisabled={true}
-                skinTonesDisabled={true}
-                previewConfig={{
-                  showPreview: false,
-                }}
-                lazyLoadEmojis={true}
-                emojiStyle={EmojiStyle.FACEBOOK}
-                autoFocusSearch={false}
-                onEmojiClick={onEmojiClick}
-              />
-            </div>
-          )}
-        </div>
-
-        <motion.button
-          type="submit"
-          form="submit-message"
-          whileTap={{ scale: 0.94 }}
-          className="flex items-center justify-center rounded-lg cursor-pointer"
-        >
-          <PaperAirplaneIcon className="h-5 text-gray-400 " />
-        </motion.button>
+      <div className=" mt-8">
+        <h2 className="text-2xl text-gray-400">Comments:</h2>
+        {rootComments != null && rootComments.length > 0 && (
+          <div className="mt-2 flex flex-col gap-4">
+            <CommentList
+              todoId={todo.id}
+              getReplies={getReplies}
+              comments={rootComments}
+            />
+          </div>
+        )}
+        <CommentForm autoFocus onSubmit={handleCreateComment} />
       </div>
     </div>
   );

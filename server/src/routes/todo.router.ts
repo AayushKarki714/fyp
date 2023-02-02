@@ -1,22 +1,32 @@
-import express from "express";
+import express, { NextFunction } from "express";
 import {
   getAllTodoCardInTodoContainer,
   getAllTodoContainer,
   getAllTodosInTodoCard,
+  getSingleTodo,
   handleCreateTodo,
   handleCreateTodoCard,
+  handleCreateTodoComment,
   handleCreateTodoContainer,
   handleDeleteTodoContainer,
+  handleGetTodoCommentLikeCount,
   handleTodoCompletedUpdate,
   handleTodoCompletionUpdate,
   handleTodoContainerTitleUpdate,
+  handleTodoDeleteComment,
   handleTodoDescriptionUpdate,
   handleTodoTitleUpdate,
+  handleTodoUpdateComment,
+  handleToggleTodoCommentLikes,
   handleUpdateTodoStatus,
 } from "../controllers/todo.controller";
 
 const todoRouter = express.Router();
 
+todoRouter.post(
+  "/:userId/:commentId/comments/toggle",
+  handleToggleTodoCommentLikes
+);
 todoRouter.post(
   "/:workspaceId/create-todo-container",
   handleCreateTodoContainer
@@ -76,6 +86,22 @@ todoRouter.patch(
 todoRouter.patch(
   "/:todoCardId/:todoId/update-todo-completed",
   handleTodoCompletedUpdate
+);
+
+todoRouter.get("/:todoId/single-todo", getSingleTodo);
+todoRouter.post("/:todoId/:userId/comments", handleCreateTodoComment);
+todoRouter.post(
+  "/:todoId/:userId/comments/:commentId",
+  handleTodoUpdateComment
+);
+todoRouter.delete(
+  "/:todoId/:userId/comments/:commentId",
+  handleTodoDeleteComment
+);
+
+todoRouter.get(
+  "/:userId/:commentId/comments/get-like-count",
+  handleGetTodoCommentLikeCount
 );
 
 export default todoRouter;

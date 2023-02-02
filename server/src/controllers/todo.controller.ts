@@ -447,6 +447,182 @@ const handleTodoCompletedUpdate: RequestHandler = async (req, res) => {
   }
 };
 
+const getSingleTodo: RequestHandler = async (req, res) => {
+  const { todoId } = req.params;
+  try {
+    const todo = await prisma.todo.findUnique({
+      where: { id: todoId },
+      select: {
+        id: true,
+        text: true,
+        comments: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          select: {
+            id: true,
+            contents: true,
+            parentId: true,
+            createdAt: true,
+            updatedAt: true,
+            user: {
+              select: {
+                id: true,
+                userName: true,
+                photo: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return res.status(200).json({ message: "Fetched SucessFully", data: todo });
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message, data: null });
+  }
+};
+
+const handleCreateTodoComment: RequestHandler = async (req, res) => {
+  const { contents, parentId } = req.body;
+  const { todoId, userId } = req.params;
+
+  if (!contents)
+    return res.status(400).json({ message: "Comments is Required" });
+
+  if (userId !== (req.user as any).id)
+    return res.status(403).json({ message: "You are not allowed to Comment" });
+
+  try {
+    const comment = await prisma.comment.create({
+      data: {
+        contents,
+        userId,
+        todoId,
+        parentId: parentId || null,
+      },
+    });
+    return res
+      .status(201)
+      .json({ message: "Comment Created SucessFully", data: comment });
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+const handleTodoUpdateComment: RequestHandler = async (req, res) => {
+  const { contents } = req.body;
+  const { commentId } = req.params;
+  console.log("commentId", commentId);
+  if (!contents) {
+    return res.status(400).json({
+      message: "Missing nicet thing in the world Contents Required",
+      data: null,
+    });
+  }
+
+  try {
+    const user = await prisma.comment.findUnique({
+      where: { id: commentId },
+      select: { userId: true },
+    });
+
+    if (user?.userId !== (req.user as any).id) {
+      return res
+        .status(401)
+        .json("You don't have permission to edit the message ");
+    }
+
+    const updateComment = await prisma.comment.update({
+      where: { id: commentId },
+      data: { contents },
+    });
+    return res
+      .status(200)
+      .json({ message: "Comment Updated SucessFully", data: updateComment });
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message, data: null });
+  }
+};
+
+const handleTodoDeleteComment: RequestHandler = async (req, res) => {
+  const { commentId } = req.params;
+
+  try {
+    const user = await prisma.comment.findUnique({
+      where: { id: commentId },
+      select: { userId: true },
+    });
+
+    if (user?.userId !== (req.user as any).id) {
+      return res
+        .status(401)
+        .json("You don't have permission to edit the message ");
+    }
+
+    const deleteComment = await prisma.comment.delete({
+      where: { id: commentId },
+    });
+    return res
+      .status(200)
+      .json({ message: "Comment deleted SucessFully", data: deleteComment });
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message, data: null });
+  }
+};
+
+const handleGetTodoCommentLikeCount: RequestHandler = async (req, res) => {
+  const { commentId, userId } = req.params;
+  try {
+    const totalLikes = await prisma.like.groupBy({
+      by: ["commentId"],
+      where: {
+        commentId,
+      },
+      _count: {
+        _all: true,
+      },
+    });
+
+    const isLiked = await prisma.like.findUnique({
+      where: { userId_commentId: { userId, commentId } },
+    });
+
+    return res.status(200).json({
+      data: {
+        likedByMe: Boolean(isLiked),
+        totalLikes: totalLikes[0]._count._all,
+      },
+    });
+  } catch (error: any) {
+    return res.status(200).json({ message: error.message, data: null });
+  }
+};
+
+const handleToggleTodoCommentLikes: RequestHandler = async (req, res) => {
+  const { userId, commentId } = req.params;
+  console.log("userId,commentId", userId, commentId);
+  try {
+    const isExist = await prisma.like.findUnique({
+      where: { userId_commentId: { userId, commentId } },
+    });
+
+    if (!isExist) {
+      const like = await prisma.like.create({ data: { commentId, userId } });
+      return res
+        .status(201)
+        .json({ message: "Liked SuccessFully", data: like });
+    }
+    const deleteLike = await prisma.like.delete({
+      where: { userId_commentId: { userId, commentId } },
+    });
+    return res
+      .status(200)
+      .json({ message: "deleted SucessFully", data: deleteLike });
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message, data: null });
+  }
+};
+
 export {
   handleCreateTodoContainer,
   getAllTodoContainer,
@@ -461,4 +637,10 @@ export {
   handleTodoDescriptionUpdate,
   handleTodoCompletionUpdate,
   handleTodoCompletedUpdate,
+  handleCreateTodoComment,
+  getSingleTodo,
+  handleTodoUpdateComment,
+  handleTodoDeleteComment,
+  handleGetTodoCommentLikeCount,
+  handleToggleTodoCommentLikes,
 };

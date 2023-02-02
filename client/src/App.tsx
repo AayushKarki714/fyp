@@ -12,6 +12,7 @@ import { useAppDispatch } from "./redux/store/hooks";
 import { updateUser } from "./redux/slices/authSlice";
 import Setting from "./pages/Setting";
 import TodoPage from "./pages/Todo";
+import "./styles/comments.css";
 
 const Login = React.lazy(() => import("./pages/Login"));
 const NotFound = React.lazy(() => import("./pages/404"));
