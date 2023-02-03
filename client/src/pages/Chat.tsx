@@ -10,6 +10,7 @@ import EmojiPicker, {
 import { motion } from "framer-motion";
 import useOnClickOutside from "../hooks/useOnClickOutside";
 import handleStopPropagation from "../utils/handleStopPropagation";
+import useNavigateToDashboard from "../hooks/useNavigateToDashboard";
 
 const Chat: React.FC = () => {
   const emojiRef = useRef(null) as RefObject<HTMLDivElement>;
@@ -36,7 +37,7 @@ const Chat: React.FC = () => {
     setShowPicker(false);
   });
 
-  // useNavigateToDashboard();
+  useNavigateToDashboard();
 
   return (
     <div className="h-full flex rounded-md overflow-hidden border-2  border-custom-light-dark">

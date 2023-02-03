@@ -7,6 +7,8 @@ import { ITodoCardPayload } from "../../types/types";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { toast } from "react-toastify";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
+import verifyRole from "../../utils/verifyRole";
+import { Role } from "../../redux/slices/workspaceSlice";
 
 interface TodoContainerProps {
   id: string;
@@ -23,7 +25,8 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [showTodoCard, setShowTodoCard] = useState<boolean>(false);
   const { user } = useAppSelector((state) => state.auth);
-  const { workspaceId } = useAppSelector((state) => state.workspace);
+  const { workspaceId, role } = useAppSelector((state) => state.workspace);
+  const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
 
   const todoCardQuery = useQuery(["todo-card-query", id], async () => {
     const res = await axios.get(`/todo/${workspaceId}/${id}/todo-card`);
@@ -39,7 +42,7 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
     },
     {
       onError: (error: any) => {
-        console.log("error", error);
+        toast(error?.response?.data?.message);
       },
       onSuccess: (data) => {
         queryClient.invalidateQueries("todo-container-query");
@@ -57,8 +60,8 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
       return res;
     },
     {
-      onError: (data) => {
-        console.log("error", data);
+      onError: (error: any) => {
+        toast(error?.response?.data?.message);
       },
       onSuccess: (data) => {
         if (data.status === 200) {
@@ -130,7 +133,7 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
         className="group flex flex-col gap-4 border-2 border-custom-light-dark p-3 rounded-md "
       >
         <div className="text-2xl flex justify-between items-center">
-          {editMode ? (
+          {isAllowed && editMode ? (
             <form onSubmit={handleTodoContainerTitleSubmit}>
               <input
                 type="text"
@@ -144,14 +147,16 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
               {text}
             </h2>
           )}
-          <div>
-            <button
-              onClick={handleDeleteTodoContainer}
-              className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
-            >
-              <TrashIcon className="h-5 w-5" />
-            </button>
-          </div>
+          {isAllowed && (
+            <div>
+              <button
+                onClick={handleDeleteTodoContainer}
+                className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
+              >
+                <TrashIcon className="h-5 w-5" />
+              </button>
+            </div>
+          )}
         </div>
         <div className="grid grid-cols-responsive-todo items-start gap-3">
           {todoCardData.map(({ id, title, todoContainerId }: any) => (
@@ -163,40 +168,41 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
             />
           ))}
 
-          {showTodoCard ? (
-            <form onSubmit={handleFormSubmit} className="flex flex-col gap-2">
-              <textarea
-                autoFocus
-                value={todoCardTitle}
-                placeholder="Enter a title for todo card..."
-                onChange={(event) => setTodoCardTitle(event.target.value)}
-                className="w-full resize-none h-16 rounded-md bg-custom-light-dark px-3 py-2 text-base custom-scrollbar text-gray-300 shadow"
-              />
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  className="bg-custom-light-green  px-4 py-2 rounded-md text-black font-medium text-base"
-                >
-                  Add
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowTodoCard(false)}
-                  className="bg-custom-light-green  px-4 py-2 rounded-md text-black font-medium text-base"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          ) : (
-            <button
-              onClick={() => setShowTodoCard(true)}
-              className="flex gap-3 text-black px-4 py-2 items-center justify-center bg-custom-light-green text-base rounded-md"
-            >
-              <PlusIcon className="h-5 w-5" />
-              Add a Todo Card
-            </button>
-          )}
+          {isAllowed &&
+            (showTodoCard ? (
+              <form onSubmit={handleFormSubmit} className="flex flex-col gap-2">
+                <textarea
+                  autoFocus
+                  value={todoCardTitle}
+                  placeholder="Enter a title for todo card..."
+                  onChange={(event) => setTodoCardTitle(event.target.value)}
+                  className="w-full resize-none h-16 rounded-md bg-custom-light-dark px-3 py-2 text-base custom-scrollbar text-gray-300 shadow"
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    className="bg-custom-light-green  px-4 py-2 rounded-md text-black font-medium text-base"
+                  >
+                    Add
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowTodoCard(false)}
+                    className="bg-custom-light-green  px-4 py-2 rounded-md text-black font-medium text-base"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <button
+                onClick={() => setShowTodoCard(true)}
+                className="flex gap-3 text-black px-4 py-2 items-center justify-center bg-custom-light-green text-base rounded-md"
+              >
+                <PlusIcon className="h-5 w-5" />
+                Add a Todo Card
+              </button>
+            ))}
         </div>
       </div>
     </>

@@ -14,6 +14,8 @@ import "../../styles/datepicker.css";
 import CommentForm from "../Comment/CommentForm";
 import { useAppSelector } from "../../redux/store/hooks";
 import CommentList from "../Comment/CommentList";
+import { Role } from "../../redux/slices/workspaceSlice";
+import verifyRole from "../../utils/verifyRole";
 
 interface ITitlePayload {
   text: string;
@@ -63,7 +65,9 @@ function TodoEditModal({
     description || ""
   );
   const { user } = useAppSelector((state) => state.auth);
-  const { workspaceId } = useAppSelector((state) => state.workspace);
+  const { workspaceId, role } = useAppSelector((state) => state.workspace);
+  const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
+
   const [editDescriptionMode, setEditDescriptionMode] = useState<boolean>(
     !description
   );
@@ -77,7 +81,9 @@ function TodoEditModal({
       return res.data;
     },
     {
-      onError: (error) => {},
+      onError: (error: any) => {
+        toast(error?.response?.data?.message);
+      },
       onSuccess: (data) => {
         setEditTitleMode(false);
         queryClient.invalidateQueries(["todo-query", todoCardId]);
@@ -94,7 +100,9 @@ function TodoEditModal({
       return res.data;
     },
     {
-      onError: (error) => {},
+      onError: (error: any) => {
+        toast(error?.response?.data?.message);
+      },
       onSuccess: (data) => {
         setEditDescriptionMode(false);
         queryClient.invalidateQueries(["todo-query", todoCardId]);
@@ -112,7 +120,9 @@ function TodoEditModal({
       return res.data;
     },
     {
-      onError: (error) => {},
+      onError: (error: any) => {
+        toast(error?.response?.data?.message);
+      },
       onSuccess: (data) => {
         queryClient.invalidateQueries(["todo-query", todoCardId]);
         toast(data?.message, { position: "top-center" });
@@ -202,7 +212,7 @@ function TodoEditModal({
   return (
     <div className="custom-scrollbar w-[550px] p-2 h-[400px] overflow-y-auto">
       <div className="flex flex-col gap-2 mb-4">
-        {editTitleMode ? (
+        {isAllowed && editTitleMode ? (
           <form onSubmit={handleTodoTitleUpdate}>
             <input
               id="edit-todo-title"
@@ -217,6 +227,7 @@ function TodoEditModal({
           </h2>
         )}
       </div>
+
       <button
         className={`flex items-center gap-1 px-4 py-2 rounded-md hover:brightness-90 ${
           completed ? "bg-green-600" : "bg-red-600"
@@ -246,7 +257,7 @@ function TodoEditModal({
         >
           Description:{" "}
         </label>
-        {editDescriptionMode ? (
+        {isAllowed && editDescriptionMode ? (
           <div ref={descriptionRef}>
             <textarea
               id="todo-description "
@@ -298,6 +309,7 @@ function TodoEditModal({
           id="date-picker"
           selected={endDate}
           endDate={endDate}
+          disabled={isAllowed ? false : true}
           dateFormat="yyyy/MM/dd"
           minDate={new Date(createdAt)}
           onChange={changeDate}

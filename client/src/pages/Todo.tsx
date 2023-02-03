@@ -15,12 +15,14 @@ import TodoContainer from "../components/Todo/TodoContainer";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { toast } from "react-toastify";
+import { Role } from "../redux/slices/workspaceSlice";
+import verifyRole from "../utils/verifyRole";
 
 const TodoPage: React.FC = () => {
   const queryClient = useQueryClient();
   const { user } = useAppSelector((state) => state.auth);
   const [isOpen, setIsOpen] = useState(false);
-  const { workspaceId } = useAppSelector((state) => state.workspace);
+  const { workspaceId, role } = useAppSelector((state) => state.workspace);
 
   const todoContainerQuery = useQuery(
     "todo-container-query",
@@ -45,11 +47,9 @@ const TodoPage: React.FC = () => {
         console.log("error", error);
       },
       onSuccess: (data) => {
-        if (data?.status === 201) {
-          queryClient.invalidateQueries("todo-container-query");
-          setIsOpen(false);
-          toast(data?.data?.message, { position: "bottom-right" });
-        }
+        queryClient.invalidateQueries("todo-container-query");
+        setIsOpen(false);
+        toast(data?.data?.message, { position: "bottom-right" });
       },
     }
   );
@@ -65,16 +65,19 @@ const TodoPage: React.FC = () => {
   }
 
   const todoContainerData = todoContainerQuery.data?.data || [];
+  const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
 
   return (
     <>
       <section className="flex flex-col gap-3">
-        <button
-          className="flex items-center justify-center p-2 w-10 h-10 rounded-full ml-auto text-gray-400 hover:text-custom-light-green"
-          onClick={() => setIsOpen(true)}
-        >
-          <FolderPlusIcon className="h-6" />
-        </button>
+        {isAllowed && (
+          <button
+            className="flex items-center justify-center p-2 w-10 h-10 rounded-full ml-auto text-gray-400 hover:text-custom-light-green"
+            onClick={() => setIsOpen(true)}
+          >
+            <FolderPlusIcon className="h-6" />
+          </button>
+        )}
         <Overlay isOpen={isOpen} onClick={() => setIsOpen(false)}>
           <Modal onClick={() => setIsOpen(false)}>
             <CreateTodo onSubmit={handleOnCreateTodoContainer} />

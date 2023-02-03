@@ -21,7 +21,8 @@ const Progress: React.FC = () => {
     async () => {
       const res = await axios.get(`progress/${workspaceId}/progress-container`);
       return res;
-    }
+    },
+    { enabled: !!workspaceId }
   );
 
   const progressContainerMutation = useMutation(

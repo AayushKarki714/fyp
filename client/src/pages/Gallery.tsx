@@ -15,6 +15,17 @@ const Gallery: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { workspaceId } = useAppSelector((state) => state.workspace);
 
+  const galleryContainerQuery = useQuery(
+    "gallery-container-query",
+    async () => {
+      const res = await axios.get(`/gallery/${workspaceId}/gallery-container`);
+      return res;
+    },
+    {
+      enabled: !!workspaceId,
+    }
+  );
+
   const galleryContainerMutation = useMutation(
     async (payload: any) => {
       const res = await axios.post(
@@ -37,17 +48,6 @@ const Gallery: React.FC = () => {
           );
         }
       },
-    }
-  );
-
-  const galleryContainerQuery = useQuery(
-    "gallery-container-query",
-    async () => {
-      const res = await axios.get(`/gallery/${workspaceId}/gallery-container`);
-      return res;
-    },
-    {
-      cacheTime: 100,
     }
   );
 

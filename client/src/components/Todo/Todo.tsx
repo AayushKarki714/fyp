@@ -13,11 +13,12 @@ import {
 import { differenceInDays, format } from "date-fns";
 import { useMutation, useQueryClient } from "react-query";
 import axios from "../../api/axios";
-import handleStopPropagation from "../../utils/handleStopPropagation";
 import { useAppSelector } from "../../redux/store/hooks";
-import { visitLexicalEnvironment } from "typescript";
+import { toast } from "react-toastify";
+import { Role } from "../../redux/slices/workspaceSlice";
+import verifyRole from "../../utils/verifyRole";
 
-interface TodoProps {
+interface Props {
   id: string;
   todoCardId: string;
   title: string;
@@ -29,7 +30,7 @@ interface TodoProps {
   totalComments: number;
 }
 
-const Todo: React.FC<TodoProps> = ({
+const Todo: React.FC<Props> = ({
   id,
   title,
   todoCardId,
@@ -41,11 +42,13 @@ const Todo: React.FC<TodoProps> = ({
   totalComments,
 }) => {
   const queryClient = useQueryClient();
+
   const [isChecked, setIsChecked] = useState<boolean>(completed);
   const [isHoveredDate, setIsHoveredDate] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAppSelector((state) => state.auth);
-  const { workspaceId } = useAppSelector((state) => state.workspace);
+  const { workspaceId, role } = useAppSelector((state) => state.workspace);
+  const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
 
   const closeModal = () => {
     setIsOpen(false);
@@ -60,8 +63,9 @@ const Todo: React.FC<TodoProps> = ({
       return res.data;
     },
     {
-      onError: (error) => {
-        console.log(error);
+      onError: (error: any) => {
+        queryClient.invalidateQueries(["todo-query", todoCardId]);
+        toast(error?.response?.data?.message);
       },
       onSuccess: (data) => {
         queryClient.invalidateQueries(["todo-query", todoCardId]);
@@ -134,18 +138,15 @@ const Todo: React.FC<TodoProps> = ({
       </Overlay>
       <motion.div>
         <div
-          ref={drag}
+          ref={isAllowed ? drag : null}
           onDoubleClick={() => setIsOpen(true)}
-          className={`relative flex flex-col gap-1   text-base ${
+          className={`relative flex flex-col gap-1 select-none   text-base ${
             isDragging ? "bg-custom-light-green " : "bg-custom-light-dark"
           } px-3 py-2  rounded-md hover:shadow cursor-pointer group`}
         >
           <p>{title}</p>
           {completionDate ? (
-            <div
-              onClick={handleStopPropagation}
-              className="text-xs flex gap-2 items-center"
-            >
+            <div className="text-xs flex gap-2 items-center">
               <button
                 onMouseEnter={() => setIsHoveredDate(true)}
                 onMouseLeave={() => setIsHoveredDate(false)}
@@ -155,9 +156,9 @@ const Todo: React.FC<TodoProps> = ({
                 {isHoveredDate ? (
                   <input
                     type="checkbox"
-                    checked={isChecked}
+                    checked={isAllowed ? isChecked : false}
                     className="h-4 w-4 focus:ring-offset-0 border-white border-2  rounded-md bg-transparent focus:outline-none checked:outline-none checked:bg-green-600 hover:checked:bg-green-600  hover:checked:border-white checked:border-white active:outline-none focus:ring-transparent"
-                    onChange={handleCheckChange}
+                    onChange={isAllowed ? handleCheckChange : () => {}}
                   />
                 ) : (
                   <ClockIcon className="h-4 w-4 " />

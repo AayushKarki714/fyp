@@ -282,6 +282,28 @@ async function handleDeleteTodoContainer(
   });
 }
 
+async function handleDeleteTodoCard(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { todoContainerId, userId, workspaceId, todoCardId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+
+  const deleteTodoCard = await prisma.todoCard.delete({
+    where: {
+      id_todoContainerId: { id: todoCardId, todoContainerId },
+    },
+  });
+
+  return res.status(200).json({
+    message: `${deleteTodoCard?.title} was SuccessFully Deleted`,
+    data: deleteTodoCard,
+  });
+}
+
 async function handleTodoContainerTitleUpdate(
   req: Request,
   res: Response,
@@ -668,6 +690,7 @@ export {
   getAllTodosInTodoCard,
   handleUpdateTodoStatus,
   handleDeleteTodoContainer,
+  handleDeleteTodoCard,
   handleTodoContainerTitleUpdate,
   handleTodoTitleUpdate,
   handleTodoDescriptionUpdate,
