@@ -175,10 +175,42 @@ async function getAllTodosInTodoCard(
     where: {
       todoCardId,
     },
+    select: {
+      id: true,
+      text: true,
+      completed: true,
+      completionDate: true,
+      description: true,
+      status: true,
+      dueDate: true,
+      todoCardId: true,
+      createdAt: true,
+      _count: {
+        select: {
+          comments: true,
+        },
+      },
+    },
     orderBy: {
       createdAt: "desc",
     },
   });
+  console.log("todos", todos);
+
+  // const totalComments = todos.map(async (todo) => {
+  //   const commentCount = await prisma.comment.groupBy({
+  //     by: ["todoId"],
+  //     where: { todoId: todo.id },
+  //     _count: {
+  //       _all: true,
+  //     },
+  //   });
+  //   console.log(commentCount);
+  //   return commentCount[0].;
+  // });
+
+  // const finalData = await Promise.all(totalComments);
+  // console.log("finalData", finalData);
 
   return res
     .status(200)
@@ -484,9 +516,14 @@ async function handleTodoUpdateComment(
 ) {
   const { contents } = req.body;
   const { commentId } = req.params;
+  console.log(
+    "how the heck that thing is going through these thing I am so damn confused right now "
+  );
 
   if (!contents) {
-    throw new Api400Error("Missing nicet thing in the world Contents Required");
+    throw new Api400Error(
+      "Error Arose From the handleTodoUpdateComment Contents Required"
+    );
   }
 
   const user = await prisma.comment.findUnique({

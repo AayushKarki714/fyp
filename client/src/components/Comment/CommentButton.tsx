@@ -19,7 +19,7 @@ function CommentButton({
     <button
       onClick={onClick}
       type={type}
-      className={`text-xs flex items-center gap-1 ${color}`}
+      className={`text-xs flex items-center gap-1 ${color}  `}
     >
       <Icon className={`h-3 w-3 ${activeClass}`} />
       <span>{children}</span>

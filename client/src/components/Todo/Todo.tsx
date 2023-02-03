@@ -24,6 +24,7 @@ interface TodoProps {
   createdAt: Date;
   completed: boolean;
   completionDate: Date;
+  totalComments: number;
 }
 
 const Todo: React.FC<TodoProps> = ({
@@ -35,6 +36,7 @@ const Todo: React.FC<TodoProps> = ({
   createdAt,
   completionDate,
   completed,
+  totalComments,
 }) => {
   const queryClient = useQueryClient();
   const [isChecked, setIsChecked] = useState<boolean>(completed);
@@ -158,7 +160,7 @@ const Todo: React.FC<TodoProps> = ({
               </button>
               <button className="flex items-center gap-1 hover:bg-custom-black hover:text-custom-light-green p-2 rounded-md">
                 <ChatBubbleLeftEllipsisIcon className="h-4 w-4 " />
-                12
+                {totalComments}
               </button>
             </div>
           ) : null}

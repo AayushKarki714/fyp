@@ -27,6 +27,7 @@ interface ITodo {
   completionDate: Date;
   createdAt: Date;
   completed: boolean;
+  _count: any;
 }
 
 export type {

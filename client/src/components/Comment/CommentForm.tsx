@@ -91,19 +91,6 @@ function CommentForm({ autoFocus = false, onSubmit, initialValue = "" }: any) {
           <PaperAirplaneIcon className="h-5 text-gray-400 " />
         </motion.button>
       </div>
-      {/* <form onSubmit={handleSubmit} className="text-black">
-      <div className="comment-form-row">
-        <textarea
-          autoFocus={autoFocus}
-          value={contents}
-          onChange={(event) => setContents(event.target.value)}
-          className="message-input"
-        />
-        <button className="btn" type="submit">
-          Post
-        </button>
-      </div>
-    </form> */}
     </>
   );
 }

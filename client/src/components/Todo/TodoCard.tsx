@@ -159,6 +159,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
               completed={todo.completed}
               todoContainerId={todoContainerId}
               completionDate={todo.completionDate}
+              totalComments={todo?._count.comments}
             />
           ))}
           {showAddTodo ? (

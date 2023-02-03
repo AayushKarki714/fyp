@@ -1,9 +1,9 @@
 import { useState } from "react";
 import {
-  PencilIcon,
   PencilSquareIcon,
   TrashIcon,
   HeartIcon as OutlineHeartIcon,
+  ArrowUturnRightIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon } from "@heroicons/react/24/solid";
 import { formatDistance } from "date-fns";
@@ -116,8 +116,7 @@ function Comment({
   const toggleLikeMutation = useMutation(
     async () => {
       const res = await axios.post(
-        `/todo/${id}/${commentId}/comments/toggle`,
-        {}
+        `/todo/${id}/${commentId}/comment/toggle-like`
       );
       return res.data;
     },
@@ -160,7 +159,7 @@ function Comment({
               referrerPolicy="no-referrer"
             />{" "}
           </div>
-          <div className="flex flex-col gap-1 w-full rounded-md shadow-md">
+          <div className="flex flex-col gap-1 w-full rounded-md ">
             <div className="flex flex-col gap-1 p-2 rounded-md bg-custom-light-dark ">
               <h2 className="text-custom-light-green text-xs">
                 {user?.userName}
@@ -171,7 +170,7 @@ function Comment({
               <CommentButton
                 onClick={commentLikeToggleSubmit}
                 Icon={likedQueryData?.likedByMe ? HeartIcon : OutlineHeartIcon}
-                color={
+                activeClass={
                   likedQueryData?.likedByMe ? "text-custom-light-green" : ""
                 }
               >
@@ -179,15 +178,23 @@ function Comment({
                 {likedQueryData?.totalLikes < 2 ? " Like" : " Likes"}
               </CommentButton>
               <CommentButton
-                onClick={() => setIsReplying(!isReplying)}
-                Icon={PencilIcon}
+                onClick={() => {
+                  setIsEditing(false);
+                  setIsReplying(!isReplying);
+                }}
+                activeClass={isReplying ? "text-custom-light-green" : ""}
+                Icon={ArrowUturnRightIcon}
               >
                 Reply
               </CommentButton>
               {id === user.id ? (
                 <>
                   <CommentButton
-                    onClick={() => setIsEditing(!isEditing)}
+                    activeClass={isEditing ? "text-custom-light-green" : ""}
+                    onClick={() => {
+                      setIsReplying(false);
+                      setIsEditing(!isEditing);
+                    }}
                     Icon={PencilSquareIcon}
                   >
                     Edit

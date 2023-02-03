@@ -117,7 +117,7 @@ todoRouter.get(
 );
 
 todoRouter.post(
-  "/:userId/:commentId/comments/toggle",
+  "/:userId/:commentId/comment/toggle-like",
   catchAsyncErrors(handleToggleTodoCommentLikes)
 );
 

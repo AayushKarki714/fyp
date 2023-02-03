@@ -182,6 +182,7 @@ function TodoEditModal({
     {
       onError: (error) => {},
       onSuccess: (data) => {
+        queryClient.invalidateQueries("todo-query", todo.todoCardId);
         queryClient.invalidateQueries(["single-todo", todo.id]);
       },
     }
