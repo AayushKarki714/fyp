@@ -8,35 +8,39 @@ import {
   handleGalleryTitleUpdate,
   handleUploadImageInGallery,
 } from "../controllers/gallery.controller";
+import catchAsyncErrors from "../utils/catchAsyncErrors";
 
 const galleryRouter = express.Router();
 
 galleryRouter.post(
   "/:workspaceId/create-gallery-container",
-  handleCreateGalleryContainer
+  catchAsyncErrors(handleCreateGalleryContainer)
 );
 
-galleryRouter.get("/:workspaceId/gallery-container", getAllGalleryContainer);
+galleryRouter.get(
+  "/:workspaceId/gallery-container",
+  catchAsyncErrors(getAllGalleryContainer)
+);
 
 galleryRouter.post(
   "/:workspaceId/:galleryContainerId/upload-image",
   fileUpload({ createParentPath: true }),
-  handleUploadImageInGallery
+  catchAsyncErrors(handleUploadImageInGallery)
 );
 
 galleryRouter.get(
   "/:galleryContainerId/gallery-images",
-  getAllPhotosInGalleryContainer
+  catchAsyncErrors(getAllPhotosInGalleryContainer)
 );
 
 galleryRouter.delete(
   "/:galleryContainerId/delete-gallery-container",
-  handleDeleteGalleryContainer
+  catchAsyncErrors(handleDeleteGalleryContainer)
 );
 
 galleryRouter.patch(
   "/:galleryContainerId/update-gallery-title",
-  handleGalleryTitleUpdate
+  catchAsyncErrors(handleGalleryTitleUpdate)
 );
 
 export default galleryRouter;
