@@ -1,8 +1,13 @@
-import { RequestHandler } from "express";
+import { Request, Response, NextFunction } from "express";
 import path from "path";
 import prisma from "../utils/prisma";
+import BaseError from "../utils/baseError";
 
-const handleCreateWorkspace: RequestHandler = async function (req, res) {
+async function handleCreateWorkspace(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const { name, lancerValues, clientValues, adminId } = req.body;
   const files = req.files!;
   const file = files[Object.keys(files)[0]] as any;
@@ -37,31 +42,26 @@ const handleCreateWorkspace: RequestHandler = async function (req, res) {
   const lancersData = await Promise.all(lancers);
   const clientsData = await Promise.all(clients);
 
-  try {
-    await prisma.member.createMany({
-      data: [
-        {
-          userId: (req.user as any).id,
-          role: "ADMIN",
-          workspaceId: workspace.id,
-        },
-        ...lancersData,
-        ...clientsData,
-      ],
-    });
-  } catch (error) {
-    await prisma.workspace.delete({
-      where: {
-        id: workspace.id,
+  await prisma.member.createMany({
+    data: [
+      {
+        userId: (req.user as any).id,
+        role: "ADMIN",
+        workspaceId: workspace.id,
       },
-    });
-    return res.status(400).json({ message: (error as any).message });
-  }
+      ...lancersData,
+      ...clientsData,
+    ],
+  });
 
   return res.status(200).json({ workspace });
-};
+}
 
-const handleGetWorkspace: RequestHandler = async function (req, res) {
+async function handleGetWorkspace(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const { userId } = req.params;
   const workspaces = await prisma.member.findMany({
     where: {
@@ -75,67 +75,70 @@ const handleGetWorkspace: RequestHandler = async function (req, res) {
     },
   });
   return res.status(200).json({ data: workspaces });
-};
+}
 
-const handleDeleteWorkspace: RequestHandler = async (req, res) => {
+async function handleDeleteWorkspace(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const { workspaceId, userId } = req.params;
 
-  try {
-    const member = await prisma.member.findFirst({
-      where: { userId, workspaceId },
-    });
+  const member = await prisma.member.findFirst({
+    where: { userId, workspaceId },
+  });
 
-    const isAdmin = member?.role === "ADMIN";
+  const isAdmin = member?.role === "ADMIN";
 
-    if (!isAdmin) {
-      return res
-        .status(403)
-        .json({ message: "Role must be admin to delete workspace" });
-    }
-    const deleteWorkspace = await prisma.workspace.delete({
-      where: { id: workspaceId },
-    });
-
+  if (!isAdmin) {
     return res
-      .status(200)
-      .json({ message: `${deleteWorkspace.name} was deleted Successfully!!` });
-  } catch (error: any) {
-    return res.status(400).json({ message: error.message });
+      .status(403)
+      .json({ message: "Role must be admin to delete workspace" });
   }
-};
 
-const handleUpdateWorkspaceTitle: RequestHandler = async (req, res) => {
+  const deleteWorkspace = await prisma.workspace.delete({
+    where: { id: workspaceId },
+  });
+
+  return res
+    .status(200)
+    .json({ message: `${deleteWorkspace.name} was deleted Successfully!!` });
+}
+
+async function handleUpdateWorkspaceTitle(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const { name } = req.body;
   const { workspaceId, userId } = req.params;
 
   if (!name)
     return res.status(400).json({ message: "Updated title can't be Emtpy" });
 
-  try {
-    const member = await prisma.member.findFirst({
-      where: { userId, workspaceId },
-    });
+  const member = await prisma.member.findFirst({
+    where: { userId, workspaceId },
+  });
 
-    const isAdmin = member?.role === "ADMIN";
+  const isAdmin = member?.role === "ADMIN";
 
-    if (!isAdmin) {
-      return res
-        .status(403)
-        .json({ message: "Role must be admin to delete workspace" });
-    }
-
-    const updateWorkspace = await prisma.workspace.update({
-      data: { name },
-      where: { id: workspaceId },
-    });
-
-    return res
-      .status(200)
-      .json({ message: `${updateWorkspace.name} was updated Successfully!!` });
-  } catch (error: any) {
-    return res.status(400).json({ message: error.message });
+  if (!isAdmin) {
+    throw new BaseError(
+      "Role must be admin to delete workspace",
+      "nice world and the thing",
+      403,
+      true
+    );
   }
-};
+  const updateWorkspace = await prisma.workspace.update({
+    data: { name },
+    where: { id: workspaceId },
+  });
+
+  return res
+    .status(200)
+    .json({ message: `${updateWorkspace.name} was updated Successfully!!` });
+}
 
 export {
   handleCreateWorkspace,

@@ -11,6 +11,11 @@ import galleryRouter from "./routes/gallery.router";
 import progressRouter from "./routes/progress.router";
 import verifyAuth from "./middlewares/verifyAuth.middlware";
 import todoRouter from "./routes/todo.router";
+import {
+  globalErrorHandler,
+  isOperationalError,
+  logError,
+} from "./utils/errorHandler";
 
 const AUTH_OPTIONS = {
   clientID: process.env.CLIENT_ID!,
@@ -73,5 +78,17 @@ app.use("/workspace", workspaceRouter);
 app.use("/gallery", galleryRouter);
 app.use("/progress", progressRouter);
 app.use("/todo", todoRouter);
+app.use(globalErrorHandler);
+
+process.on("unhandledRejection", (error: Error) => {
+  throw error;
+});
+
+process.on("uncaughtException", (error: Error) => {
+  logError(error);
+  if (!isOperationalError(error)) {
+    process.exit(1);
+  }
+});
 
 export default app;

@@ -6,20 +6,29 @@ import {
   handleUpdateWorkspaceTitle,
 } from "../controllers/workspace.controller";
 import fileUpload from "express-fileupload";
+import catchAsyncErrors from "../utils/catchAsyncErrors";
 
 const workspaceRouter = express.Router();
 
 workspaceRouter.post(
   "/create-workspace",
   fileUpload({ createParentPath: true }),
-  handleCreateWorkspace
+  catchAsyncErrors(handleCreateWorkspace)
 );
 
 workspaceRouter.patch(
   "/:workspaceId/:userId/update-workspace-name",
-  handleUpdateWorkspaceTitle
+  catchAsyncErrors(handleUpdateWorkspaceTitle)
 );
-workspaceRouter.get("/workspaces/:userId", handleGetWorkspace);
-workspaceRouter.delete("/:workspaceId/:userId", handleDeleteWorkspace);
+
+workspaceRouter.get(
+  "/workspaces/:userId",
+  catchAsyncErrors(handleGetWorkspace)
+);
+
+workspaceRouter.delete(
+  "/:workspaceId/:userId",
+  catchAsyncErrors(handleDeleteWorkspace)
+);
 
 export default workspaceRouter;
