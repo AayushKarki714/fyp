@@ -15,6 +15,7 @@ import CommentList from "./CommentList";
 import CommentButton from "./CommentButton";
 
 function Comment({
+  todo,
   contents,
   user,
   createdAt,
@@ -73,6 +74,7 @@ function Comment({
         console.log("error", error);
       },
       onSuccess: (data) => {
+        queryClient.invalidateQueries(["todo-query", todo.todoCardId]);
         queryClient.invalidateQueries(["single-todo"], todoId);
       },
     }
@@ -92,6 +94,7 @@ function Comment({
         console.log("error", error);
       },
       onSuccess: (data) => {
+        queryClient.invalidateQueries(["todo-query", todo.todoCardId]);
         queryClient.invalidateQueries(["single-todo"], todoId);
       },
     }
@@ -108,6 +111,7 @@ function Comment({
         console.log("error", error);
       },
       onSuccess: (data) => {
+        queryClient.invalidateQueries(["todo-query", todo.todoCardId]);
         queryClient.invalidateQueries(["single-todo"], todoId);
       },
     }
@@ -125,6 +129,7 @@ function Comment({
         console.log("error", error);
       },
       onSuccess: (data) => {
+        queryClient.invalidateQueries(["todo-query", todo.todoCardId]);
         queryClient.invalidateQueries(["like-query"], commentId);
       },
     }
@@ -238,6 +243,7 @@ function Comment({
             />
             <div className="nested-comments">
               <CommentList
+                todo={todo}
                 todoId={todoId}
                 getReplies={getReplies}
                 comments={childComments || []}

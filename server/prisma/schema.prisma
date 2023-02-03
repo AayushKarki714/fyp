@@ -42,6 +42,8 @@ model Member {
     createdAt   DateTime  @default(now())
     workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId String
+
+    @@unique([workspaceId, userId])
 }
 
 model GalleryContainer {

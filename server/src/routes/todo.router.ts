@@ -25,7 +25,7 @@ import catchAsyncErrors from "../utils/catchAsyncErrors";
 const todoRouter = express.Router();
 
 todoRouter.post(
-  "/:workspaceId/create-todo-container",
+  "/:userId/:workspaceId/create-todo-container",
   catchAsyncErrors(handleCreateTodoContainer)
 );
 

@@ -10,7 +10,13 @@ async function handleCreateTodoContainer(
   next: NextFunction
 ) {
   const { title } = req.body;
-  const { workspaceId } = req.params;
+  const { workspaceId, userId } = req.params;
+
+  if (userId !== (req.user as any).id) {
+    throw new Api401Error(
+      "You are not Authorized to do the following Actions!!"
+    );
+  }
 
   const findByTitle = await prisma.todoContainer.findFirst({
     where: {

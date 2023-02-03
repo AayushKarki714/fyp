@@ -313,6 +313,7 @@ function TodoEditModal({
         {rootComments != null && rootComments.length > 0 && (
           <div className="mt-2 flex flex-col gap-4">
             <CommentList
+              todo={todo}
               todoId={todo.id}
               getReplies={getReplies}
               comments={rootComments}

@@ -141,9 +141,9 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
             : "border-dark-gray"
         } rounded-md p-3 group`}
       >
-        <div>
+        <div className="flex items-center justify-between group ">
           <h2 className="text-lg">{title}</h2>
-          <button>
+          <button className="hidden group-hover:block hover:text-custom-light-green">
             <TrashIcon className="h-4 w-4" />
           </button>
         </div>

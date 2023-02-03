@@ -18,6 +18,7 @@ import { toast } from "react-toastify";
 
 const TodoPage: React.FC = () => {
   const queryClient = useQueryClient();
+  const { user } = useAppSelector((state) => state.auth);
   const [isOpen, setIsOpen] = useState(false);
   const { workspaceId } = useAppSelector((state) => state.workspace);
 
@@ -33,7 +34,7 @@ const TodoPage: React.FC = () => {
   const todoContainerMutation = useMutation(
     async (payload: CreateTodoContainerPayload) => {
       const res = await axios.post(
-        `/todo/${workspaceId}/create-todo-container`,
+        `/todo/${user.id}}/${workspaceId}/create-todo-container`,
         payload
       );
       return res;
