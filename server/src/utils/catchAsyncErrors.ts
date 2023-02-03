@@ -7,6 +7,7 @@ function catchAsyncErrors(
     try {
       await middleware(req, res, next);
     } catch (error) {
+      console.log("error", error);
       next(error);
     }
   };

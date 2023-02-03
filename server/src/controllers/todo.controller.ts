@@ -1,8 +1,32 @@
+import { Role } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import Api400Error from "../utils/api400Error";
 import Api401Error from "../utils/api401Error";
 import Api403Error from "../utils/api403Error";
 import prisma from "../utils/prisma";
+
+function checkIfUserIdMatches(req: Request, userId: string) {
+  if (userId !== (req.user as any).id) {
+    throw new Api401Error(
+      "You are not Authorized to do the following Actions!!"
+    );
+  }
+}
+
+async function verifyRole(role: Role[], workspaceId: string, userId: string) {
+  const findUser = await prisma.member.findUnique({
+    where: { workspaceId_userId: { workspaceId, userId } },
+  });
+  const assignedRole = findUser!.role;
+
+  const isAllowed = role.includes(assignedRole);
+
+  if (!isAllowed) {
+    throw new Api403Error(
+      `Member with the role: ${assignedRole} is restricted to perform the Following Tasks`
+    );
+  }
+}
 
 async function handleCreateTodoContainer(
   req: Request,
@@ -12,11 +36,9 @@ async function handleCreateTodoContainer(
   const { title } = req.body;
   const { workspaceId, userId } = req.params;
 
-  if (userId !== (req.user as any).id) {
-    throw new Api401Error(
-      "You are not Authorized to do the following Actions!!"
-    );
-  }
+  checkIfUserIdMatches(req, userId);
+
+  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   const findByTitle = await prisma.todoContainer.findFirst({
     where: {
@@ -71,7 +93,10 @@ async function handleCreateTodoCard(
   next: NextFunction
 ) {
   const { title } = req.body;
-  const { workspaceId, todoContainerId } = req.params;
+  const { workspaceId, todoContainerId, userId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["LANCER", "ADMIN"], workspaceId, userId);
 
   if (!title) throw new Api400Error("Missing Required Field (title)");
 
@@ -125,7 +150,10 @@ async function handleCreateTodo(
   next: NextFunction
 ) {
   const { text, status } = req.body;
-  const { todoContainerId, todoCardId } = req.params;
+  const { todoContainerId, todoCardId, workspaceId, userId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   if (!text) throw new Api400Error("Missing Required Field (text)");
 
@@ -201,22 +229,6 @@ async function getAllTodosInTodoCard(
       createdAt: "desc",
     },
   });
-  console.log("todos", todos);
-
-  // const totalComments = todos.map(async (todo) => {
-  //   const commentCount = await prisma.comment.groupBy({
-  //     by: ["todoId"],
-  //     where: { todoId: todo.id },
-  //     _count: {
-  //       _all: true,
-  //     },
-  //   });
-  //   console.log(commentCount);
-  //   return commentCount[0].;
-  // });
-
-  // const finalData = await Promise.all(totalComments);
-  // console.log("finalData", finalData);
 
   return res
     .status(200)
@@ -228,8 +240,11 @@ async function handleUpdateTodoStatus(
   res: Response,
   next: NextFunction
 ) {
-  const { todoId, todoCardId } = req.params;
+  const { todoId, todoCardId, userId, workspaceId } = req.params;
   const { status } = req.body;
+
+  checkIfUserIdMatches(req, userId);
+  verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   const findTodo = await prisma.todo.findUnique({ where: { id: todoId } });
   const deletedTodo = await prisma.todo.delete({ where: { id: todoId } });
@@ -252,7 +267,10 @@ async function handleDeleteTodoContainer(
   res: Response,
   next: NextFunction
 ) {
-  const { todoContainerId } = req.params;
+  const { todoContainerId, userId, workspaceId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   const deletedTodoContainer = await prisma.todoContainer.delete({
     where: { id: todoContainerId },
@@ -270,7 +288,11 @@ async function handleTodoContainerTitleUpdate(
   next: NextFunction
 ) {
   const { title } = req.body;
-  const { todoContainerId } = req.params;
+  const { todoContainerId, userId, workspaceId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+
+  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   if (!title) throw new Api400Error("Missing Required Fields");
 
@@ -295,7 +317,10 @@ async function handleTodoTitleUpdate(
   next: NextFunction
 ) {
   const { text } = req.body;
-  const { todoCardId, todoId } = req.params;
+  const { todoCardId, todoId, userId, workspaceId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   if (!text) throw new Api400Error("Updated Todo Text can't be Empty");
 
@@ -336,7 +361,10 @@ async function handleTodoDescriptionUpdate(
   next: NextFunction
 ) {
   const { description } = req.body;
-  const { todoCardId, todoId } = req.params;
+  const { todoCardId, todoId, workspaceId, userId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["LANCER", "ADMIN"], workspaceId, userId);
 
   if (!description)
     throw new Api400Error("Updaed Todo description can't be Emtpy!!");
@@ -378,7 +406,10 @@ async function handleTodoCompletionUpdate(
   next: NextFunction
 ) {
   const { completionDate } = req.body;
-  const { todoCardId, todoId } = req.params;
+  const { todoCardId, todoId, userId, workspaceId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   if (!completionDate)
     throw new Api400Error("Updated  Completion date can't be Emtpy!!");
@@ -423,7 +454,10 @@ async function handleTodoCompletedUpdate(
   next: NextFunction
 ) {
   const completed = Boolean(req.body.completed);
-  const { todoCardId, todoId } = req.params;
+  const { todoCardId, todoId, userId, workspaceId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   const todoCard = await prisma.todoCard.findUnique({
     where: { id: todoCardId },
@@ -522,9 +556,6 @@ async function handleTodoUpdateComment(
 ) {
   const { contents } = req.body;
   const { commentId } = req.params;
-  console.log(
-    "how the heck that thing is going through these thing I am so damn confused right now "
-  );
 
   if (!contents) {
     throw new Api400Error(

@@ -62,7 +62,8 @@ function TodoEditModal({
   const [todoDescription, setTodoDescription] = useState<string>(
     description || ""
   );
-  const { auth } = useAppSelector((state) => state);
+  const { user } = useAppSelector((state) => state.auth);
+  const { workspaceId } = useAppSelector((state) => state.workspace);
   const [editDescriptionMode, setEditDescriptionMode] = useState<boolean>(
     !description
   );
@@ -70,7 +71,7 @@ function TodoEditModal({
   const updateTitleMutation = useMutation(
     async (payload: ITitlePayload) => {
       const res = await axios.patch(
-        `/todo/${todoCardId}/${todoId}/update-todo-title`,
+        `/todo/${user.id}/${workspaceId}/${todoCardId}/${todoId}/update-todo-title`,
         payload
       );
       return res.data;
@@ -87,7 +88,7 @@ function TodoEditModal({
   const updateDescriptionMutation = useMutation(
     async (payload: IDescriptionPayload) => {
       const res = await axios.patch(
-        `/todo/${todoCardId}/${todoId}/update-todo-description `,
+        `/todo/${user.id}/${workspaceId}/${todoCardId}/${todoId}/update-todo-description `,
         payload
       );
       return res.data;
@@ -105,7 +106,7 @@ function TodoEditModal({
   const updateCompletionMutation = useMutation(
     async (payload: ICompletionDatePayload) => {
       const res = await axios.patch(
-        `/todo/${todoCardId}/${todoId}/update-todo-completion-date `,
+        `/todo/${user.id}/${workspaceId}/${todoCardId}/${todoId}/update-todo-completion-date `,
         payload
       );
       return res.data;
@@ -174,7 +175,7 @@ function TodoEditModal({
   const createdCommentMutation = useMutation(
     async (data: any) => {
       const res = await axios.post(
-        `/todo/${todo.id}/${auth.user.id}/comments`,
+        `/todo/${todo.id}/${user.id}/comments`,
         data
       );
       return res.data;

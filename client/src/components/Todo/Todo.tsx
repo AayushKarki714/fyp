@@ -14,6 +14,8 @@ import { differenceInDays, format } from "date-fns";
 import { useMutation, useQueryClient } from "react-query";
 import axios from "../../api/axios";
 import handleStopPropagation from "../../utils/handleStopPropagation";
+import { useAppSelector } from "../../redux/store/hooks";
+import { visitLexicalEnvironment } from "typescript";
 
 interface TodoProps {
   id: string;
@@ -42,6 +44,8 @@ const Todo: React.FC<TodoProps> = ({
   const [isChecked, setIsChecked] = useState<boolean>(completed);
   const [isHoveredDate, setIsHoveredDate] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAppSelector((state) => state.auth);
+  const { workspaceId } = useAppSelector((state) => state.workspace);
 
   const closeModal = () => {
     setIsOpen(false);
@@ -50,13 +54,15 @@ const Todo: React.FC<TodoProps> = ({
   const completeUpdateMutation = useMutation(
     async (payload: { completed: boolean }) => {
       const res = await axios.patch(
-        `/todo/${todoCardId}/${id}/update-todo-completed`,
+        `/todo/${user.id}/${workspaceId}/${todoCardId}/${id}/update-todo-completed`,
         payload
       );
       return res.data;
     },
     {
-      onError: (error) => {},
+      onError: (error) => {
+        console.log(error);
+      },
       onSuccess: (data) => {
         queryClient.invalidateQueries(["todo-query", todoCardId]);
       },

@@ -24,19 +24,10 @@ import catchAsyncErrors from "../utils/catchAsyncErrors";
 
 const todoRouter = express.Router();
 
-todoRouter.post(
-  "/:userId/:workspaceId/create-todo-container",
-  catchAsyncErrors(handleCreateTodoContainer)
-);
-
+// get requests
 todoRouter.get(
   "/:workspaceId/todo-container",
   catchAsyncErrors(getAllTodoContainer)
-);
-
-todoRouter.post(
-  "/:workspaceId/:todoContainerId/create-todo-card",
-  catchAsyncErrors(handleCreateTodoCard)
 );
 
 todoRouter.get(
@@ -44,81 +35,89 @@ todoRouter.get(
   catchAsyncErrors(getAllTodoCardInTodoContainer)
 );
 
-todoRouter.post(
-  "/:workspaceId/:todoContainerId/create-todo-card",
-  catchAsyncErrors(handleCreateTodoCard)
-);
-
-todoRouter.post(
-  "/:todoContainerId/:todoCardId/create-todo",
-  catchAsyncErrors(handleCreateTodo)
-);
 todoRouter.get(
   "/:todoContainerId/:todoCardId/todo",
   catchAsyncErrors(getAllTodosInTodoCard)
 );
-todoRouter.post(
-  "/:todoContainerId/:todoCardId/create-todo",
-  catchAsyncErrors(handleCreateTodo)
-);
-
-todoRouter.post(
-  "/:todoCardId/:todoId/update-todo-status",
-  catchAsyncErrors(handleUpdateTodoStatus)
-);
-
-todoRouter.delete(
-  "/:todoContainerId/delete-todo-container",
-  catchAsyncErrors(handleDeleteTodoContainer)
-);
-
-todoRouter.patch(
-  "/:todoContainerId/update-todocontainer-title",
-  catchAsyncErrors(handleTodoContainerTitleUpdate)
-);
-
-todoRouter.patch(
-  "/:todoCardId/:todoId/update-todo-title",
-  catchAsyncErrors(handleTodoTitleUpdate)
-);
-
-todoRouter.patch(
-  "/:todoCardId/:todoId/update-todo-description",
-  catchAsyncErrors(handleTodoDescriptionUpdate)
-);
-
-todoRouter.patch(
-  "/:todoCardId/:todoId/update-todo-completion-date",
-  catchAsyncErrors(handleTodoCompletionUpdate)
-);
-
-todoRouter.patch(
-  "/:todoCardId/:todoId/update-todo-completed",
-  catchAsyncErrors(handleTodoCompletedUpdate)
-);
 
 todoRouter.get("/:todoId/single-todo", catchAsyncErrors(getSingleTodo));
-todoRouter.post(
-  "/:todoId/:userId/comments",
-  catchAsyncErrors(handleCreateTodoComment)
-);
-todoRouter.post(
-  "/:todoId/:userId/comments/:commentId",
-  catchAsyncErrors(handleTodoUpdateComment)
-);
-todoRouter.delete(
-  "/:todoId/:userId/comments/:commentId",
-  catchAsyncErrors(handleTodoDeleteComment)
-);
 
 todoRouter.get(
   "/:userId/:commentId/comments/get-like-count",
   catchAsyncErrors(handleGetTodoCommentLikeCount)
 );
 
+// post requests
+todoRouter.post(
+  "/:userId/:workspaceId/create-todo-container",
+  catchAsyncErrors(handleCreateTodoContainer)
+);
+
+todoRouter.post(
+  "/:userId/:workspaceId/:todoContainerId/create-todo-card",
+  catchAsyncErrors(handleCreateTodoCard)
+);
+
+todoRouter.post(
+  "/:userId/:workspaceId/:todoContainerId/:todoCardId/create-todo",
+  catchAsyncErrors(handleCreateTodo)
+);
+
+todoRouter.post(
+  "/:userId/:workspaceId/:todoCardId/:todoId/update-todo-status",
+  catchAsyncErrors(handleUpdateTodoStatus)
+);
+
+todoRouter.post(
+  "/:todoId/:userId/comments",
+  catchAsyncErrors(handleCreateTodoComment)
+);
+
+todoRouter.post(
+  "/:todoId/:userId/comments/:commentId",
+  catchAsyncErrors(handleTodoUpdateComment)
+);
+
 todoRouter.post(
   "/:userId/:commentId/comment/toggle-like",
   catchAsyncErrors(handleToggleTodoCommentLikes)
+);
+
+// delete routes
+todoRouter.delete(
+  "/:userId/:workspaceId/:todoContainerId/delete-todo-container",
+  catchAsyncErrors(handleDeleteTodoContainer)
+);
+
+todoRouter.delete(
+  "/:todoId/:userId/comments/:commentId",
+  catchAsyncErrors(handleTodoDeleteComment)
+);
+
+// patch routes
+todoRouter.patch(
+  "/:userId/:workspaceId/:todoContainerId/update-todocontainer-title",
+  catchAsyncErrors(handleTodoContainerTitleUpdate)
+);
+
+todoRouter.patch(
+  "/:userId/:workspaceId/:todoCardId/:todoId/update-todo-title",
+  catchAsyncErrors(handleTodoTitleUpdate)
+);
+
+todoRouter.patch(
+  "/:userId/:workspaceId/:todoCardId/:todoId/update-todo-description",
+  catchAsyncErrors(handleTodoDescriptionUpdate)
+);
+
+todoRouter.patch(
+  `/:userId/:workspaceId/:todoCardId/:todoId/update-todo-completion-date`,
+  catchAsyncErrors(handleTodoCompletionUpdate)
+);
+
+todoRouter.patch(
+  "/:userId/:workspaceId/:todoCardId/:todoId/update-todo-completed",
+  catchAsyncErrors(handleTodoCompletedUpdate)
 );
 
 export default todoRouter;

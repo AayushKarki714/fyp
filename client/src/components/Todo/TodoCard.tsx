@@ -8,6 +8,7 @@ import Todo from "./Todo";
 import { useDrop } from "react-dnd";
 import { ItemTypes } from "../../utils/ItemTypes";
 import { toast } from "react-toastify";
+import { useAppSelector } from "../../redux/store/hooks";
 
 interface TodoCardProps {
   id: string;
@@ -20,6 +21,8 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
   const [showAddTodo, setShowAddTodo] = useState(false);
   const [todoTitle, setTodoTitle] = useState("");
   const todoCardRef = useRef<any>(null);
+  const { user } = useAppSelector((state) => state.auth);
+  const { workspaceId } = useAppSelector((state) => state.workspace);
 
   const todoQuery = useQuery(["todo-query", id], async () => {
     const { data } = await axios.get(`/todo/${todoContainerId}/${id}/todo`);
@@ -28,9 +31,12 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
 
   const todoUpdateMutation = useMutation(
     async ({ todoId, prevTodoCardId }: any) => {
-      const res = await axios.post(`/todo/${id}/${todoId}/update-todo-status`, {
-        status: title,
-      });
+      const res = await axios.post(
+        `/todo/${user.id}/${workspaceId}/${id}/${todoId}/update-todo-status`,
+        {
+          status: title,
+        }
+      );
       return { ...res, prevTodoCardId };
     },
     {
@@ -99,14 +105,14 @@ const TodoCard: React.FC<TodoCardProps> = ({ title, id, todoContainerId }) => {
   const todoMutation = useMutation(
     async (payload: ITodoPayload) => {
       const res = await axios.post(
-        `/todo/${todoContainerId}/${id}/create-todo`,
+        `/todo/${user.id}/${workspaceId}/${todoContainerId}/${id}/create-todo`,
         payload
       );
       return res;
     },
     {
-      onError: (data) => {
-        console.log("error", data);
+      onError: (data: any) => {
+        toast(data?.response?.data?.message);
       },
       onSuccess: (data) => {
         if (data.status === 201) {

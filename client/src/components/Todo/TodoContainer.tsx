@@ -22,6 +22,7 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
   );
   const [editMode, setEditMode] = useState<boolean>(false);
   const [showTodoCard, setShowTodoCard] = useState<boolean>(false);
+  const { user } = useAppSelector((state) => state.auth);
   const { workspaceId } = useAppSelector((state) => state.workspace);
 
   const todoCardQuery = useQuery(["todo-card-query", id], async () => {
@@ -31,7 +32,9 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
 
   const deleteTodoContainerMutation = useMutation(
     async () => {
-      const res = await axios.delete(`/todo/${id}/delete-todo-container`);
+      const res = await axios.delete(
+        `/todo/${user.id}/${workspaceId}/${id}/delete-todo-container`
+      );
       return res.data;
     },
     {
@@ -48,7 +51,7 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
   const updateTodoContainerTitleMutation = useMutation(
     async (payload: any) => {
       const res = await axios.patch(
-        `/todo/${id}/update-todocontainer-title`,
+        `/todo/${user.id}/${workspaceId}/${id}/update-todocontainer-title`,
         payload
       );
       return res;
@@ -70,7 +73,7 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
   const todoCardMutation = useMutation(
     async (payload: ITodoCardPayload) => {
       const res = await axios.post(
-        `/todo/${workspaceId}/${id}/create-todo-card`,
+        `/todo/${user.id}/${workspaceId}/${id}/create-todo-card`,
         payload
       );
       return res;
@@ -91,7 +94,7 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // if (!todoCardTitle) return toast("Please Fill the Required Fields*");
+    if (!todoCardTitle) return toast("Please Fill the Required Fields*");
     todoCardMutation.mutate({ title: todoCardTitle });
   };
 

@@ -34,7 +34,7 @@ const TodoPage: React.FC = () => {
   const todoContainerMutation = useMutation(
     async (payload: CreateTodoContainerPayload) => {
       const res = await axios.post(
-        `/todo/${user.id}}/${workspaceId}/create-todo-container`,
+        `/todo/${user.id}/${workspaceId}/create-todo-container`,
         payload
       );
       return res;
