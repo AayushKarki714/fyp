@@ -83,15 +83,15 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
           toast(data?.data?.message);
         }
       },
-      onError: (error) => {
-        console.log("error", error);
+      onError: (error: any) => {
+        toast(error?.response?.data?.message);
       },
     }
   );
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!todoCardTitle) return toast("Please Fill the Required Fields*");
+    // if (!todoCardTitle) return toast("Please Fill the Required Fields*");
     todoCardMutation.mutate({ title: todoCardTitle });
   };
 

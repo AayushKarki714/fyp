@@ -1,4 +1,4 @@
-import express, { NextFunction } from "express";
+import express from "express";
 import {
   getAllTodoCardInTodoContainer,
   getAllTodoContainer,
@@ -20,88 +20,105 @@ import {
   handleToggleTodoCommentLikes,
   handleUpdateTodoStatus,
 } from "../controllers/todo.controller";
+import catchAsyncErrors from "../utils/catchAsyncErrors";
 
 const todoRouter = express.Router();
 
 todoRouter.post(
-  "/:userId/:commentId/comments/toggle",
-  handleToggleTodoCommentLikes
-);
-todoRouter.post(
   "/:workspaceId/create-todo-container",
-  handleCreateTodoContainer
+  catchAsyncErrors(handleCreateTodoContainer)
 );
 
-todoRouter.get("/:workspaceId/todo-container", getAllTodoContainer);
+todoRouter.get(
+  "/:workspaceId/todo-container",
+  catchAsyncErrors(getAllTodoContainer)
+);
 
 todoRouter.post(
   "/:workspaceId/:todoContainerId/create-todo-card",
-  handleCreateTodoCard
+  catchAsyncErrors(handleCreateTodoCard)
 );
 
 todoRouter.get(
   "/:workspaceId/:todoContainerId/todo-card",
-  getAllTodoCardInTodoContainer
+  catchAsyncErrors(getAllTodoCardInTodoContainer)
 );
 
 todoRouter.post(
   "/:workspaceId/:todoContainerId/create-todo-card",
-  handleCreateTodoCard
+  catchAsyncErrors(handleCreateTodoCard)
 );
 
-todoRouter.post("/:todoContainerId/:todoCardId/create-todo", handleCreateTodo);
-todoRouter.get("/:todoContainerId/:todoCardId/todo", getAllTodosInTodoCard);
-todoRouter.post("/:todoContainerId/:todoCardId/create-todo", handleCreateTodo);
+todoRouter.post(
+  "/:todoContainerId/:todoCardId/create-todo",
+  catchAsyncErrors(handleCreateTodo)
+);
+todoRouter.get(
+  "/:todoContainerId/:todoCardId/todo",
+  catchAsyncErrors(getAllTodosInTodoCard)
+);
+todoRouter.post(
+  "/:todoContainerId/:todoCardId/create-todo",
+  catchAsyncErrors(handleCreateTodo)
+);
 
 todoRouter.post(
   "/:todoCardId/:todoId/update-todo-status",
-  handleUpdateTodoStatus
+  catchAsyncErrors(handleUpdateTodoStatus)
 );
 
 todoRouter.delete(
   "/:todoContainerId/delete-todo-container",
-  handleDeleteTodoContainer
+  catchAsyncErrors(handleDeleteTodoContainer)
 );
 
 todoRouter.patch(
   "/:todoContainerId/update-todocontainer-title",
-  handleTodoContainerTitleUpdate
+  catchAsyncErrors(handleTodoContainerTitleUpdate)
 );
 
 todoRouter.patch(
   "/:todoCardId/:todoId/update-todo-title",
-  handleTodoTitleUpdate
+  catchAsyncErrors(handleTodoTitleUpdate)
 );
 
 todoRouter.patch(
   "/:todoCardId/:todoId/update-todo-description",
-  handleTodoDescriptionUpdate
+  catchAsyncErrors(handleTodoDescriptionUpdate)
 );
 
 todoRouter.patch(
   "/:todoCardId/:todoId/update-todo-completion-date",
-  handleTodoCompletionUpdate
+  catchAsyncErrors(handleTodoCompletionUpdate)
 );
 
 todoRouter.patch(
   "/:todoCardId/:todoId/update-todo-completed",
-  handleTodoCompletedUpdate
+  catchAsyncErrors(handleTodoCompletedUpdate)
 );
 
-todoRouter.get("/:todoId/single-todo", getSingleTodo);
-todoRouter.post("/:todoId/:userId/comments", handleCreateTodoComment);
+todoRouter.get("/:todoId/single-todo", catchAsyncErrors(getSingleTodo));
+todoRouter.post(
+  "/:todoId/:userId/comments",
+  catchAsyncErrors(handleCreateTodoComment)
+);
 todoRouter.post(
   "/:todoId/:userId/comments/:commentId",
-  handleTodoUpdateComment
+  catchAsyncErrors(handleTodoUpdateComment)
 );
 todoRouter.delete(
   "/:todoId/:userId/comments/:commentId",
-  handleTodoDeleteComment
+  catchAsyncErrors(handleTodoDeleteComment)
 );
 
 todoRouter.get(
   "/:userId/:commentId/comments/get-like-count",
-  handleGetTodoCommentLikeCount
+  catchAsyncErrors(handleGetTodoCommentLikeCount)
+);
+
+todoRouter.post(
+  "/:userId/:commentId/comments/toggle",
+  catchAsyncErrors(handleToggleTodoCommentLikes)
 );
 
 export default todoRouter;
