@@ -8,39 +8,43 @@ import {
   handleProgressBarUpdate,
   handleProgressTitleUpdate,
 } from "../controllers/progress.controller";
+import catchAsyncErrors from "../utils/catchAsyncErrors";
 
 const progressRouter = express.Router();
 
 progressRouter.post(
   "/:workspaceId/create-progress-container",
-  handleCreateProgressContainer
+  catchAsyncErrors(handleCreateProgressContainer)
 );
 
-progressRouter.get("/:workspaceId/progress-container", getAllProgressContainer);
+progressRouter.get(
+  "/:workspaceId/progress-container",
+  catchAsyncErrors(getAllProgressContainer)
+);
 
 progressRouter.post(
   "/:progressContainerId/create-progress-bar",
-  handleCreateProgressBar
+  catchAsyncErrors(handleCreateProgressBar)
 );
 
 progressRouter.get(
   "/:progressContainerId/progress-bar",
-  getAllProgressInProgressContainer
+  catchAsyncErrors(getAllProgressInProgressContainer)
 );
 
 progressRouter.delete(
   "/:progressContainerId/delete-progress-container",
-  handleDeleteProgressBarContainer
+  catchAsyncErrors(handleDeleteProgressBarContainer)
 );
 
 progressRouter.patch(
   "/:progressContainerId/update-progress-title",
-  handleProgressTitleUpdate
+  catchAsyncErrors(handleProgressTitleUpdate)
 );
 
 progressRouter.patch(
   "/:progressContainerId/:progressBarId/update-progress-bar",
-  handleProgressBarUpdate
+  catchAsyncErrors(handleProgressBarUpdate)
 );
 
 export default progressRouter;
