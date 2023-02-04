@@ -5,6 +5,7 @@ import { useAppSelector } from "../redux/store/hooks";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { createWorkspace } from "../services/workspace";
 
 interface IButton {
   type?: "submit" | "button" | "reset";
@@ -63,29 +64,24 @@ const FormItem: React.FC<IFormItem> = ({
 };
 
 const CreateWorkspace: React.FC = () => {
+  const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
   const [preview, setPreview] = useState<string | null>(null);
   const [title, setTitle] = useState<string>("");
   const [lancerValues, setLancerValues] = useState([{ email: "" }]);
   const [clientValues, setClientValues] = useState([{ email: "" }]);
   const [selectedFile, setSelectedFile] = useState<null | File>(null);
-  const navigate = useNavigate();
 
-  const { mutate, isLoading } = useMutation(
-    async (data: any) => {
-      const res = await axios.post("/workspace/create-workspace", data);
-      return res;
+  const { mutate, isLoading } = useMutation(createWorkspace, {
+    onSuccess: (data) => {
+      navigate("/dashboard");
+      console.log(data);
+      toast(`Workspace ${data?.workspace?.name} Created SucessFully`);
     },
-    {
-      onSuccess: (data) => {
-        navigate("/dashboard");
-        toast("Workspace Created SucessFully");
-      },
-      onError: (error: any) => {
-        toast(error?.response?.data?.message || error.message);
-      },
-    }
-  );
+    onError: (error: any) => {
+      toast(error?.response?.data?.message || error.message);
+    },
+  });
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files![0];

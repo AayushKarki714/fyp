@@ -9,6 +9,13 @@ async function handleCreateWorkspace(
   next: NextFunction
 ) {
   const { name, lancerValues, clientValues, adminId } = req.body;
+  console.log(
+    "name,lancerValues,clientValues,adminId",
+    name,
+    lancerValues,
+    clientValues,
+    adminId
+  );
   const files = req.files!;
   const file = files[Object.keys(files)[0]] as any;
   const filePath = path.join(__dirname, "..", "..", "public", file.name);

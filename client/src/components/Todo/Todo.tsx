@@ -148,12 +148,12 @@ const Todo: React.FC<Props> = ({
           {completionDate ? (
             <div className="text-xs flex gap-2 items-center">
               <button
-                onMouseEnter={() => setIsHoveredDate(true)}
-                onMouseLeave={() => setIsHoveredDate(false)}
+                onMouseEnter={() => isAllowed && setIsHoveredDate(true)}
+                onMouseLeave={() => isAllowed && setIsHoveredDate(false)}
                 className={`flex items-center ${dateClassName}  gap-1 p-2 rounded-md `}
                 title={daysLeft || ""}
               >
-                {isHoveredDate ? (
+                {isAllowed && isHoveredDate ? (
                   <input
                     type="checkbox"
                     checked={isAllowed ? isChecked : false}

@@ -1,21 +1,29 @@
 import React, { useRef, useState } from "react";
-import axios from "../../api/axios";
 import { useAppSelector } from "../../redux/store/hooks";
 import { useQueryClient, useQuery, useMutation } from "react-query";
 import TodoCard from "./TodoCard";
-import { ITodoCardPayload } from "../../types/types";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { toast } from "react-toastify";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
 import verifyRole from "../../utils/verifyRole";
 import { Role } from "../../redux/slices/workspaceSlice";
+import {
+  createTodoCard,
+  deleteTodoContainer,
+  getTodoCards,
+  updateTodoContainerTitle,
+} from "../../services/todo";
+import axios from "../../api/axios";
 
 interface TodoContainerProps {
   id: string;
   text: string;
 }
 
-const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
+const TodoContainer: React.FC<TodoContainerProps> = ({
+  text,
+  id: todoContainerId,
+}) => {
   const queryClient = useQueryClient();
   const todoContainerRef = useRef<HTMLDivElement>(null);
   const [todoCardTitle, setTodoCardTitle] = useState<string>("");
@@ -24,70 +32,57 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
   );
   const [editMode, setEditMode] = useState<boolean>(false);
   const [showTodoCard, setShowTodoCard] = useState<boolean>(false);
-  const { user } = useAppSelector((state) => state.auth);
+  const {
+    user: { id: userId },
+  } = useAppSelector((state) => state.auth);
   const { workspaceId, role } = useAppSelector((state) => state.workspace);
   const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
 
-  const todoCardQuery = useQuery(["todo-card-query", id], async () => {
-    const res = await axios.get(`/todo/${workspaceId}/${id}/todo-card`);
-    return res.data;
-  });
+  const todoCardQuery = useQuery(
+    ["todo-card-query", todoContainerId],
+    async () => {
+      const res = await axios.get(
+        `/todo/${workspaceId}/${todoContainerId}/todo-card`
+      );
+      return res?.data;
+    }
+  );
 
   const deleteTodoContainerMutation = useMutation(
-    async () => {
-      const res = await axios.delete(
-        `/todo/${user.id}/${workspaceId}/${id}/delete-todo-container`
-      );
-      return res.data;
-    },
+    deleteTodoContainer({ userId, workspaceId, todoContainerId }),
     {
       onError: (error: any) => {
         toast(error?.response?.data?.message);
       },
-      onSuccess: (data) => {
+      onSuccess: (data: any) => {
+        console.log(data);
         queryClient.invalidateQueries("todo-container-query");
-        toast(data?.message, { position: "bottom-right" });
+        toast(data?.message);
       },
     }
   );
 
   const updateTodoContainerTitleMutation = useMutation(
-    async (payload: any) => {
-      const res = await axios.patch(
-        `/todo/${user.id}/${workspaceId}/${id}/update-todocontainer-title`,
-        payload
-      );
-      return res;
-    },
+    updateTodoContainerTitle({ userId, workspaceId, todoContainerId }),
     {
       onError: (error: any) => {
         toast(error?.response?.data?.message);
       },
-      onSuccess: (data) => {
-        if (data.status === 200) {
-          queryClient.invalidateQueries("todo-container-query");
-          setEditMode(false);
-          toast(data?.data?.message, { position: "bottom-right" });
-        }
+      onSuccess: (data: any) => {
+        queryClient.invalidateQueries("todo-container-query");
+        setEditMode(false);
+        toast(data?.message);
       },
     }
   );
 
   const todoCardMutation = useMutation(
-    async (payload: ITodoCardPayload) => {
-      const res = await axios.post(
-        `/todo/${user.id}/${workspaceId}/${id}/create-todo-card`,
-        payload
-      );
-      return res;
-    },
+    createTodoCard({ userId, todoContainerId, workspaceId }),
     {
       onSuccess: (data) => {
-        if (data.status === 201) {
-          setTodoCardTitle("");
-          queryClient.invalidateQueries(["todo-card-query", id]);
-          toast(data?.data?.message);
-        }
+        setTodoCardTitle("");
+        queryClient.invalidateQueries(["todo-card-query", todoContainerId]);
+        toast(data?.message);
       },
       onError: (error: any) => {
         toast(error?.response?.data?.message);
@@ -102,7 +97,7 @@ const TodoContainer: React.FC<TodoContainerProps> = ({ text, id }) => {
   };
 
   const handleDeleteTodoContainer = () => {
-    deleteTodoContainerMutation.mutate();
+    deleteTodoContainerMutation.mutate({});
   };
 
   const handleTodoContainerTitleSubmit = (

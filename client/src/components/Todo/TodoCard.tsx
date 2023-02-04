@@ -11,6 +11,11 @@ import { toast } from "react-toastify";
 import { useAppSelector } from "../../redux/store/hooks";
 import { Role } from "../../redux/slices/workspaceSlice";
 import verifyRole from "../../utils/verifyRole";
+import {
+  createTodo,
+  deleteTodoCard,
+  updateTodoCardTitle,
+} from "../../services/todo";
 
 interface Props {
   id: string;
@@ -18,7 +23,11 @@ interface Props {
   todoContainerId: string;
 }
 
-const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
+const TodoCard: React.FC<Props> = ({
+  title,
+  id: todoCardId,
+  todoContainerId,
+}) => {
   const queryClient = useQueryClient();
   const [editMode, setEditMode] = useState<boolean>(false);
   const [todoCardTitle, setTodoCardTitle] = useState<string>(title);
@@ -26,18 +35,20 @@ const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
   const [todoTitle, setTodoTitle] = useState<string>("");
   const todoCardRef = useRef(null) as RefObject<HTMLFormElement>;
   const todoCardFormRef = useRef<HTMLFormElement>(null);
-  const { user } = useAppSelector((state) => state.auth);
+  const {
+    user: { id: userId },
+  } = useAppSelector((state) => state.auth);
   const { workspaceId, role } = useAppSelector((state) => state.workspace);
 
-  const todoQuery = useQuery(["todo-query", id], async () => {
-    const { data } = await axios.get(`/todo/${todoContainerId}/${id}/todo`);
-    return data?.data;
+  const todoQuery = useQuery(["todo-query", todoCardId], async () => {
+    const res = await axios.get(`/todo/${todoContainerId}/${todoCardId}/todo`);
+    return res?.data;
   });
 
   const todoUpdateMutation = useMutation(
     async ({ todoId, prevTodoCardId }: any) => {
       const res = await axios.post(
-        `/todo/${user.id}/${workspaceId}/${id}/${todoId}/update-todo-status`,
+        `/todo/${userId}/${workspaceId}/${todoCardId}/${todoId}/update-todo-status`,
         {
           status: title,
         }
@@ -46,7 +57,7 @@ const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
     },
     {
       onMutate: async (newTodo) => {
-        await queryClient.cancelQueries(["todo-query", id]);
+        await queryClient.cancelQueries(["todo-query", todoCardId]);
         await queryClient.cancelQueries(["todo-query", newTodo.prevTodoCardId]);
         const snapshotOfPrevTodoCard: any = queryClient.getQueryData([
           "todo-query",
@@ -54,18 +65,18 @@ const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
         ]);
         const snapshotOfCurrTodoCard = queryClient.getQueryData([
           "todo-query",
-          id,
+          todoCardId,
         ]);
         const updateTodo = snapshotOfPrevTodoCard.find(
           (todo: any) => todo.id === newTodo.todoId
         );
         updateTodo.status = title;
-        updateTodo.todoCardId = id;
+        updateTodo.todoCardId = todoCardId;
         queryClient.setQueryData(
           ["todo-query", newTodo.prevTodoCardId],
           (old: any) => old.filter((t: any) => t.id !== newTodo.todoId)
         );
-        queryClient.setQueryData(["todo-query", id], (old: any) => [
+        queryClient.setQueryData(["todo-query", todoCardId], (old: any) => [
           ...old,
           updateTodo,
         ]);
@@ -76,12 +87,12 @@ const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
         };
       },
       onSuccess: (data) => {
-        queryClient.invalidateQueries(["todo-query", id]);
+        queryClient.invalidateQueries(["todo-query", todoCardId]);
         queryClient.invalidateQueries(["todo-query", data.prevTodoCardId]);
       },
       onError: (error: any, data: any, context: any) => {
         queryClient.setQueryData(
-          ["todo-query", id],
+          ["todo-query", todoCardId],
           context.snapshotOfCurrTodoCard
         );
 
@@ -95,12 +106,7 @@ const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
   );
 
   const deleteTodoCardMutation = useMutation(
-    async () => {
-      const res = await axios.delete(
-        `/todo/${user.id}/${workspaceId}/${todoContainerId}/${id}/delete-todo-card`
-      );
-      return res.data;
-    },
+    deleteTodoCard({ workspaceId, userId, todoContainerId, todoCardId }),
     {
       onSuccess: (data: any) => {
         queryClient.invalidateQueries(["todo-card-query", todoContainerId]);
@@ -111,14 +117,7 @@ const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
   );
 
   const updateTitleMutation = useMutation(
-    async (data: any) => {
-      const res = await axios.patch(
-        `/todo/${user.id}/${workspaceId}/${todoContainerId}/${id}/update-todocard-title`,
-        data
-      );
-      return res?.data;
-    },
-
+    updateTodoCardTitle({ workspaceId, todoCardId, todoContainerId, userId }),
     {
       onSuccess: (data: any) => {
         setEditMode(false);
@@ -133,7 +132,7 @@ const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
     accept: `${ItemTypes.Todo}--${todoContainerId}`,
     drop: (data: any) => {
       // if the todo is dropped in the same card then don't do anything at all
-      if (data.todoCardId === id) return;
+      if (data.todoCardId === todoCardId) return;
       todoUpdateMutation.mutate({
         todoId: data.id,
         prevTodoCardId: data.todoCardId,
@@ -143,20 +142,14 @@ const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
   }));
 
   const todoMutation = useMutation(
-    async (payload: ITodoPayload) => {
-      const res = await axios.post(
-        `/todo/${user.id}/${workspaceId}/${todoContainerId}/${id}/create-todo`,
-        payload
-      );
-      return res;
-    },
+    createTodo({ workspaceId, userId, todoCardId, todoContainerId }),
     {
       onError: (data: any) => {
         toast(data?.response?.data?.message);
       },
       onSuccess: (data) => {
-        queryClient.invalidateQueries(["todo-query", id]);
-        toast(data?.data?.message);
+        queryClient.invalidateQueries(["todo-query", todoCardId]);
+        toast(data?.message);
       },
     }
   );
@@ -169,7 +162,7 @@ const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
   };
 
   const handleDeleteTodoCard = () => {
-    deleteTodoCardMutation.mutate();
+    deleteTodoCardMutation.mutate({});
   };
 
   const handleTodoCardTitleUpdate = (
@@ -189,7 +182,7 @@ const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
     setEditMode(false);
   });
 
-  const todoData = todoQuery.data || [];
+  const todoData = todoQuery.data?.data || [];
   const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
 
   return (

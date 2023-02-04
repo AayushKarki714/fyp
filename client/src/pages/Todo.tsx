@@ -17,6 +17,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { toast } from "react-toastify";
 import { Role } from "../redux/slices/workspaceSlice";
 import verifyRole from "../utils/verifyRole";
+import { createTodoContainer } from "../services/todo";
 
 const TodoPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -34,22 +35,16 @@ const TodoPage: React.FC = () => {
   );
 
   const todoContainerMutation = useMutation(
-    async (payload: CreateTodoContainerPayload) => {
-      const res = await axios.post(
-        `/todo/${user.id}/${workspaceId}/create-todo-container`,
-        payload
-      );
-      return res;
-    },
+    createTodoContainer({ userId: user.id, workspaceId }),
     {
       onError: (error: any) => {
         toast(error?.response?.data?.message);
         console.log("error", error);
       },
-      onSuccess: (data) => {
+      onSuccess: (data: any) => {
         queryClient.invalidateQueries("todo-container-query");
         setIsOpen(false);
-        toast(data?.data?.message, { position: "bottom-right" });
+        toast(data?.message);
       },
     }
   );
