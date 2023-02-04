@@ -11,6 +11,7 @@ import {
   handleDeleteTodoCard,
   handleDeleteTodoContainer,
   handleGetTodoCommentLikeCount,
+  handleTodoCardTitleUpdate,
   handleTodoCompletedUpdate,
   handleTodoCompletionUpdate,
   handleTodoContainerTitleUpdate,
@@ -104,6 +105,11 @@ todoRouter.delete(
 todoRouter.patch(
   "/:userId/:workspaceId/:todoContainerId/update-todocontainer-title",
   catchAsyncErrors(handleTodoContainerTitleUpdate)
+);
+
+todoRouter.patch(
+  "/:userId/:workspaceId/:todoContainerId/:todoCardId/update-todocard-title",
+  catchAsyncErrors(handleTodoCardTitleUpdate)
 );
 
 todoRouter.patch(

@@ -681,6 +681,31 @@ async function handleToggleTodoCommentLikes(
     .json({ message: "deleted SucessFully", data: deleteLike });
 }
 
+async function handleTodoCardTitleUpdate(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { title } = req.body;
+  const { userId, workspaceId, todoContainerId, todoCardId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+  verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+
+  if (!title) throw new Api400Error("Missing Required Fields* (title)");
+  const updateTodoCardTitle = await prisma.todoCard.update({
+    data: {
+      title,
+    },
+    where: {
+      id_todoContainerId: { id: todoCardId, todoContainerId },
+    },
+  });
+  return res.status(200).json({
+    message: `TodoCard title was succesfully updated to ${updateTodoCardTitle.title}`,
+  });
+}
+
 export {
   handleCreateTodoContainer,
   getAllTodoContainer,
@@ -702,4 +727,5 @@ export {
   handleTodoDeleteComment,
   handleGetTodoCommentLikeCount,
   handleToggleTodoCommentLikes,
+  handleTodoCardTitleUpdate,
 };

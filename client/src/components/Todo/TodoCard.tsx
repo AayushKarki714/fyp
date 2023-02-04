@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, RefObject } from "react";
 import axios from "../../api/axios";
 import { useQueryClient, useQuery, useMutation } from "react-query";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
@@ -11,7 +11,6 @@ import { toast } from "react-toastify";
 import { useAppSelector } from "../../redux/store/hooks";
 import { Role } from "../../redux/slices/workspaceSlice";
 import verifyRole from "../../utils/verifyRole";
-import { visitLexicalEnvironment } from "typescript";
 
 interface Props {
   id: string;
@@ -21,12 +20,14 @@ interface Props {
 
 const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
   const queryClient = useQueryClient();
-  const [showAddTodo, setShowAddTodo] = useState(false);
-  const [todoTitle, setTodoTitle] = useState("");
-  const todoCardRef = useRef<any>(null);
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const [todoCardTitle, setTodoCardTitle] = useState<string>(title);
+  const [showAddTodo, setShowAddTodo] = useState<boolean>(false);
+  const [todoTitle, setTodoTitle] = useState<string>("");
+  const todoCardRef = useRef(null) as RefObject<HTMLFormElement>;
+  const todoCardFormRef = useRef<HTMLFormElement>(null);
   const { user } = useAppSelector((state) => state.auth);
   const { workspaceId, role } = useAppSelector((state) => state.workspace);
-  const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
 
   const todoQuery = useQuery(["todo-query", id], async () => {
     const { data } = await axios.get(`/todo/${todoContainerId}/${id}/todo`);
@@ -93,6 +94,41 @@ const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
     }
   );
 
+  const deleteTodoCardMutation = useMutation(
+    async () => {
+      const res = await axios.delete(
+        `/todo/${user.id}/${workspaceId}/${todoContainerId}/${id}/delete-todo-card`
+      );
+      return res.data;
+    },
+    {
+      onSuccess: (data: any) => {
+        queryClient.invalidateQueries(["todo-card-query", todoContainerId]);
+        toast(data?.message);
+      },
+      onError: (error: any) => {},
+    }
+  );
+
+  const updateTitleMutation = useMutation(
+    async (data: any) => {
+      const res = await axios.patch(
+        `/todo/${user.id}/${workspaceId}/${todoContainerId}/${id}/update-todocard-title`,
+        data
+      );
+      return res?.data;
+    },
+
+    {
+      onSuccess: (data: any) => {
+        setEditMode(false);
+        queryClient.invalidateQueries(["todo-card-query", todoContainerId]);
+        toast(data?.message);
+      },
+      onError: (error: any) => {},
+    }
+  );
+
   const [{ isOver }, drop] = useDrop(() => ({
     accept: `${ItemTypes.Todo}--${todoContainerId}`,
     drop: (data: any) => {
@@ -119,27 +155,42 @@ const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
         toast(data?.response?.data?.message);
       },
       onSuccess: (data) => {
-        if (data.status === 201) {
-          queryClient.invalidateQueries(["todo-query", id]);
-          toast(data?.data?.message);
-        }
+        queryClient.invalidateQueries(["todo-query", id]);
+        toast(data?.data?.message);
       },
     }
   );
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-
     if (!todoTitle) return;
     todoMutation.mutate({ text: todoTitle, status: title });
     setTodoTitle("");
   };
 
-  useOnClickOutside(todoCardRef, () => {
+  const handleDeleteTodoCard = () => {
+    deleteTodoCardMutation.mutate();
+  };
+
+  const handleTodoCardTitleUpdate = (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    if (!todoCardTitle) return toast("Please Fill the Required Fields");
+    updateTitleMutation.mutate({ title: todoCardTitle });
+  };
+
+  useOnClickOutside(todoCardFormRef, () => {
     setShowAddTodo(false);
   });
 
+  useOnClickOutside(todoCardRef, () => {
+    setTodoCardTitle(title);
+    setEditMode(false);
+  });
+
   const todoData = todoQuery.data || [];
+  const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
 
   return (
     <>
@@ -149,12 +200,28 @@ const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
           isOver
             ? "border-custom-light-green border-dotted"
             : "border-dark-gray"
-        } rounded-md p-3 group`}
+        } rounded-md p-3 `}
       >
         <div className="flex items-center justify-between  ">
-          <h2 className="text-lg">{title}</h2>
+          {isAllowed && editMode ? (
+            <form ref={todoCardRef} onSubmit={handleTodoCardTitleUpdate}>
+              <input
+                type="text"
+                value={todoCardTitle}
+                onChange={(event) => setTodoCardTitle(event.target.value)}
+                className="outline-none bg-custom-light-dark px-2 py-1 text-base rounded-sm text-white"
+              />
+            </form>
+          ) : (
+            <h2 onClick={() => setEditMode(true)} className="text-2xl">
+              {title}
+            </h2>
+          )}
           {isAllowed && (
-            <button className="hidden  group-hover:block hover:text-custom-light-green">
+            <button
+              onClick={handleDeleteTodoCard}
+              className="hover:text-custom-light-green"
+            >
               <TrashIcon className="h-4 w-4" />
             </button>
           )}
@@ -177,7 +244,7 @@ const TodoCard: React.FC<Props> = ({ title, id, todoContainerId }) => {
           {isAllowed &&
             (showAddTodo ? (
               <form
-                ref={todoCardRef}
+                ref={todoCardFormRef}
                 onSubmit={handleSubmit}
                 className="flex flex-col gap-2"
               >
