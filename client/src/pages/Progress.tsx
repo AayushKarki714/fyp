@@ -10,11 +10,15 @@ import { useAppSelector } from "../redux/store/hooks";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProgressContainer from "../components/Progress/ProgressContainer";
+import verifyRole from "../utils/verifyRole";
+import { Role } from "../redux/slices/workspaceSlice";
 
 const Progress: React.FC = () => {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const { workspaceId } = useAppSelector((state) => state.workspace);
+  const { user } = useAppSelector((state) => state.auth);
+  const { workspaceId, role } = useAppSelector((state) => state.workspace);
+  const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
 
   const progressContainerQuery = useQuery(
     "progress-container-query",
@@ -28,7 +32,7 @@ const Progress: React.FC = () => {
   const progressContainerMutation = useMutation(
     async (payload: any) => {
       const res = await axios.post(
-        `/progress/${workspaceId}/create-progress-container`,
+        `/progress/${user.id}/${workspaceId}/create-progress-container`,
         payload
       );
       return res;
@@ -66,12 +70,14 @@ const Progress: React.FC = () => {
   return (
     <>
       <div className="flex flex-col gap-3">
-        <button
-          className="flex items-center justify-center p-2 w-10 h-10 rounded-full ml-auto text-gray-400 hover:text-custom-light-green"
-          onClick={() => setIsOpen(true)}
-        >
-          <FolderPlusIcon className="h-6" />
-        </button>
+        {isAllowed && (
+          <button
+            className="flex items-center justify-center p-2 w-10 h-10 rounded-full ml-auto text-gray-400 hover:text-custom-light-green"
+            onClick={() => setIsOpen(true)}
+          >
+            <FolderPlusIcon className="h-6" />
+          </button>
+        )}
         <Overlay isOpen={isOpen} onClick={closeModal}>
           <Modal onClick={closeModal}>
             <CreateProgress

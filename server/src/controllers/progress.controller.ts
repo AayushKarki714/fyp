@@ -1,6 +1,8 @@
 import prisma from "../utils/prisma";
 import { NextFunction, Request, Response } from "express";
 import Api400Error from "../utils/api400Error";
+import checkIfUserIdMatches from "../utils/checkIfUserIdMatches";
+import verifyRole from "../utils/verifyRole";
 
 async function handleCreateProgressContainer(
   req: Request,
@@ -8,7 +10,11 @@ async function handleCreateProgressContainer(
   next: NextFunction
 ) {
   const { title } = req.body;
-  const { workspaceId } = req.params;
+  const { workspaceId, userId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+
+  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   if (!title)
     throw new Api400Error("Progress Container Title was not Provided!!");
@@ -66,7 +72,10 @@ async function handleCreateProgressBar(
   next: NextFunction
 ) {
   const { title, progressPercent } = req.body;
-  const { progressContainerId } = req.params;
+  const { progressContainerId, workspaceId, userId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   if (!title || !progressPercent)
     throw new Api400Error("Missing Required Fields");
@@ -120,7 +129,10 @@ async function handleDeleteProgressBarContainer(
   res: Response,
   next: NextFunction
 ) {
-  const { progressContainerId } = req.params;
+  const { progressContainerId, workspaceId, userId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   const deleteProgressContainer = await prisma.progressContainer.delete({
     where: { id: progressContainerId },
@@ -138,7 +150,11 @@ async function handleProgressTitleUpdate(
   next: NextFunction
 ) {
   const { title } = req.body;
-  const { progressContainerId } = req.params;
+  const { progressContainerId, userId, workspaceId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+
   if (!title) throw new Api400Error("Missing Required Title");
 
   const updateProgress = await prisma.progressContainer.update({
@@ -159,7 +175,11 @@ async function handleProgressBarUpdate(
   next: NextFunction
 ) {
   const progressPercent = Number(req.body.progressPercent);
-  const { progressContainerId, progressBarId } = req.params;
+  const { progressContainerId, progressBarId, userId, workspaceId } =
+    req.params;
+
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   if (!progressPercent)
     throw new Api400Error("Missing Required Field (progressPercent)");

@@ -8,6 +8,9 @@ import ProgressBar from "./ProgressBar";
 import Modal from "../Modals/Modal";
 import Overlay from "../Modals/Overlay";
 import ProgressModal from "../Modals/ProgressModal";
+import { useAppSelector } from "../../redux/store/hooks";
+import verifyRole from "../../utils/verifyRole";
+import { Role } from "../../redux/slices/workspaceSlice";
 
 interface Props {
   title: string;
@@ -20,6 +23,9 @@ const ProgressContainer: React.FC<Props> = ({ title, progressContainerId }) => {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [progressTitle, setProgressTitle] = useState<string>(title);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { user } = useAppSelector((state) => state.auth);
+  const { workspaceId, role } = useAppSelector((state) => state.workspace);
+  const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
 
   const progressBarQuery = useQuery(
     ["progress-bar-query", progressContainerId],
@@ -34,21 +40,19 @@ const ProgressContainer: React.FC<Props> = ({ title, progressContainerId }) => {
   const updateProgressTitleMutation = useMutation(
     async (payload: any) => {
       const res = await axios.patch(
-        `/progress/${progressContainerId}/update-progress-title`,
+        `/progress/${user.id}/${workspaceId}/${progressContainerId}/update-progress-title`,
         payload
       );
       return res;
     },
     {
-      onError: (data) => {
-        console.log("error", data);
+      onError: (error: any) => {
+        toast(error?.response?.data?.message);
       },
       onSuccess: (data) => {
-        if (data.status === 200) {
-          queryClient.invalidateQueries("progress-container-query");
-          setEditMode(false);
-          toast(data?.data?.message);
-        }
+        queryClient.invalidateQueries("progress-container-query");
+        setEditMode(false);
+        toast(data?.data?.message);
       },
     }
   );
@@ -56,24 +60,22 @@ const ProgressContainer: React.FC<Props> = ({ title, progressContainerId }) => {
   const progressMutation = useMutation(
     async (data: any) => {
       const res = await axios.post(
-        `/progress/${progressContainerId}/create-progress-bar`,
+        `/progress/${user.id}/${workspaceId}/${progressContainerId}/create-progress-bar`,
         data
       );
       return res;
     },
     {
       onError: (error: any) => {
-        toast(error?.response?.data?.message, { position: "top-center" });
+        toast(error?.response?.data?.message);
       },
       onSuccess: (data) => {
-        if (data?.status === 201) {
-          queryClient.invalidateQueries([
-            "progress-bar-query",
-            progressContainerId,
-          ]);
-          setIsOpen(false);
-          toast(data?.data?.message);
-        }
+        queryClient.invalidateQueries([
+          "progress-bar-query",
+          progressContainerId,
+        ]);
+        setIsOpen(false);
+        toast(data?.data?.message);
       },
     }
   );
@@ -81,13 +83,13 @@ const ProgressContainer: React.FC<Props> = ({ title, progressContainerId }) => {
   const deleteProgressContainerMutation = useMutation(
     async (deleteProgressContainerId: string) => {
       const res = await axios.delete(
-        `/progress/${deleteProgressContainerId}/delete-progress-container`
+        `/progress/${user.id}/${workspaceId}/${deleteProgressContainerId}/delete-progress-container`
       );
       return res;
     },
     {
-      onError: (data) => {
-        console.log("error", data);
+      onError: (error: any) => {
+        toast(error?.response?.data?.message);
       },
       onSuccess: (data) => {
         queryClient.invalidateQueries("progress-container-query");
@@ -139,7 +141,7 @@ const ProgressContainer: React.FC<Props> = ({ title, progressContainerId }) => {
         className="flex flex-col gap-4 border-2 border-custom-light-dark rounded-md p-3 group"
       >
         <div className="flex justify-between items-center">
-          {editMode ? (
+          {isAllowed && editMode ? (
             <form onSubmit={handleProgressTitleSubmit}>
               <input
                 type="text"
@@ -153,20 +155,22 @@ const ProgressContainer: React.FC<Props> = ({ title, progressContainerId }) => {
               {title}
             </h2>
           )}
-          <div className="flex gap-2 items-center ">
-            <button
-              onClick={() => setIsOpen(true)}
-              className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
-            >
-              <PlusCircleIcon className="h-5" />
-            </button>
-            <button
-              onClick={handleDeleteProgresssContainer}
-              className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
-            >
-              <TrashIcon className="h-5" />
-            </button>
-          </div>
+          {isAllowed && (
+            <div className="flex gap-2 items-center ">
+              <button
+                onClick={() => setIsOpen(true)}
+                className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
+              >
+                <PlusCircleIcon className="h-5" />
+              </button>
+              <button
+                onClick={handleDeleteProgresssContainer}
+                className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
+              >
+                <TrashIcon className="h-5" />
+              </button>
+            </div>
+          )}
         </div>
         <div className="grid  gap-2">
           {progressBarData.map((progressBar: any) => (

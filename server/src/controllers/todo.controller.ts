@@ -1,32 +1,10 @@
-import { Role } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import Api400Error from "../utils/api400Error";
 import Api401Error from "../utils/api401Error";
 import Api403Error from "../utils/api403Error";
+import checkIfUserIdMatches from "../utils/checkIfUserIdMatches";
 import prisma from "../utils/prisma";
-
-function checkIfUserIdMatches(req: Request, userId: string) {
-  if (userId !== (req.user as any).id) {
-    throw new Api401Error(
-      "You are not Authorized to do the following Actions!!"
-    );
-  }
-}
-
-async function verifyRole(role: Role[], workspaceId: string, userId: string) {
-  const findUser = await prisma.member.findUnique({
-    where: { workspaceId_userId: { workspaceId, userId } },
-  });
-  const assignedRole = findUser!.role;
-
-  const isAllowed = role.includes(assignedRole);
-
-  if (!isAllowed) {
-    throw new Api403Error(
-      `Member with the role: ${assignedRole} is restricted to perform the Following Tasks`
-    );
-  }
-}
+import verifyRole from "../utils/verifyRole";
 
 async function handleCreateTodoContainer(
   req: Request,

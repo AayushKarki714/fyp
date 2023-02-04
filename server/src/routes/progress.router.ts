@@ -13,7 +13,7 @@ import catchAsyncErrors from "../utils/catchAsyncErrors";
 const progressRouter = express.Router();
 
 progressRouter.post(
-  "/:workspaceId/create-progress-container",
+  "/:userId/:workspaceId/create-progress-container",
   catchAsyncErrors(handleCreateProgressContainer)
 );
 
@@ -23,7 +23,7 @@ progressRouter.get(
 );
 
 progressRouter.post(
-  "/:progressContainerId/create-progress-bar",
+  "/:userId/:workspaceId/:progressContainerId/create-progress-bar",
   catchAsyncErrors(handleCreateProgressBar)
 );
 
@@ -33,17 +33,17 @@ progressRouter.get(
 );
 
 progressRouter.delete(
-  "/:progressContainerId/delete-progress-container",
+  "/:userId/:workspaceId/:progressContainerId/delete-progress-container",
   catchAsyncErrors(handleDeleteProgressBarContainer)
 );
 
 progressRouter.patch(
-  "/:progressContainerId/update-progress-title",
+  "/:userId/:workspaceId/:progressContainerId/update-progress-title",
   catchAsyncErrors(handleProgressTitleUpdate)
 );
 
 progressRouter.patch(
-  "/:progressContainerId/:progressBarId/update-progress-bar",
+  "/:userId/:workspaceId/:progressContainerId/:progressBarId/update-progress-bar",
   catchAsyncErrors(handleProgressBarUpdate)
 );
 

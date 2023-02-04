@@ -5,6 +5,10 @@ import Modal from "../Modals/Modal";
 import Overlay from "../Modals/Overlay";
 import { toast } from "react-toastify";
 import ProgressBarModal from "../Modals/ProgressBarModal";
+import { useAppSelector } from "../../redux/store/hooks";
+import { verify } from "crypto";
+import verifyRole from "../../utils/verifyRole";
+import { Role } from "../../redux/slices/workspaceSlice";
 
 interface Props {
   width: number;
@@ -22,28 +26,29 @@ const ProgressBar: React.FC<Props> = ({
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const percentRef = useRef<number>(width);
+  const { workspaceId, role } = useAppSelector((state) => state.workspace);
+  const { user } = useAppSelector((state) => state.auth);
+  const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
 
   const updatePercentMutation = useMutation(
     async (payload: any) => {
       const res = await axios.patch(
-        `/progress/${progressContainerId}/${progressId}/update-progress-bar`,
+        `/progress/${user.id}/${workspaceId}/${progressContainerId}/${progressId}/update-progress-bar`,
         payload
       );
       return res;
     },
     {
-      onError: (data) => {
-        console.log("error", data);
+      onError: (error: any) => {
+        toast(error?.response?.data?.message);
       },
       onSuccess: (data) => {
-        if (data.status === 200) {
-          queryClient.invalidateQueries([
-            "progress-bar-query",
-            progressContainerId,
-          ]);
-          handleModalClose();
-          toast(data?.data?.message);
-        }
+        queryClient.invalidateQueries([
+          "progress-bar-query",
+          progressContainerId,
+        ]);
+        handleModalClose();
+        toast(data?.data?.message);
       },
     }
   );
@@ -58,7 +63,7 @@ const ProgressBar: React.FC<Props> = ({
 
   return (
     <>
-      <div onDoubleClick={() => setIsModalOpen(true)}>
+      <div onDoubleClick={isAllowed ? () => setIsModalOpen(true) : () => {}}>
         <p className="text-sm self-center">{text}</p>
         <div className="relative w-full h-[20px] overflow-hidden">
           <div
