@@ -30,12 +30,16 @@ const Dashboard: React.FC = () => {
       <h2 className="text-2xl md:text-3xl">
         Welcome to the Dashboard, {user?.displayName}
       </h2>
-      <motion.ul className="grid grid-cols-responsive auto-rows-[220px] gap-6 p-3 ">
-        {data?.data.map((item: any, index: number) => (
+      <motion.ul className="grid grid-cols-responsive auto-rows-[150px] gap-6 p-3 ">
+        {data?.data.map((item: any) => (
           <Workspace
             key={item.workspaceId}
+            totalMember={item.totalMember}
+            adminName={item.workspace.admin.name}
+            adminImg={item.workspace.admin.photo}
             name={item.workspace.name}
             logo={item.workspace.logo}
+            createdAt={item.workspace.createdAt}
             role={item.role}
             id={item.workspaceId}
           />
