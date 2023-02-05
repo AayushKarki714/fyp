@@ -10,10 +10,13 @@ import { useQuery } from "react-query";
 const Dashboard: React.FC = () => {
   let navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
+
   const { data, isLoading } = useQuery("workspace-query", async () => {
     const res = await axios.get(`/workspace/workspaces/${user.id}`);
     return res.data;
   });
+
+  console.log(data, "data");
 
   const handleRedirect = () => {
     navigate("/create-workspace");
