@@ -6,6 +6,7 @@ import verifyRole from "../utils/verifyRole";
 import { Role } from "@prisma/client";
 import { pid } from "process";
 import BaseError from "../utils/baseError";
+import Api400Error from "../utils/api400Error";
 
 async function handleCreateWorkspace(
   req: Request,
@@ -147,56 +148,6 @@ async function handleUpdateWorkspaceTitle(
     .json({ message: `${updateWorkspace.name} was updated Successfully!!` });
 }
 
-// async function handleAddMembers(
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) {
-//   const { workspaceId, userId } = req.params;
-//   const { addedUsers, role } = req.body;
-
-//   checkIfUserIdMatches(req, userId);
-//   await verifyRole(["ADMIN"], workspaceId, userId);
-
-//   const addedUserId: string[] = await Promise.all(
-//     addedUsers.map(async (userEmail: string) => {
-//       const findUser = await prisma.user.findUnique({
-//         where: { email: userEmail },
-//       });
-//       return findUser?.id;
-//     })
-//   );
-
-//   console.log("addedUserId", addedUserId);
-
-//   const updateWorkspace = await prisma.workspace.update({
-//     data: {
-//       Member: {
-//         createMany: {
-//           data: await Promise.all(
-//             addedUserId.map(async (user: any, index: number) => {
-//               return await prisma.member.create({
-//                 data: {
-//                   userId: addedUserId[index],
-//                   role: Role.LANCER,
-//                   workspaceId,
-//                 },
-//               });
-//             })
-//           ),
-//         },
-//       },
-//     },
-//     where: {
-//       id: workspaceId,
-//     },
-//   });
-
-//   return res
-//     .status(200)
-//     .json({ message: "SucessFully Fetched my boi", data: updateWorkspace });
-// }
-
 async function handleAddMembers(
   req: Request,
   res: Response,
@@ -216,6 +167,7 @@ async function handleAddMembers(
       });
     })
   );
+
   const newMembersData = addedUsers.map((_: any, index: number) => {
     return {
       workspaceId,
@@ -234,10 +186,37 @@ async function handleAddMembers(
   });
 }
 
+async function checkIfEmailAvailable(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { email, workspaceId } = req.params;
+  const findUser = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+  if (!findUser) {
+    throw new Api400Error("User doesn't Exist ");
+  }
+  const isAlreadyMember = await prisma.member.findUnique({
+    where: {
+      workspaceId_userId: { workspaceId, userId: findUser.id },
+    },
+  });
+
+  if (isAlreadyMember) {
+    throw new Api400Error("Already Part of the Workspace");
+  }
+  return res.status(200).json({ message: "Email is Allowed to Add" });
+}
+
 export {
   handleCreateWorkspace,
   handleGetWorkspace,
   handleDeleteWorkspace,
   handleUpdateWorkspaceTitle,
   handleAddMembers,
+  checkIfEmailAvailable,
 };

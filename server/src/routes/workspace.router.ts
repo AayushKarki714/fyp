@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  checkIfEmailAvailable,
   handleAddMembers,
   handleCreateWorkspace,
   handleDeleteWorkspace,
@@ -10,6 +11,11 @@ import fileUpload from "express-fileupload";
 import catchAsyncErrors from "../utils/catchAsyncErrors";
 
 const workspaceRouter = express.Router();
+
+workspaceRouter.get(
+  "/:workspaceId/:email/check-email",
+  catchAsyncErrors(checkIfEmailAvailable)
+);
 
 workspaceRouter.post(
   "/create-workspace",
