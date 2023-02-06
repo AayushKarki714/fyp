@@ -1,5 +1,5 @@
 import React, { useRef, useState, useMemo } from "react";
-import { addMonths, formatDistance } from "date-fns";
+import { addMonths, formatDistance, formatRelative } from "date-fns";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
 import DatePicker from "react-datepicker";
 import {
@@ -178,9 +178,11 @@ function TodoEditModal({
     updateCompletionMutation.mutate({ completionDate: date });
   };
 
-  const formatTime = formatDistance(new Date(createdAt), new Date(), {
-    addSuffix: true,
-  });
+  // const formatTime = formatDistance(new Date(createdAt), new Date(), {
+  //   addSuffix: true,
+  // });
+
+  const formatTime = formatRelative(new Date(createdAt), new Date());
 
   const createdCommentMutation = useMutation(
     async (data: any) => {

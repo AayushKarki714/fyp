@@ -16,8 +16,6 @@ const Dashboard: React.FC = () => {
     return res.data;
   });
 
-  console.log(data, "data");
-
   const handleRedirect = () => {
     navigate("/create-workspace");
   };

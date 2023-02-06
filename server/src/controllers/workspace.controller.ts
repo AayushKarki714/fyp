@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import path from "path";
 import prisma from "../utils/prisma";
-import BaseError from "../utils/baseError";
 import checkIfUserIdMatches from "../utils/checkIfUserIdMatches";
 import verifyRole from "../utils/verifyRole";
 

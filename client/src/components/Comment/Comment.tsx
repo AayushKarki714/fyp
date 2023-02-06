@@ -6,7 +6,7 @@ import {
   ArrowUturnRightIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon } from "@heroicons/react/24/solid";
-import { formatDistance } from "date-fns";
+import { formatDistance, formatRelative } from "date-fns";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import axios from "../../api/axios";
 import { useAppSelector } from "../../redux/store/hooks";
@@ -46,19 +46,9 @@ function Comment({
     const isEqual =
       new Date(createdAt).getTime() === new Date(updatedAt).getTime();
     if (!isEqual) {
-      return (
-        "updated " +
-        formatDistance(new Date(updatedAt), new Date(), {
-          addSuffix: true,
-        })
-      );
+      return "updated " + formatRelative(new Date(updatedAt), new Date());
     }
-    return (
-      "created " +
-      formatDistance(new Date(createdAt), new Date(), {
-        addSuffix: true,
-      })
-    );
+    return "created " + formatRelative(new Date(createdAt), new Date());
   };
 
   const commentUpdateMutation = useMutation(

@@ -63,21 +63,24 @@ const TodoCard: React.FC<Props> = ({
           "todo-query",
           newTodo.prevTodoCardId,
         ]);
+
         const snapshotOfCurrTodoCard = queryClient.getQueryData([
           "todo-query",
           todoCardId,
         ]);
-        const updateTodo = snapshotOfPrevTodoCard.find(
+        const updateTodo = snapshotOfPrevTodoCard?.data?.find(
           (todo: any) => todo.id === newTodo.todoId
         );
         updateTodo.status = title;
         updateTodo.todoCardId = todoCardId;
         queryClient.setQueryData(
           ["todo-query", newTodo.prevTodoCardId],
-          (old: any) => old.filter((t: any) => t.id !== newTodo.todoId)
+          (old: any) => {
+            return old?.data?.filter((t: any) => t.id !== newTodo.todoId);
+          }
         );
         queryClient.setQueryData(["todo-query", todoCardId], (old: any) => [
-          ...old,
+          ...old?.data,
           updateTodo,
         ]);
 
