@@ -1,31 +1,11 @@
 import React, { useState } from "react";
 import Tab from "../utils/Tab";
 import useNavigateToDashboard from "../hooks/useNavigateToDashboard";
-import { motion } from "framer-motion";
-
-interface SettingNavLinkProps {
-  tab: Tab;
-  selectedTab: Tab;
-  children: React.ReactNode;
-  onSelectTab: () => void;
-}
-
-const SettingNavLink: React.FC<SettingNavLinkProps> = ({
-  tab,
-  onSelectTab,
-  selectedTab,
-  children,
-}) => {
-  const isSelectedTab = tab === selectedTab;
-  return (
-    <li onClick={onSelectTab}>
-      {children}
-      {isSelectedTab ? (
-        <motion.div className="underline" layoutId="underline" />
-      ) : null}
-    </li>
-  );
-};
+import SettingNavLink from "../components/Setting/SettingNavLink";
+import { UserPlusIcon } from "@heroicons/react/24/outline";
+import AddTab from "../components/Setting/AddTab";
+import RemoveTab from "../components/Setting/RemoveTab";
+import AssignTab from "../components/Setting/AssignTab";
 
 const Setting = () => {
   const [selectedTab, setSelectedTab] = useState<Tab>(Tab.ADD);
@@ -37,32 +17,40 @@ const Setting = () => {
   useNavigateToDashboard();
 
   return (
-    <div>
+    <div className="flex flex-col gap-6 ">
       <nav>
-        <ul className="flex">
+        <ul className="flex border-b-2 border-custom-light-dark">
           <SettingNavLink
             tab={Tab.ADD}
             selectedTab={selectedTab}
             onSelectTab={handleSelectTab.bind(null, Tab.ADD)}
           >
-            Hello{" "}
+            <span>
+              <UserPlusIcon className="h-6 w-6" />
+            </span>
+            Add
           </SettingNavLink>
           <SettingNavLink
             tab={Tab.REMOVE}
             selectedTab={selectedTab}
             onSelectTab={handleSelectTab.bind(null, Tab.REMOVE)}
           >
-            Nice
+            Remove
           </SettingNavLink>
           <SettingNavLink
             tab={Tab.ASSIGN}
             selectedTab={selectedTab}
             onSelectTab={handleSelectTab.bind(null, Tab.ASSIGN)}
           >
-            Ola
+            Assign
           </SettingNavLink>
         </ul>
       </nav>
+      <div>
+        {selectedTab === Tab.ADD && <AddTab />}
+        {selectedTab === Tab.REMOVE && <RemoveTab />}
+        {selectedTab === Tab.ASSIGN && <AssignTab />}
+      </div>
     </div>
   );
 };

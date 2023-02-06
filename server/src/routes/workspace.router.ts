@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  handleAddMembers,
   handleCreateWorkspace,
   handleDeleteWorkspace,
   handleGetWorkspace,
@@ -14,6 +15,11 @@ workspaceRouter.post(
   "/create-workspace",
   fileUpload({ createParentPath: true }),
   catchAsyncErrors(handleCreateWorkspace)
+);
+
+workspaceRouter.post(
+  "/:userId/:workspaceId/add-members",
+  catchAsyncErrors(handleAddMembers)
 );
 
 workspaceRouter.patch(

@@ -3,6 +3,9 @@ import path from "path";
 import prisma from "../utils/prisma";
 import checkIfUserIdMatches from "../utils/checkIfUserIdMatches";
 import verifyRole from "../utils/verifyRole";
+import { Role } from "@prisma/client";
+import { pid } from "process";
+import BaseError from "../utils/baseError";
 
 async function handleCreateWorkspace(
   req: Request,
@@ -144,9 +147,97 @@ async function handleUpdateWorkspaceTitle(
     .json({ message: `${updateWorkspace.name} was updated Successfully!!` });
 }
 
+// async function handleAddMembers(
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) {
+//   const { workspaceId, userId } = req.params;
+//   const { addedUsers, role } = req.body;
+
+//   checkIfUserIdMatches(req, userId);
+//   await verifyRole(["ADMIN"], workspaceId, userId);
+
+//   const addedUserId: string[] = await Promise.all(
+//     addedUsers.map(async (userEmail: string) => {
+//       const findUser = await prisma.user.findUnique({
+//         where: { email: userEmail },
+//       });
+//       return findUser?.id;
+//     })
+//   );
+
+//   console.log("addedUserId", addedUserId);
+
+//   const updateWorkspace = await prisma.workspace.update({
+//     data: {
+//       Member: {
+//         createMany: {
+//           data: await Promise.all(
+//             addedUserId.map(async (user: any, index: number) => {
+//               return await prisma.member.create({
+//                 data: {
+//                   userId: addedUserId[index],
+//                   role: Role.LANCER,
+//                   workspaceId,
+//                 },
+//               });
+//             })
+//           ),
+//         },
+//       },
+//     },
+//     where: {
+//       id: workspaceId,
+//     },
+//   });
+
+//   return res
+//     .status(200)
+//     .json({ message: "SucessFully Fetched my boi", data: updateWorkspace });
+// }
+
+async function handleAddMembers(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { addedUsers, role } = req.body;
+  const { userId, workspaceId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["ADMIN"], workspaceId, userId);
+
+  const addedUsersId = await Promise.all(
+    addedUsers?.map(async (userEmail: any) => {
+      return await prisma.user.findUnique({
+        where: { email: userEmail },
+        select: { id: true },
+      });
+    })
+  );
+  const newMembersData = addedUsers.map((_: any, index: number) => {
+    return {
+      workspaceId,
+      userId: addedUsersId[index].id,
+      role: role as Role,
+    };
+  });
+
+  const addedMembers = await prisma.member.createMany({
+    data: newMembersData,
+  });
+
+  return res.status(200).json({
+    message: `The new User with the Role ${role} added SucessFully`,
+    data: addedMembers,
+  });
+}
+
 export {
   handleCreateWorkspace,
   handleGetWorkspace,
   handleDeleteWorkspace,
   handleUpdateWorkspaceTitle,
+  handleAddMembers,
 };

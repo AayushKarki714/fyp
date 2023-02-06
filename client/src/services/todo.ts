@@ -1,21 +1,10 @@
-import { AxiosRequestConfig } from "axios";
 import { makeRequest, makeRequestFn } from "../api/makeRequest";
-
-const DELETE_OPTIONS: AxiosRequestConfig = {
-  method: "DELETE",
-};
-
-const GET_OPTIONS: AxiosRequestConfig = {
-  method: "GET",
-};
-
-const POST_OPTIONS: AxiosRequestConfig = {
-  method: "POST",
-};
-
-const PATCH_OPTIONS: AxiosRequestConfig = {
-  method: "PATCH",
-};
+import {
+  GET_OPTIONS,
+  DELETE_OPTIONS,
+  POST_OPTIONS,
+  PATCH_OPTIONS,
+} from "../utils/options";
 
 interface ICreateTodoContainer {
   userId: string;

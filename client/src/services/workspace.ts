@@ -1,4 +1,5 @@
-import { makeRequest } from "../api/makeRequest";
+import { makeRequest, makeRequestFn } from "../api/makeRequest";
+import { POST_OPTIONS } from "../utils/options";
 
 async function createWorkspace(data: any) {
   return await makeRequest("/workspace/create-workspace", {
@@ -7,4 +8,23 @@ async function createWorkspace(data: any) {
   });
 }
 
-export { createWorkspace };
+interface Props {
+  userId: string;
+  workspaceId: string;
+}
+
+function addLancer({ userId, workspaceId }: Props) {
+  return makeRequestFn(
+    `/workspace/${userId}/${workspaceId}/add-members`,
+    POST_OPTIONS
+  );
+}
+
+function addClient({ userId, workspaceId }: Props) {
+  return makeRequestFn(
+    `/workspace/${userId}/${workspaceId}/add-members`,
+    POST_OPTIONS
+  );
+}
+
+export { createWorkspace, addLancer, addClient };
