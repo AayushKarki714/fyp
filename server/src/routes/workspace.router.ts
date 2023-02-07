@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  appointAsAdmin,
   checkIfEmailAvailable,
   deleteMember,
   getAllMembers,
@@ -38,6 +39,11 @@ workspaceRouter.post(
 workspaceRouter.patch(
   "/:workspaceId/:userId/update-workspace-name",
   catchAsyncErrors(handleUpdateWorkspaceTitle)
+);
+
+workspaceRouter.patch(
+  "/:workspaceId/:userId/appoint-admin",
+  catchAsyncErrors(appointAsAdmin)
 );
 
 workspaceRouter.get(

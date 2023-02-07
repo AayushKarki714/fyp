@@ -259,6 +259,38 @@ async function deleteMember(req: Request, res: Response, next: NextFunction) {
   });
 }
 
+async function appointAsAdmin(req: Request, res: Response, next: NextFunction) {
+  const { userId, workspaceId } = req.params;
+  const { newAdminId } = req.body;
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["ADMIN"], workspaceId, userId);
+
+  const data = await prisma.$transaction([
+    prisma.workspace.update({
+      where: {
+        id: workspaceId,
+      },
+      data: {
+        adminId: newAdminId,
+      },
+    }),
+    prisma.member.update({
+      where: {
+        workspaceId_userId: { workspaceId, userId: newAdminId },
+      },
+      data: {
+        role: "ADMIN",
+      },
+    }),
+    prisma.member.delete({
+      where: {
+        workspaceId_userId: { workspaceId, userId },
+      },
+    }),
+  ]);
+  return res.status(200).json({ xmessage: "Appointed as a new Admin", data });
+}
+
 export {
   handleCreateWorkspace,
   handleGetWorkspace,
@@ -268,4 +300,5 @@ export {
   checkIfEmailAvailable,
   getAllMembers,
   deleteMember,
+  appointAsAdmin,
 };

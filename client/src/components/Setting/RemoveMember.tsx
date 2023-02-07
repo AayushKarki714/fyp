@@ -1,38 +1,28 @@
-import { useState } from "react";
+import { useQueryClient, useQuery, useMutation } from "react-query";
 import axios from "../../api/axios";
-import { useQuery, useQueryClient, useMutation } from "react-query";
-import { useAppDispatch, useAppSelector } from "../../redux/store/hooks";
-import Overlay from "../Modals/Overlay";
+import { useAppSelector } from "../../redux/store/hooks";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import Overlay from "../Modals/Overlay";
 import Modal from "../Modals/Modal";
-import { Role, switchWorkSpace } from "../../redux/slices/workspaceSlice";
-import { useNavigate } from "react-router-dom";
 
-interface AppointAsAdminCardProps {
-  member: any;
-  mutateFn: any;
-}
+interface RemoveLancerProps {}
 
-const AppointAsAdminCard: React.FC<AppointAsAdminCardProps> = ({
-  member,
-  mutateFn,
-}) => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
+const RemoveUserCard = ({ member, mutateFn }: any) => {
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   return (
     <>
       <Overlay isOpen={isModalVisible} onClick={() => setIsModalVisible(false)}>
         <Modal close={false}>
-          <div className="p-2 flex items-center flex-col gap-6   w-[350px]">
-            <h2 className="text-xl text-center">
-              Are you sure you want to Appoint new Admin (Remember that you will
-              no longer be part of the workspace if you assign another member an
-              admin)
+          <div className="p-2 flex items-center flex-col gap-6  h-[150px] w-[350px]">
+            <h2 className="text-2xl text-center">
+              Are you sure you want to delete the Member?
             </h2>
             <div className="flex items-center justify-center gap-2">
               <button
                 onClick={() => {
-                  mutateFn({ newAdminId: member.userId });
+                  mutateFn({ memberId: member.userId });
                 }}
                 className="bg-green-600 px-4 w-24 py-2 flex-grow rounded-md "
               >
@@ -68,9 +58,9 @@ const AppointAsAdminCard: React.FC<AppointAsAdminCardProps> = ({
           <div>
             <button
               onClick={() => setIsModalVisible(true)}
-              className="text-sm bg-green-600 hover:brightness-95 text-white py-2 px-4  rounded-md"
+              className="text-sm bg-red-700 hover:brightness-95 text-white py-2 px-4  rounded-md"
             >
-              Appoint as Admin
+              Delete
             </button>
           </div>
         </div>
@@ -79,9 +69,8 @@ const AppointAsAdminCard: React.FC<AppointAsAdminCardProps> = ({
   );
 };
 
-function AssignTab() {
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+const RemoveMember: React.FC<RemoveLancerProps> = () => {
+  const queryClient = useQueryClient();
   const { workspaceId } = useAppSelector((state) => state.workspace);
   const {
     user: { id: userId },
@@ -95,17 +84,15 @@ function AssignTab() {
   });
 
   const { mutate } = useMutation(
-    async (data: any) => {
-      const res = await axios.patch(
-        `/workspace/${workspaceId}/${userId}/appoint-admin`,
-        data
+    async ({ memberId }: { memberId: string }) => {
+      const res = await axios.delete(
+        `/workspace/${userId}/${workspaceId}/${memberId}/delete-member`
       );
       return res.data;
     },
     {
       onSuccess: (data) => {
-        dispatch(switchWorkSpace({ workspaceId: "", role: Role.CLIENT }));
-        navigate("/dashboard", { replace: true });
+        queryClient.invalidateQueries("members-query");
         console.log("data", data);
       },
       onError: (error) => {
@@ -115,27 +102,23 @@ function AssignTab() {
   );
 
   if (membersQuery.isLoading) {
-    return <h1>Loading...</h1>;
+    return <h1>Loading....</h1>;
   }
-
   const membersData = membersQuery.data?.data;
-  console.log(membersData);
 
   return (
-    <div>
-      <div className="grid grid-cols-responsive-remove gap-3">
-        {membersData?.map((member: any) => {
-          return (
-            <AppointAsAdminCard
-              key={member.userId}
-              mutateFn={mutate}
-              member={member}
-            />
-          );
-        })}
-      </div>
+    <div className="grid grid-cols-responsive-remove gap-3">
+      {membersData?.map((member: any) => {
+        return (
+          <RemoveUserCard
+            key={member.userId}
+            mutateFn={mutate}
+            member={member}
+          />
+        );
+      })}
     </div>
   );
-}
+};
 
-export default AssignTab;
+export default RemoveMember;
