@@ -1,6 +1,8 @@
 import express from "express";
 import {
   checkIfEmailAvailable,
+  deleteMember,
+  getAllMembers,
   handleAddMembers,
   handleCreateWorkspace,
   handleDeleteWorkspace,
@@ -15,6 +17,11 @@ const workspaceRouter = express.Router();
 workspaceRouter.get(
   "/:workspaceId/:email/check-email",
   catchAsyncErrors(checkIfEmailAvailable)
+);
+
+workspaceRouter.get(
+  "/:userId/:workspaceId/get-members",
+  catchAsyncErrors(getAllMembers)
 );
 
 workspaceRouter.post(
@@ -41,6 +48,11 @@ workspaceRouter.get(
 workspaceRouter.delete(
   "/:workspaceId/:userId",
   catchAsyncErrors(handleDeleteWorkspace)
+);
+
+workspaceRouter.delete(
+  "/:userId/:workspaceId/:memberId/delete-member",
+  catchAsyncErrors(deleteMember)
 );
 
 export default workspaceRouter;

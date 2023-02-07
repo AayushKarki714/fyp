@@ -1,5 +1,6 @@
+import { Role } from "../redux/slices/workspaceSlice";
 import { makeRequest, makeRequestFn } from "../api/makeRequest";
-import { POST_OPTIONS } from "../utils/options";
+import { DELETE_OPTIONS, POST_OPTIONS } from "../utils/options";
 
 async function createWorkspace(data: any) {
   return await makeRequest("/workspace/create-workspace", {
@@ -20,4 +21,15 @@ function addMember({ userId, workspaceId }: Props) {
   );
 }
 
-export { createWorkspace, addMember };
+interface RemoveMemberProps extends Props {
+  memberId: string;
+}
+
+function removeMember({ userId, workspaceId, memberId }: RemoveMemberProps) {
+  return makeRequestFn(
+    `/workspace/${userId}/${workspaceId}/${memberId}/delete-member`,
+    DELETE_OPTIONS
+  );
+}
+
+export { createWorkspace, addMember, removeMember };

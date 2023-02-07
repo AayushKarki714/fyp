@@ -11,6 +11,7 @@ module.exports = {
       },
       gridTemplateColumns: {
         responsive: "repeat(auto-fill,minmax(300px,1fr))",
+        "responsive-remove": "repeat(auto-fill,minmax(350px,1fr))",
         "responsive-gallery": "repeat(auto-fill,minmax(200px,1fr))",
         "responsive-todo": "repeat(auto-fill,minmax(280px,1fr))",
       },

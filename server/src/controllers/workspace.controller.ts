@@ -4,8 +4,6 @@ import prisma from "../utils/prisma";
 import checkIfUserIdMatches from "../utils/checkIfUserIdMatches";
 import verifyRole from "../utils/verifyRole";
 import { Role } from "@prisma/client";
-import { pid } from "process";
-import BaseError from "../utils/baseError";
 import Api400Error from "../utils/api400Error";
 
 async function handleCreateWorkspace(
@@ -212,6 +210,55 @@ async function checkIfEmailAvailable(
   return res.status(200).json({ message: "Email is Allowed to Add" });
 }
 
+async function getAllMembers(req: Request, res: Response, next: NextFunction) {
+  const { userId, workspaceId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["ADMIN"], workspaceId, userId);
+
+  const findMembers = await prisma.member.findMany({
+    where: {
+      workspaceId: workspaceId,
+      NOT: { role: "ADMIN" },
+    },
+    select: {
+      role: true,
+      createdAt: true,
+      workspaceId: true,
+      userId: true,
+      user: {
+        select: {
+          id: true,
+          photo: true,
+          userName: true,
+        },
+      },
+    },
+  });
+
+  return res.status(200).json({
+    message: `Get all users in the Workspace `,
+    data: findMembers,
+  });
+}
+
+async function deleteMember(req: Request, res: Response, next: NextFunction) {
+  const { workspaceId, userId, memberId } = req.params;
+  checkIfUserIdMatches(req, userId);
+  await verifyRole(["ADMIN"], workspaceId, userId);
+
+  const deleteMember = await prisma.member.delete({
+    where: {
+      workspaceId_userId: { workspaceId, userId: memberId },
+    },
+  });
+
+  return res.status(200).json({
+    message: `The member with the role ${deleteMember.role} was SuccesFully removed `,
+    data: deleteMember,
+  });
+}
+
 export {
   handleCreateWorkspace,
   handleGetWorkspace,
@@ -219,4 +266,6 @@ export {
   handleUpdateWorkspaceTitle,
   handleAddMembers,
   checkIfEmailAvailable,
+  getAllMembers,
+  deleteMember,
 };
