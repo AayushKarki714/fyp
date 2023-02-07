@@ -13,18 +13,11 @@ interface Props {
   workspaceId: string;
 }
 
-function addLancer({ userId, workspaceId }: Props) {
+function addMember({ userId, workspaceId }: Props) {
   return makeRequestFn(
     `/workspace/${userId}/${workspaceId}/add-members`,
     POST_OPTIONS
   );
 }
 
-function addClient({ userId, workspaceId }: Props) {
-  return makeRequestFn(
-    `/workspace/${userId}/${workspaceId}/add-members`,
-    POST_OPTIONS
-  );
-}
-
-export { createWorkspace, addLancer, addClient };
+export { createWorkspace, addMember };

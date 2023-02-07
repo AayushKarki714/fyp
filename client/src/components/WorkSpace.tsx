@@ -167,7 +167,7 @@ const Workspace: React.FC<any> = ({
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 onClick={handleStopPropagation}
-                className="absolute flex flex-col gap-1 w-[200px] -top-24 right-4   bg-custom-light-dark border-2 border-dark-gray  rounded-md shadow-md  origin-top-right p-2"
+                className="absolute flex flex-col gap-1 w-[200px] -top-24 right-4   bg-custom-light-dark border-2 border-dark-gray  rounded-md shadow-md  origin-bottom-right p-2"
               >
                 <div
                   onClick={() => {
