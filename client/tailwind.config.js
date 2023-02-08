@@ -7,7 +7,7 @@ module.exports = {
         poppins: ["Poppins", "sans-serif"],
       },
       boxShadow: {
-        "green-shadow": "rgba(138, 216, 92, 1) 0px 7px 29px 0px",
+        "green-shadow": "rgba(138, 216, 92, 0.4) 0px 7px 29px 0px",
       },
       gridTemplateColumns: {
         responsive: "repeat(auto-fill,minmax(300px,1fr))",

@@ -1,4 +1,3 @@
-import { Role } from "../redux/slices/workspaceSlice";
 import { makeRequest, makeRequestFn } from "../api/makeRequest";
 import { DELETE_OPTIONS, POST_OPTIONS } from "../utils/options";
 

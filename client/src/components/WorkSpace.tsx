@@ -104,8 +104,8 @@ const Workspace: React.FC<any> = ({
         </Modal>
       </Overlay>
 
-      <div
-        // whileHover={{ scale: 1.05 }}
+      <motion.div
+        whileHover={{ scale: 1.05 }}
         title={adminName}
         onMouseLeave={() => setIsPopupVisible(false)}
         onClick={() => dispatch(switchWorkSpace({ workspaceId: id, role }))}
@@ -194,7 +194,7 @@ const Workspace: React.FC<any> = ({
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 };
