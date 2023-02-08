@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { useAppSelector } from "../redux/store/hooks";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { createWorkspace } from "../services/workspace";
@@ -63,6 +63,7 @@ const FormItem: React.FC<IFormItem> = ({
 };
 
 const CreateWorkspace: React.FC = () => {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
   const [preview, setPreview] = useState<string | null>(null);
@@ -74,6 +75,7 @@ const CreateWorkspace: React.FC = () => {
   const { mutate, isLoading } = useMutation(createWorkspace, {
     onSuccess: (data) => {
       navigate("/dashboard");
+      queryClient.invalidateQueries("unread-notifications");
       toast(`Workspace ${data?.workspace?.name} Created SucessFully`);
     },
     onError: (error: any) => {

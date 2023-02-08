@@ -3,7 +3,7 @@ import path from "path";
 import prisma from "../utils/prisma";
 import checkIfUserIdMatches from "../utils/checkIfUserIdMatches";
 import verifyRole from "../utils/verifyRole";
-import { Role } from "@prisma/client";
+import { InvitationStatus, NotificationType, Role } from "@prisma/client";
 import Api400Error from "../utils/api400Error";
 
 async function handleCreateWorkspace(
@@ -38,6 +38,10 @@ async function handleCreateWorkspace(
 
   const lancersData = await Promise.all(lancers);
   const clientsData = await Promise.all(clients);
+  const membersData = lancersData.concat(clientsData).concat({
+    userId: adminId,
+    role: "ADMIN",
+  });
 
   const newWorkspace = await prisma.workspace.create({
     data: {
@@ -45,17 +49,51 @@ async function handleCreateWorkspace(
       logo: `http://localhost:8000/${file.name}`,
       adminId: adminId,
       Member: {
-        create: [
-          ...lancersData,
-          ...clientsData,
-          {
-            userId: (req.user as any).id,
-            role: "ADMIN",
-          },
-        ],
+        create: membersData,
       },
     },
   });
+  const invitationsData = membersData.map((memberData) => {
+    if (memberData.userId === adminId) {
+      return {
+        recipientId: adminId,
+        senderId: adminId,
+        status: InvitationStatus.ACCEPTED,
+        message: `You created a workspace named ${name} SucessFully`,
+      };
+    } else {
+      return {
+        recipientId: memberData.userId,
+        senderId: adminId,
+        message: `You are invited as a ${memberData.role} in ${name} `,
+      };
+    }
+  });
+
+  const invitations = await prisma.$transaction(
+    invitationsData.map((invitationData) =>
+      prisma.invitation.create({ data: invitationData })
+    )
+  );
+
+  const notifications = await prisma.$transaction(
+    invitations.map((invitationData) =>
+      prisma.notification.create({
+        data: {
+          invitationId: invitationData.id,
+          notificationType:
+            invitationData.senderId === invitationData.recipientId
+              ? NotificationType.NORMAL
+              : NotificationType.INVITATION,
+          message: invitationData.message,
+          userId: invitationData.recipientId,
+        },
+      })
+    )
+  );
+
+  console.log({ invitations });
+  console.log({ notifications });
 
   return res.status(200).json({ workspace: newWorkspace });
 }
