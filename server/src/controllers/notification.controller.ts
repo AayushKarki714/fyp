@@ -63,6 +63,7 @@ async function getNotificationsByUserId(
     where: {
       userId,
     },
+    orderBy: [{ createdAt: "desc" }, { updatedAt: "desc" }],
     include: {
       workspace: true,
     },

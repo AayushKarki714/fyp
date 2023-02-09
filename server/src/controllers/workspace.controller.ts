@@ -308,7 +308,48 @@ async function appointAsAdmin(req: Request, res: Response, next: NextFunction) {
       },
     }),
   ]);
-  return res.status(200).json({ xmessage: "Appointed as a new Admin", data });
+
+  return res.status(200).json({ message: "Appointed as a new Admin", data });
+}
+
+async function handleUpdateInvitationStatus(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { userId } = req.params;
+  const { workspaceId, invitationStatus, notificationId } = req.body;
+  checkIfUserIdMatches(req, userId);
+
+  const updateInvitationStatus = await prisma.member.update({
+    where: {
+      workspaceId_userId: { workspaceId, userId },
+    },
+    data: {
+      invitationStatus,
+    },
+    include: {
+      workspace: true,
+    },
+  });
+
+  await prisma.notification.update({
+    where: {
+      id: notificationId,
+    },
+    data: {
+      message:
+        invitationStatus === InvitationStatus.ACCEPTED
+          ? `You are now member of the ${updateInvitationStatus.workspace.name} as a ${updateInvitationStatus.role}`
+          : `You decline to be part of the ${updateInvitationStatus.workspace.name} as a ${updateInvitationStatus.role}`,
+      notificationType: "NORMAL",
+    },
+  });
+
+  return res.status(200).json({
+    message: `You ${invitationStatus} Sucessfully`,
+    data: updateInvitationStatus,
+  });
 }
 
 export {
@@ -321,4 +362,5 @@ export {
   getAllMembers,
   deleteMember,
   appointAsAdmin,
+  handleUpdateInvitationStatus,
 };
