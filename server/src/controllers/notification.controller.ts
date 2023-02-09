@@ -39,6 +39,7 @@ async function getUnreadNotificationCount(
       userId,
       read: false,
     },
+
     _count: {
       _all: true,
     },
@@ -59,13 +60,15 @@ async function getNotificationsByUserId(
   checkIfUserIdMatches(req, userId);
 
   const notifications = await prisma.notification.findMany({
-    where: { userId },
-    orderBy: {
-      createdAt: "desc",
+    where: {
+      userId,
+    },
+    include: {
+      workspace: true,
     },
   });
 
-  res
+  return res
     .status(200)
     .json({ data: notifications, message: "Notification Fetched SucessFully" });
 }

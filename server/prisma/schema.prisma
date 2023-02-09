@@ -19,8 +19,6 @@ model User {
     Workspace     Workspace[]
     comments      Comment[]
     likes         Like[]
-    senders       Invitation[]   @relation("sender")
-    recievers     Invitation[]   @relation("reciever")
     notifications Notification[]
 }
 
@@ -35,16 +33,18 @@ model Workspace {
     Gallery       GalleryContainer[]
     Progress      ProgressContainer[]
     TodoContainer TodoContainer[]
+    notifications Notification[]
 }
 
 model Member {
-    id          String    @id @default(uuid())
-    user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    role        Role
-    userId      String
-    createdAt   DateTime  @default(now())
-    workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-    workspaceId String
+    id               String           @id @default(uuid())
+    user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    role             Role             @default(CLIENT)
+    userId           String
+    invitationStatus InvitationStatus @default(PENDING)
+    createdAt        DateTime         @default(now())
+    workspace        Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    workspaceId      String
 
     @@unique([workspaceId, userId])
 }
@@ -144,42 +144,29 @@ model Like {
     @@unique([userId, commentId])
 }
 
-model Invitation {
-    id            String           @id @default(uuid())
-    status        InvitationStatus @default(PENDING)
-    message       String
-    sender        User             @relation("sender", fields: [senderId], references: [id])
-    senderId      String
-    recipient     User             @relation("reciever", fields: [recipientId], references: [id])
-    recipientId   String
-    createdAt     DateTime         @default(now())
-    updatedAt     DateTime         @updatedAt
-    notifications Notification[]
-}
-
 model Notification {
     id               String           @id @default(uuid())
     read             Boolean          @default(false)
-    notificationType NotificationType @default(NORMAL)
-    message          String
     createdAt        DateTime         @default(now())
+    message          String
     updatedAt        DateTime         @updatedAt
+    workspace        Workspace?       @relation(fields: [workspaceId], references: [id])
+    workspaceId      String?
+    notificationType NotificationType @default(NORMAL)
     user             User             @relation(fields: [userId], references: [id])
     userId           String
-    invitations      Invitation       @relation(fields: [invitationId], references: [id])
-    invitationId     String
-}
-
-enum InvitationStatus {
-    PENDING
-    ACCEPTED
-    DECLINED
 }
 
 enum Role {
     ADMIN
     LANCER
     CLIENT
+}
+
+enum InvitationStatus {
+    PENDING
+    ACCEPTED
+    DECLINED
 }
 
 enum NotificationType {

@@ -27,7 +27,6 @@ const NavBar: React.FC = () => {
   useOnClickOutside(profileRef, () => setShowUserDetail(false));
   useOnClickOutside(notificationsRef, () => setIsNotificationsOpen(false));
   const unreadNotificationCount = unReadNotificationQuery?.data?.data;
-  console.log(unreadNotificationCount);
 
   return (
     <nav
@@ -41,18 +40,19 @@ const NavBar: React.FC = () => {
         <Link to="/dashboard">ProjectZone</Link>{" "}
       </h1>
       <div className="flex items-center gap-4">
-        <motion.div
-          whileTap={{ scale: 0.95 }}
-          ref={notificationsRef}
-          onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-          className="relative flex items-center justify-center w-10 h-10 cursor-pointer bg-[#333] select-none rounded-full"
-        >
-          <div className=" w-5 h-5 flex items-center justify-center text-xs absolute top-[01px] right-[2px] bg-red-600 rounded-full">
-            {unreadNotificationCount}
-          </div>
-          <BellIcon className="h-5 w-5 text-white" />
-        </motion.div>
-        {isNotificationsOpen && <NotificationModal />}
+        <div ref={notificationsRef}>
+          <motion.div
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+            className="relative flex items-center justify-center w-10 h-10 cursor-pointer bg-[#333] select-none rounded-full"
+          >
+            <div className=" w-5 h-5 flex items-center justify-center text-xs absolute top-[01px] right-[2px] bg-red-600 rounded-full">
+              {unreadNotificationCount}
+            </div>
+            <BellIcon className="h-5 w-5 text-white" />
+          </motion.div>
+          {isNotificationsOpen && <NotificationModal />}
+        </div>
         <motion.div
           ref={profileRef}
           className="relative flex items-center rounded-full"

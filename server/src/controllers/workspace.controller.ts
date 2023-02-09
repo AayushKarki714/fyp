@@ -38,9 +38,27 @@ async function handleCreateWorkspace(
 
   const lancersData = await Promise.all(lancers);
   const clientsData = await Promise.all(clients);
+
   const membersData = lancersData.concat(clientsData).concat({
     userId: adminId,
     role: "ADMIN",
+    invitationStatus: InvitationStatus.ACCEPTED,
+  });
+
+  const notificationsData = membersData.map((memberData) => {
+    console.log(memberData);
+    if (memberData.role === Role.ADMIN)
+      return {
+        userId: memberData.userId,
+        message: `You created a Workspace named ${name}`,
+      };
+    else {
+      return {
+        userId: memberData.userId,
+        notificationType: NotificationType.INVITATION,
+        message: `You are invited as ${memberData.role} in ${name} `,
+      };
+    }
   });
 
   const newWorkspace = await prisma.workspace.create({
@@ -51,49 +69,11 @@ async function handleCreateWorkspace(
       Member: {
         create: membersData,
       },
+      notifications: {
+        create: notificationsData,
+      },
     },
   });
-  const invitationsData = membersData.map((memberData) => {
-    if (memberData.userId === adminId) {
-      return {
-        recipientId: adminId,
-        senderId: adminId,
-        status: InvitationStatus.ACCEPTED,
-        message: `You created a workspace named ${name} SucessFully`,
-      };
-    } else {
-      return {
-        recipientId: memberData.userId,
-        senderId: adminId,
-        message: `You are invited as a ${memberData.role} in ${name} `,
-      };
-    }
-  });
-
-  const invitations = await prisma.$transaction(
-    invitationsData.map((invitationData) =>
-      prisma.invitation.create({ data: invitationData })
-    )
-  );
-
-  const notifications = await prisma.$transaction(
-    invitations.map((invitationData) =>
-      prisma.notification.create({
-        data: {
-          invitationId: invitationData.id,
-          notificationType:
-            invitationData.senderId === invitationData.recipientId
-              ? NotificationType.NORMAL
-              : NotificationType.INVITATION,
-          message: invitationData.message,
-          userId: invitationData.recipientId,
-        },
-      })
-    )
-  );
-
-  console.log({ invitations });
-  console.log({ notifications });
 
   return res.status(200).json({ workspace: newWorkspace });
 }
@@ -108,6 +88,7 @@ async function handleGetWorkspace(
   const members = await prisma.member.findMany({
     where: {
       userId: userId,
+      invitationStatus: "ACCEPTED",
     },
     orderBy: {
       createdAt: "desc",
@@ -124,12 +105,13 @@ async function handleGetWorkspace(
   const membersWithTotalCount = members.map(async (member) => {
     const totalCount = await prisma.member.groupBy({
       by: ["workspaceId"],
-      where: { workspaceId: member.workspace.id },
+      where: { workspaceId: member.workspace.id, invitationStatus: "ACCEPTED" },
       _count: {
         _all: true,
       },
     });
-    return { ...member, totalMember: totalCount[0]._count._all ?? 0 };
+    console.log(totalCount);
+    return { ...member, totalMember: totalCount[0]?._count?._all ?? 0 };
   });
 
   const finalData = await Promise.all(membersWithTotalCount);
