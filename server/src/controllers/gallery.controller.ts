@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import path from "path";
 import Api400Error from "../utils/api400Error";
+import checkIfUserIdMatches from "../utils/checkIfUserIdMatches";
 import prisma from "../utils/prisma";
 
 async function handleCreateGalleryContainer(
@@ -131,6 +132,27 @@ async function handleGalleryTitleUpdate(
   });
 }
 
+async function handleDeletePhoto(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { photoId, userId } = req.params;
+
+  console.log(photoId, userId);
+
+  checkIfUserIdMatches(req, userId);
+  const findPhoto = await prisma.photo.findUnique({ where: { id: photoId } });
+  if (!findPhoto) throw new Api400Error("Photo not Found!!");
+
+  const deletePhoto = await prisma.photo.delete({
+    where: { id: findPhoto.id },
+  });
+  return res
+    .status(200)
+    .json({ message: "Photo was Deleted SucessFully", data: deletePhoto });
+}
+
 export {
   handleCreateGalleryContainer,
   getAllGalleryContainer,
@@ -138,4 +160,5 @@ export {
   getAllPhotosInGalleryContainer,
   handleDeleteGalleryContainer,
   handleGalleryTitleUpdate,
+  handleDeletePhoto,
 };

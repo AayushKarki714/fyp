@@ -27,6 +27,9 @@ const GalleryContainer: React.FC<Props> = ({ text, galleryContainerId }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
   const [galleryTitle, setGalleryTitle] = useState<string>(text || "");
   const queryClient = useQueryClient();
+  const {
+    user: { id: userId },
+  } = useAppSelector((state) => state.auth);
   const { workspaceId } = useAppSelector((state) => state.workspace);
 
   const imagesQuery = useQuery(
@@ -100,8 +103,34 @@ const GalleryContainer: React.FC<Props> = ({ text, galleryContainerId }) => {
       },
     }
   );
+
+  const deletePhotoMutation = useMutation(
+    async (photoId: string) => {
+      const res = await axios.delete(
+        `/gallery/${userId}/${photoId}/delete-single-photo`
+      );
+      return res.data;
+    },
+    {
+      onSuccess(data) {
+        queryClient.invalidateQueries([
+          "gallery-images-query",
+          galleryContainerId,
+        ]);
+        console.log(data, "data");
+      },
+      onError(error) {
+        console.log(error, "error");
+      },
+    }
+  );
+
   const handleDeleteGalleryContainer = () => {
     deleteGalleryContainerMutation.mutate(galleryContainerId);
+  };
+
+  const handleDeletePhoto = (photoId: string) => {
+    deletePhotoMutation.mutate(photoId);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -182,19 +211,27 @@ const GalleryContainer: React.FC<Props> = ({ text, galleryContainerId }) => {
             return (
               <div
                 key={imageData.id}
-                className="rounded-md overflow-hidden cursor-pointer"
+                className="relative group rounded-md  cursor-pointer"
               >
-                <img
-                  src={imageData.url}
-                  alt={imageData.id}
-                  onClick={() => showImage(index)}
-                  className="object-cover w-full h-full"
-                />
+                <div
+                  onClick={() => handleDeletePhoto(imageData.id)}
+                  className="-right-1 -top-2 hidden group-hover:flex text-gray-400 hover:text-custom-light-green   absolute  items-center justify-center bg-[#333] h-6 w-6 rounded-full"
+                >
+                  <XCircleIcon className="h-4 w-4" />
+                </div>
+                <div className="w-full h-full overflow-hidden rounded-md">
+                  <img
+                    src={imageData.url}
+                    alt={imageData.id}
+                    onClick={() => showImage(index)}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
               </div>
             );
           })}
-          <label className="cursor-pointer flex items-center justify-center bg-custom-light-dark group rounded-md hover:shadow">
-            <PlusCircleIcon className="h-12 text-gray-400 group-hover:text-custom-light-green" />
+          <label className="cursor-pointer flex items-center text-gray-400 hover:text-custom-light-green justify-center bg-custom-light-dark  rounded-md hover:shadow">
+            <PlusCircleIcon className="h-12 " />
             <input
               className="w-0 h-0"
               type="file"

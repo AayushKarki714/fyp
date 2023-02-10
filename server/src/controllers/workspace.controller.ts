@@ -46,7 +46,6 @@ async function handleCreateWorkspace(
   });
 
   const notificationsData = membersData.map((memberData) => {
-    console.log(memberData);
     if (memberData.role === Role.ADMIN)
       return {
         userId: memberData.userId,
@@ -110,7 +109,6 @@ async function handleGetWorkspace(
         _all: true,
       },
     });
-    console.log(totalCount);
     return { ...member, totalMember: totalCount[0]?._count?._all ?? 0 };
   });
 

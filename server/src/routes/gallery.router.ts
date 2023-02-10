@@ -5,6 +5,7 @@ import {
   getAllPhotosInGalleryContainer,
   handleCreateGalleryContainer,
   handleDeleteGalleryContainer,
+  handleDeletePhoto,
   handleGalleryTitleUpdate,
   handleUploadImageInGallery,
 } from "../controllers/gallery.controller";
@@ -33,14 +34,24 @@ galleryRouter.get(
   catchAsyncErrors(getAllPhotosInGalleryContainer)
 );
 
+galleryRouter.patch(
+  "/:galleryContainerId/update-gallery-title",
+  catchAsyncErrors(handleGalleryTitleUpdate)
+);
+
 galleryRouter.delete(
   "/:galleryContainerId/delete-gallery-container",
   catchAsyncErrors(handleDeleteGalleryContainer)
 );
 
-galleryRouter.patch(
-  "/:galleryContainerId/update-gallery-title",
-  catchAsyncErrors(handleGalleryTitleUpdate)
+galleryRouter.delete(
+  "/:galleryContainerId/delete-gallery-container",
+  catchAsyncErrors(handleDeleteGalleryContainer)
+);
+
+galleryRouter.delete(
+  "/:userId/:photoId/delete-single-photo",
+  catchAsyncErrors(handleDeletePhoto)
 );
 
 export default galleryRouter;
