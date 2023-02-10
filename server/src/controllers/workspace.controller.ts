@@ -184,16 +184,51 @@ async function handleAddMembers(
     })
   );
 
+  const workspace = await prisma.workspace.findUnique({
+    where: { id: workspaceId },
+  });
+
+  if (!workspace)
+    throw new Api400Error("Workspace with the Id Provided Id was not Found");
+
   const newMembersData = addedUsers.map((_: any, index: number) => {
     return {
-      workspaceId,
+      workspaceId: workspace.id,
       userId: addedUsersId[index].id,
       role: role as Role,
     };
   });
 
-  const addedMembers = await prisma.member.createMany({
-    data: newMembersData,
+  const addedMembers = await prisma.$transaction(
+    newMembersData.map((newMemberData: any) =>
+      prisma.member.upsert({
+        where: {
+          workspaceId_userId: { workspaceId, userId: newMemberData.userId },
+        },
+        update: {
+          invitationStatus: "PENDING",
+          role: role as Role,
+        },
+        create: {
+          ...newMemberData,
+        },
+      })
+    )
+  );
+
+  const notificationsData = newMembersData.map((newMemberData: any) => {
+    return {
+      workspaceId: workspace.id,
+      userId: newMemberData.userId,
+      notificationType: NotificationType.INVITATION,
+      message: `You are invited as ${newMemberData.role} in ${workspace.name} `,
+    };
+  });
+
+  console.log(notificationsData);
+
+  await prisma.notification.createMany({
+    data: notificationsData,
   });
 
   return res.status(200).json({
@@ -222,9 +257,14 @@ async function checkIfEmailAvailable(
     },
   });
 
-  if (isAlreadyMember) {
+  if (isAlreadyMember?.invitationStatus === "ACCEPTED") {
     throw new Api400Error("Already Part of the Workspace");
   }
+
+  if (isAlreadyMember?.invitationStatus === "PENDING") {
+    throw new Api400Error("Already Invited, Pending State");
+  }
+
   return res.status(200).json({ message: "Email is Allowed to Add" });
 }
 
@@ -237,6 +277,7 @@ async function getAllMembers(req: Request, res: Response, next: NextFunction) {
   const findMembers = await prisma.member.findMany({
     where: {
       workspaceId: workspaceId,
+      invitationStatus: "ACCEPTED",
       NOT: { role: "ADMIN" },
     },
     select: {
