@@ -159,13 +159,13 @@ const ProgressContainer: React.FC<Props> = ({ title, progressContainerId }) => {
             <div className="flex gap-2 items-center ">
               <button
                 onClick={() => setIsOpen(true)}
-                className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
+                className="hidden group-hover:block text-sm text-gray-400 hover:text-custom-light-green"
               >
                 <PlusCircleIcon className="h-5" />
               </button>
               <button
                 onClick={handleDeleteProgresssContainer}
-                className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
+                className="hidden group-hover:block text-sm text-gray-400 hover:text-custom-light-green"
               >
                 <TrashIcon className="h-5" />
               </button>

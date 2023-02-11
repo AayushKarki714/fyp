@@ -201,7 +201,7 @@ const GalleryContainer: React.FC<Props> = ({ text, galleryContainerId }) => {
                 className="flex items-center justify-center"
                 onClick={handleDeleteGalleryContainer}
               >
-                <TrashIcon className="h-4 w-4 hidden hover:text-custom-light-green cursor-pointer text-gray-400 group-hover:flex" />
+                <TrashIcon className="h-5 w-5 hidden hover:text-custom-light-green cursor-pointer text-gray-400 group-hover:flex" />
               </button>
             </div>
           </div>

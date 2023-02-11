@@ -46,7 +46,7 @@ async function getAllGalleryContainer(
       workspaceId,
     },
     orderBy: {
-      createdAt: "desc",
+      createdAt: "asc",
     },
   });
 

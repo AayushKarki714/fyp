@@ -10,7 +10,6 @@ import { Role } from "../../redux/slices/workspaceSlice";
 import {
   createTodoCard,
   deleteTodoContainer,
-  getTodoCards,
   updateTodoContainerTitle,
 } from "../../services/todo";
 import axios from "../../api/axios";
@@ -146,7 +145,7 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
             <div>
               <button
                 onClick={handleDeleteTodoContainer}
-                className="hidden group-hover:block text-sm text-gray-300 hover:text-custom-light-green"
+                className="hidden group-hover:block text-sm text-gray-400 hover:text-custom-light-green"
               >
                 <TrashIcon className="h-5 w-5" />
               </button>

@@ -55,7 +55,7 @@ async function getAllTodoContainer(
       workspaceId,
     },
     orderBy: {
-      createdAt: "desc",
+      createdAt: "asc",
     },
   });
 
@@ -204,7 +204,7 @@ async function getAllTodosInTodoCard(
       },
     },
     orderBy: {
-      createdAt: "desc",
+      createdAt: "asc",
     },
   });
 
