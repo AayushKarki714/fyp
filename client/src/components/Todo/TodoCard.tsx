@@ -3,7 +3,7 @@ import axios from "../../api/axios";
 import { useQueryClient, useQuery, useMutation } from "react-query";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { ITodo, ITodoPayload } from "../../types/types";
+import { ITodo } from "../../types/types";
 import Todo from "./Todo";
 import { useDrop } from "react-dnd";
 import { ItemTypes } from "../../utils/ItemTypes";
@@ -192,7 +192,7 @@ const TodoCard: React.FC<Props> = ({
     <>
       <div
         ref={isAllowed ? drop : null}
-        className={`flex flex-col gap-2 bg-custom-black border-2 ${
+        className={`flex parent flex-col gap-2 bg-custom-black border-2 ${
           isOver
             ? "border-custom-light-green border-dotted"
             : "border-dark-gray"
@@ -216,7 +216,7 @@ const TodoCard: React.FC<Props> = ({
           {isAllowed && (
             <button
               onClick={handleDeleteTodoCard}
-              className="hover:text-custom-light-green"
+              className=" child hover:text-custom-light-green"
             >
               <TrashIcon className="h-4 w-4" />
             </button>

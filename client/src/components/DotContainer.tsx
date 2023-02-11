@@ -9,9 +9,11 @@ interface DotProps {
 function Dot({ onClick, index, current }: DotProps) {
   return (
     <li
-      className="w-4 h-4 cursor-pointer rounded-full"
+      className={`${
+        current === index ? "w-10" : "w-3"
+      }  h-3 cursor-pointer rounded-full`}
       style={{
-        backgroundColor: current === index ? "#a1fe6b" : "#ffffffab",
+        backgroundColor: current === index ? " #a1fe6b" : "  #ffffffab",
       }}
       onClick={onClick}
     ></li>

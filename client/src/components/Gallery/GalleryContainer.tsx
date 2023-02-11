@@ -206,16 +206,16 @@ const GalleryContainer: React.FC<Props> = ({ text, galleryContainerId }) => {
             </div>
           </div>
         </div>
-        <div className="grid gap-2 auto-rows-[200px] grid-cols-responsive-gallery">
+        <div className="grid gap-2 auto-rows-[200px]   grid-cols-responsive-gallery">
           {imagesData.map((imageData: any, index: number) => {
             return (
               <div
                 key={imageData.id}
-                className="relative group rounded-md  cursor-pointer"
+                className="parent relative group rounded-md  cursor-pointer"
               >
                 <div
                   onClick={() => handleDeletePhoto(imageData.id)}
-                  className="-right-1 -top-2 hidden group-hover:flex text-gray-400 hover:text-custom-light-green   absolute  items-center justify-center bg-[#333] h-6 w-6 rounded-full"
+                  className="-right-1 child -top-2 hidden  text-gray-400 hover:text-custom-light-green   absolute  items-center justify-center bg-[#333] h-6 w-6 rounded-full"
                 >
                   <XCircleIcon className="h-4 w-4" />
                 </div>

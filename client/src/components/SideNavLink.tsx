@@ -30,7 +30,17 @@ const SideNavLink: React.FC<Props> = function ({
   };
 
   return (
-    <button className={`${activeLink ? "bg-[#434343]" : ""} overflow-hidden`}>
+    <button
+      className={`relative   ${
+        activeLink ? "bg-[#434343] text-custom-light-green" : ""
+      } overflow-hidden`}
+    >
+      {activeLink && (
+        <motion.div
+          layoutId="sideline"
+          className="absolute top-0 bottom-0 left-0 w-1 bg-custom-light-green"
+        />
+      )}
       <Link className="flex gap-2 items-center px-6 py-3" to={url}>
         <Icon className="h-5 flex-shrink-0" />
         <motion.p variants={variant}>{children}</motion.p>
