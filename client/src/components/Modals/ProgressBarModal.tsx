@@ -37,10 +37,17 @@ interface Props {
   title: string;
   percent: number;
   prevPercent: number;
-  onSubmit: (progressPercent: number) => void;
+  onSubmit: ({
+    progressPercent,
+    progressTitle,
+  }: {
+    progressPercent: number;
+    progressTitle: string;
+  }) => void;
 }
 
 const ProgressBarModal = ({ title, percent, prevPercent, onSubmit }: Props) => {
+  const [progressTitle, setProgressTitle] = useState<string>(title || "");
   const [progressPercent, setProgressPercent] = useState<string>(
     String(percent)
   );
@@ -48,9 +55,14 @@ const ProgressBarModal = ({ title, percent, prevPercent, onSubmit }: Props) => {
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (prevPercent >= Number(progressPercent))
-      return toast("Percent can't go from high to low!!");
-    onSubmit(Number(progressPercent));
+    if (!prevPercent || !progressTitle) {
+      return toast("Please fill all the Required Fields!!");
+    }
+
+    if (Number(progressPercent) > 100 || Number(progressPercent) < 0) {
+      return toast("Provided Progress Percent is not Valid");
+    }
+    onSubmit({ progressPercent: Number(progressPercent), progressTitle });
   };
 
   return (
@@ -62,7 +74,8 @@ const ProgressBarModal = ({ title, percent, prevPercent, onSubmit }: Props) => {
         id="progess-bar-name"
         type="text"
         label="Title"
-        value={title}
+        value={progressTitle}
+        onChange={(event) => setProgressTitle(event.target.value)}
         placeholder="Enter a title"
       />
       <FormItem

@@ -6,7 +6,6 @@ import Overlay from "../Modals/Overlay";
 import { toast } from "react-toastify";
 import ProgressBarModal from "../Modals/ProgressBarModal";
 import { useAppSelector } from "../../redux/store/hooks";
-import { verify } from "crypto";
 import verifyRole from "../../utils/verifyRole";
 import { Role } from "../../redux/slices/workspaceSlice";
 
@@ -57,8 +56,14 @@ const ProgressBar: React.FC<Props> = ({
     setIsModalOpen(false);
   }
 
-  const handleProgressUpdate = (progressPercent: number) => {
-    updatePercentMutation.mutate({ progressPercent });
+  const handleProgressUpdate = ({
+    progressPercent,
+    progressTitle,
+  }: {
+    progressPercent: number;
+    progressTitle: string;
+  }) => {
+    updatePercentMutation.mutate({ progressPercent, progressTitle });
   };
 
   return (

@@ -31,7 +31,7 @@ const SideNavLink: React.FC<Props> = function ({
 
   return (
     <button
-      className={`relative   ${
+      className={`relative ${
         activeLink ? "bg-[#434343] text-custom-light-green" : ""
       } overflow-hidden`}
     >

@@ -175,6 +175,8 @@ async function handleProgressBarUpdate(
   next: NextFunction
 ) {
   const progressPercent = Number(req.body.progressPercent);
+  const { progressTitle } = req.body;
+
   const { progressContainerId, progressBarId, userId, workspaceId } =
     req.params;
 
@@ -203,13 +205,15 @@ async function handleProgressBarUpdate(
     );
   }
 
-  if (progressBar.progressPercent >= progressPercent) {
-    throw new Api400Error("Progress Percent can't go from higher to lower");
+  if (progressPercent > 100 || progressPercent < 0) {
+    throw new Api400Error(
+      "Progress Percent can only have number between 0 t0 100%"
+    );
   }
 
   const updatedProgressBar = await prisma.progress.update({
     where: { id: progressBarId },
-    data: { progressPercent },
+    data: { title: progressTitle, progressPercent },
   });
 
   return res.status(200).json({
