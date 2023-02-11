@@ -48,6 +48,7 @@ const Workspace: React.FC<any> = ({
 
     {
       onSuccess: (data: any) => {
+        queryClient.invalidateQueries("unread-notifications");
         queryClient.invalidateQueries("workspace-query");
         dispatch(switchWorkSpace({ workspaceId: "", role: Role.CLIENT }));
         console.log("data", data);
