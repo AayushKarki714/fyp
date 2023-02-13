@@ -1,9 +1,9 @@
 import React from "react";
 import { useQuery } from "react-query";
-import axios from "../api/axios";
-import useNavigateToDashboard from "../hooks/useNavigateToDashboard";
-import { useAppSelector } from "../redux/store/hooks";
 import { add, differenceInDays, format } from "date-fns";
+import axios from "../../api/axios";
+import { useAppSelector } from "../../redux/store/hooks";
+import useNavigateToDashboard from "../../hooks/useNavigateToDashboard";
 
 interface Props {}
 
@@ -13,34 +13,15 @@ function calcProgressToBeMade(
   completed: boolean
 ) {
   if (completed) return 100;
-  console.log(
-    new Date(),
-    add(new Date(), { days: 1 }),
-    differenceInDays(add(new Date(), { days: 1 }), new Date())
-  );
-  console.log({ completionDate, isAvailable: !!completionDate });
-  console.log(
-    differenceInDays(
-      !!completionDate
-        ? new Date(completionDate)
-        : add(new Date(), { days: 30 }),
-      new Date(createdAt)
-    )
-  );
-  const endDate = !!completionDate
-    ? new Date(completionDate)
-    : add(new Date(createdAt), { days: 30 });
-
-  const diff1 = differenceInDays(
-    !!completionDate ? new Date(completionDate) : add(new Date(), { days: 30 }),
+  const daysElapsed = differenceInDays(new Date(), new Date(createdAt));
+  const totalDays = differenceInDays(
+    Boolean(completionDate)
+      ? new Date(completionDate)
+      : add(new Date(createdAt), { days: 30 }),
     new Date(createdAt)
   );
-
-  const diff2 = differenceInDays(
-    !!completionDate ? new Date(completionDate) : add(new Date(), { days: 30 }),
-    new Date()
-  );
-  return Math.round(100 - (diff2 / diff1) * 100);
+  const percent = Math.round((daysElapsed / totalDays) * 100);
+  return percent > 100 ? 100 : percent;
 }
 
 interface ProgressContainerProps {
@@ -55,6 +36,7 @@ interface ProgressBarProps {
   completed: boolean;
   createdAt: Date;
 }
+
 interface ProgressCardProps {
   containerId: string;
   title: string;
@@ -107,8 +89,8 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
     daysLeft = null;
   }
   return (
-    <div className="flex flex-col gap-2">
-      <div className="text-xl">
+    <div className="flex flex-col gap-1" title={`${progressPercent}%`}>
+      <div className="text-base">
         <h3>{text}</h3>
       </div>
       <div>
@@ -118,9 +100,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
               width: `${progressPercent}%`,
             }}
             className={`${dateClassName}  h-4 rounded-xl `}
-          >
-            {progressPercent}
-          </div>
+          ></div>
         </div>
       </div>
     </div>
@@ -142,16 +122,21 @@ const ProgressCard: React.FC<ProgressCardProps> = ({
 
   if (isLoading) return <h1>Loading...</h1>;
   return (
-    <div className="flex flex-col">
-      {progressBarData.map((progressBar: any) => (
-        <ProgressBar
-          completed={progressBar.completed}
-          completionDate={progressBar.completionDate}
-          createdAt={progressBar.createdAt}
-          text={progressBar.text}
-          key={progressBar.id}
-        />
-      ))}
+    <div className="flex flex-col border-2 border-dark-gray rounded-md p-3 gap-2 ">
+      <div>
+        <h2 className="text-2xl">{title}</h2>
+      </div>
+      <div className="flex flex-col gap-3">
+        {progressBarData.map((progressBar: any) => (
+          <ProgressBar
+            completed={progressBar.completed}
+            completionDate={progressBar.completionDate}
+            createdAt={progressBar.createdAt}
+            text={progressBar.text}
+            key={progressBar.id}
+          />
+        ))}
+      </div>
     </div>
   );
 };
@@ -175,7 +160,7 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
       <div className="text-2xl">
         <h2>{title}</h2>
       </div>
-      <div className="flex flex-col">
+      <div className="grid grid-cols-responsive-todo gap-3">
         {progressCardData?.map((progressCard: any) => (
           <ProgressCard
             key={progressCard.id}
@@ -189,7 +174,7 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
   );
 };
 
-const DemoProgress: React.FC<Props> = () => {
+const GeneratedProgress: React.FC<Props> = () => {
   const { workspaceId } = useAppSelector((state) => state.workspace);
 
   const { data: progressContainerData, isLoading } = useQuery(
@@ -206,7 +191,7 @@ const DemoProgress: React.FC<Props> = () => {
   if (isLoading) return <h1>Loading...</h1>;
 
   return (
-    <div>
+    <div className="flex flex-col gap-3">
       {progressContainerData?.map((progressContainer: any) => (
         <ProgressContainer
           key={progressContainer.id}
@@ -219,4 +204,4 @@ const DemoProgress: React.FC<Props> = () => {
   );
 };
 
-export default DemoProgress;
+export default GeneratedProgress;

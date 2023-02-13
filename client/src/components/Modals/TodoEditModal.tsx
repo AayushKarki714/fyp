@@ -313,7 +313,7 @@ function TodoEditModal({
           endDate={endDate}
           disabled={isAllowed ? false : true}
           dateFormat="yyyy/MM/dd"
-          minDate={new Date(createdAt)}
+          minDate={new Date()}
           onChange={changeDate}
           className="bg-custom-light-dark px-4 py-2  rounded-md"
           startDate={startDate}

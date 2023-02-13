@@ -70,13 +70,6 @@ const Sidebar: React.FC<Props> = ({ isSideBarOpen }) => {
           >
             Progress
           </SideNavLink>
-          <SideNavLink
-            url="/demo-progress"
-            Icon={ChartBarIcon}
-            isOpen={isSideBarOpen}
-          >
-            Demo Progress
-          </SideNavLink>
           {role === "ADMIN" && (
             <SideNavLink
               url="/setting"
