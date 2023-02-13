@@ -35,6 +35,7 @@ const TodoCard: React.FC<Props> = ({
   const [todoTitle, setTodoTitle] = useState<string>("");
   const todoCardRef = useRef(null) as RefObject<HTMLFormElement>;
   const todoCardFormRef = useRef<HTMLFormElement>(null);
+
   const {
     user: { id: userId },
   } = useAppSelector((state) => state.auth);
@@ -103,80 +104,6 @@ const TodoCard: React.FC<Props> = ({
           snapshotOfPrevTodoCard,
           snapshotOfCurrTodoCard,
         };
-
-        // console.log({ newTodo });
-        // console.log({ todoCardId });
-        // await queryClient.cancelQueries(["todo-query", todoCardId]);
-        // await queryClient.cancelQueries(["todo-query", newTodo.prevTodoCardId]);
-        // const snapshotOfPrevTodoCard: any = queryClient.getQueryData([
-        //   "todo-query",
-        //   newTodo.prevTodoCardId,
-        // ]);
-        // console.log({ snapshotOfPrevTodoCard });
-        // const snapShotOfCurrTodoCard: any = queryClient.getQueryData([
-        //   "todo-query",
-        //   todoCardId,
-        // ]);
-        // console.log({ snapShotOfCurrTodoCard });
-        // const updateTodo = snapshotOfPrevTodoCard?.data?.find(
-        //   (todo: any) => todo.id === newTodo.todoId
-        // );
-        // console.log("updateTodo", updateTodo);
-        // console.log("title", title);
-        // const newUpdateTodo = { ...updateTodo };
-        // console.log({ newUpdateTodo });
-        // queryClient.setQueryData(
-        //   ["todo-query", newTodo.prevTodoCardId],
-        //   ({ data }: any) => {
-        //     console.log("inside prevTodoCardId", data);
-        //     return data.filter((todo: any) => todo.id !== newTodo.todoId);
-        //   }
-        // );
-        // console.log("todoCardId", todoCardId);
-        // queryClient.setQueryData(
-        //   ["todo-query", todoCardId],
-        //   ({ data }: any) => {
-        //     console.log("this is insider todocardId", data);
-        //     return [...data, { ...newUpdateTodo, status: title }];
-        //   }
-        // );
-        // console.log("newTodo", newTodo);
-        // console.log("todoCardId", todoCardId);
-        // await queryClient.cancelQueries(["todo-query", todoCardId]);
-        // await queryClient.cancelQueries(["todo-query", newTodo.prevTodoCardId]);
-        // const snapshotOfPrevTodoCard: any = queryClient.getQueryData([
-        //   "todo-query",
-        //   newTodo.prevTodoCardId,
-        // ]);
-        // console.log("snapshotOfPrevTodoCard", snapshotOfPrevTodoCard);
-        // const snapshotOfCurrTodoCard = queryClient.getQueryData([
-        //   "todo-query",
-        //   todoCardId,
-        // ]);
-        // console.log("snapshotOfCurrentTodoCard", snapshotOfCurrTodoCard);
-        // const updateTodo = snapshotOfPrevTodoCard?.data?.find(
-        //   (todo: any) => todo.id === newTodo.todoId
-        // );
-        // console.log("updateTodo", updateTodo);
-        // console.log("title", title);
-        // updateTodo.status = title;
-        // updateTodo.todoCardId = todoCardId;
-        // console.log("updateTodo", updateTodo);
-        // queryClient.setQueryData(
-        //   ["todo-query", newTodo.prevTodoCardId],
-        //   (old: any) => {
-        //     return old?.data?.filter((t: any) => t.id !== newTodo.todoId);
-        //   }
-        // );
-        // queryClient.setQueryData(["todo-query", todoCardId], (old: any) => [
-        //   ...old?.data,
-        //   updateTodo,
-        // ]);
-        // console.log({ snapshotOfCurrTodoCard, snapshotOfPrevTodoCard });
-        // return {
-        //   snapshotOfPrevTodoCard: snapshotOfPrevTodoCard?.data,
-        //   snapshotOfCurrTodoCard: snapShotOfCurrTodoCard?.data,
-        // };
       },
       onSettled: (data: any) => {
         queryClient.invalidateQueries(["todo-query", todoCardId]);

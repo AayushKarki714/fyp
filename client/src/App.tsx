@@ -13,6 +13,7 @@ import { updateUser } from "./redux/slices/authSlice";
 import Setting from "./pages/Setting";
 import TodoPage from "./pages/Todo";
 import "./styles/comments.css";
+import DemoProgress from "./pages/DemoProgress";
 
 const Login = React.lazy(() => import("./pages/Login"));
 const NotFound = React.lazy(() => import("./pages/404"));
@@ -48,6 +49,7 @@ const App: React.FC = () => {
             <Route path="todo" element={<TodoPage />} />
             <Route path="gallery" element={<Gallery />} />
             <Route path="progress" element={<Progress />} />
+            <Route path="demo-progress" element={<DemoProgress />} />
             <Route path="setting" element={<Setting />} />
             <Route path="*" element={<NotFound />} />
           </Route>

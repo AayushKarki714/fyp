@@ -25,11 +25,11 @@ const TodoPage: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { workspaceId, role } = useAppSelector((state) => state.workspace);
 
-  const todoContainerQuery = useQuery(
+  const { data: todoContainerData, isLoading } = useQuery(
     "todo-container-query",
     async () => {
       const res = await axios.get(`/todo/${workspaceId}/todo-container`);
-      return res.data;
+      return res.data?.data;
     },
     { enabled: !!workspaceId }
   );
@@ -55,11 +55,10 @@ const TodoPage: React.FC = () => {
 
   useNavigateToDashboard();
 
-  if (todoContainerQuery.isLoading) {
+  if (isLoading) {
     return <h1>loading...</h1>;
   }
 
-  const todoContainerData = todoContainerQuery.data?.data || [];
   const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
 
   return (

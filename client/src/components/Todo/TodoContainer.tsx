@@ -37,13 +37,13 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
   const { workspaceId, role } = useAppSelector((state) => state.workspace);
   const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
 
-  const todoCardQuery = useQuery(
+  const { data: todoCardData, isLoading } = useQuery(
     ["todo-card-query", todoContainerId],
     async () => {
       const res = await axios.get(
         `/todo/${workspaceId}/${todoContainerId}/todo-card`
       );
-      return res?.data;
+      return res?.data?.data;
     }
   );
 
@@ -115,10 +115,9 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
     setTodoContainerTitle(text);
   });
 
-  if (todoCardQuery.isLoading) {
+  if (isLoading) {
     return <h1>loading...</h1>;
   }
-  const todoCardData = todoCardQuery?.data?.data || [];
 
   return (
     <>
