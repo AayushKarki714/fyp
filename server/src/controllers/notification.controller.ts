@@ -12,7 +12,7 @@ async function handleMarkReadNotification(
 
   const updateNotifications = await prisma.notification.updateMany({
     where: {
-      userId,
+      recieverId: userId,
     },
     data: {
       read: true,
@@ -34,9 +34,9 @@ async function getUnreadNotificationCount(
   checkIfUserIdMatches(req, userId);
 
   const unreadNotificationCount = await prisma.notification.groupBy({
-    by: ["userId"],
+    by: ["recieverId"],
     where: {
-      userId,
+      recieverId: userId,
       read: false,
     },
 
@@ -61,12 +61,9 @@ async function getNotificationsByUserId(
 
   const notifications = await prisma.notification.findMany({
     where: {
-      userId,
+      recieverId: userId,
     },
     orderBy: [{ createdAt: "desc" }, { updatedAt: "desc" }],
-    include: {
-      workspace: true,
-    },
   });
 
   return res

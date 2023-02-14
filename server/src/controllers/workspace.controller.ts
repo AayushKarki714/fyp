@@ -22,18 +22,26 @@ async function handleCreateWorkspace(
     if (err) return res.status(400).json({ message: "Invalid Logo" });
   });
 
+  const newWorkspace = await prisma.workspace.create({
+    data: {
+      name,
+      logo: `http://localhost:8000/${file.name}`,
+      adminId,
+    },
+  });
+
   const lancers = JSON.parse(lancerValues).map(async (lancer: any) => {
     const val = await prisma.user.findUnique({
       where: { email: lancer.email },
     });
-    return { userId: val?.id, role: "LANCER" };
+    return { userId: val?.id, role: "LANCER", workspaceId: newWorkspace.id };
   });
 
   const clients = JSON.parse(clientValues).map(async (lancer: any) => {
     const val = await prisma.user.findUnique({
       where: { email: lancer.email },
     });
-    return { userId: val?.id, role: "CLIENT" };
+    return { userId: val?.id, role: "CLIENT", workspaceId: newWorkspace.id };
   });
 
   const lancersData = await Promise.all(lancers);
@@ -42,41 +50,62 @@ async function handleCreateWorkspace(
   const membersData = lancersData.concat(clientsData).concat({
     userId: adminId,
     role: "ADMIN",
-    invitationStatus: InvitationStatus.ACCEPTED,
+    workspaceId: newWorkspace.id,
   });
 
-  const notificationsData = membersData.map((memberData) => {
-    if (memberData.role === Role.ADMIN)
-      return {
-        userId: memberData.userId,
-        message: `You created a Workspace named ${name}`,
-      };
-    else {
-      return {
-        userId: memberData.userId,
-        notificationType: NotificationType.INVITATION,
-        message: `You are invited as ${memberData.role} in ${name} `,
-      };
-    }
-  });
+  const members = await prisma.$transaction(
+    membersData.map((memberData) =>
+      prisma.member.create({ data: { ...memberData } })
+    )
+  );
 
-  const newWorkspace = await prisma.workspace.create({
-    data: {
-      name: name,
-      logo: `http://localhost:8000/${file.name}`,
-      adminId: adminId,
-      Member: {
-        create: membersData,
-      },
-      notifications: {
-        create: notificationsData,
-      },
-    },
-  });
+  const adminMember = members.find((member) => member.role === Role.ADMIN);
+
+  const invitations = await prisma.$transaction(
+    members.map((member) =>
+      prisma.invitation.create({
+        data: {
+          message:
+            member.id === adminMember!.id
+              ? `You created a Workspace named ${newWorkspace.name} SuccesFully`
+              : `You are invited as a ${member.role} in ${newWorkspace}`,
+          receiverId: member.id,
+          senderId: adminMember!.id,
+          status:
+            member.id === adminMember!.id
+              ? InvitationStatus.ACCEPTED
+              : InvitationStatus.PENDING,
+        },
+        include: {
+          reciever: true,
+          sender: true,
+        },
+      })
+    )
+  );
+
+  console.log("invitations", invitations);
+
+  const notifications = await prisma.$transaction(
+    invitations.map((invitation) =>
+      prisma.notification.create({
+        data: {
+          message: invitation.message,
+          recieverId: invitation.reciever.userId,
+          senderId: invitation.sender.userId,
+          type:
+            invitation.reciever.userId === invitation.sender.userId
+              ? NotificationType.NORMAL
+              : NotificationType.INVITATION,
+        },
+      })
+    )
+  );
+
+  console.log("notifications", notifications);
 
   return res.status(200).json({ workspace: newWorkspace });
 }
-
 async function handleGetWorkspace(
   req: Request,
   res: Response,
@@ -87,7 +116,11 @@ async function handleGetWorkspace(
   const members = await prisma.member.findMany({
     where: {
       userId: userId,
-      invitationStatus: "ACCEPTED",
+      recieverInvitations: {
+        every: {
+          status: "ACCEPTED",
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -104,7 +137,14 @@ async function handleGetWorkspace(
   const membersWithTotalCount = members.map(async (member) => {
     const totalCount = await prisma.member.groupBy({
       by: ["workspaceId"],
-      where: { workspaceId: member.workspace.id, invitationStatus: "ACCEPTED" },
+      where: {
+        workspaceId: member.workspace.id,
+        recieverInvitations: {
+          every: {
+            status: "ACCEPTED",
+          },
+        },
+      },
       _count: {
         _all: true,
       },
@@ -145,7 +185,7 @@ async function handleUpdateWorkspaceTitle(
   const { workspaceId, userId } = req.params;
 
   checkIfUserIdMatches(req, userId);
-  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+  await verifyRole(["ADMIN"], workspaceId, userId);
 
   if (!name)
     return res.status(400).json({ message: "Updated title can't be Emtpy" });
@@ -206,7 +246,6 @@ async function handleAddMembers(
           workspaceId_userId: { workspaceId, userId: newMemberData.userId },
         },
         update: {
-          invitationStatus: "PENDING",
           role: role as Role,
         },
         create: {
@@ -216,20 +255,20 @@ async function handleAddMembers(
     )
   );
 
-  const notificationsData = newMembersData.map((newMemberData: any) => {
-    return {
-      workspaceId: workspace.id,
-      userId: newMemberData.userId,
-      notificationType: NotificationType.INVITATION,
-      message: `You are invited as ${newMemberData.role} in ${workspace.name} `,
-    };
-  });
+  // const notificationsData = newMembersData.map((newMemberData: any) => {
+  //   return {
+  //     workspaceId: workspace.id,
+  //     userId: newMemberData.userId,
+  //     notificationType: NotificationType.INVITATION,
+  //     message: `You are invited as ${newMemberData.role} in ${workspace.name} `,
+  //   };
+  // });
 
-  console.log(notificationsData);
+  // console.log(notificationsData);
 
-  await prisma.notification.createMany({
-    data: notificationsData,
-  });
+  // await prisma.notification.createMany({
+  //   data: notificationsData,
+  // });
 
   return res.status(200).json({
     message: `The new User with the Role ${role} added SucessFully`,
@@ -257,13 +296,13 @@ async function checkIfEmailAvailable(
     },
   });
 
-  if (isAlreadyMember?.invitationStatus === "ACCEPTED") {
-    throw new Api400Error("Already Part of the Workspace");
-  }
+  // if (isAlreadyMember?.invitationStatus === "ACCEPTED") {
+  //   throw new Api400Error("Already Part of the Workspace");
+  // }
 
-  if (isAlreadyMember?.invitationStatus === "PENDING") {
-    throw new Api400Error("Already Invited, Pending State");
-  }
+  // if (isAlreadyMember?.invitationStatus === "PENDING") {
+  //   throw new Api400Error("Already Invited, Pending State");
+  // }
 
   return res.status(200).json({ message: "Email is Allowed to Add" });
 }
@@ -277,7 +316,11 @@ async function getAllMembers(req: Request, res: Response, next: NextFunction) {
   const findMembers = await prisma.member.findMany({
     where: {
       workspaceId: workspaceId,
-      invitationStatus: "ACCEPTED",
+      recieverInvitations: {
+        every: {
+          status: "ACCEPTED",
+        },
+      },
       NOT: { role: "ADMIN" },
     },
     select: {
@@ -360,35 +403,35 @@ async function handleUpdateInvitationStatus(
   const { workspaceId, invitationStatus, notificationId } = req.body;
   checkIfUserIdMatches(req, userId);
 
-  const updateInvitationStatus = await prisma.member.update({
-    where: {
-      workspaceId_userId: { workspaceId, userId },
-    },
-    data: {
-      invitationStatus,
-    },
-    include: {
-      workspace: true,
-    },
-  });
+  // const updateInvitationStatus = await prisma.member.update({
+  //   where: {
+  //     workspaceId_userId: { workspaceId, userId },
+  //   },
+  //   data: {
+  //     invitationStatus,
+  //   },
+  //   include: {
+  //     workspace: true,
+  //   },
+  // });
 
-  await prisma.notification.update({
-    where: {
-      id: notificationId,
-    },
-    data: {
-      message:
-        invitationStatus === InvitationStatus.ACCEPTED
-          ? `You are now member of the ${updateInvitationStatus.workspace.name} as a ${updateInvitationStatus.role}`
-          : `You decline to be part of the ${updateInvitationStatus.workspace.name} as a ${updateInvitationStatus.role}`,
-      notificationType: "NORMAL",
-    },
-  });
+  // await prisma.notification.update({
+  //   where: {
+  //     id: notificationId,
+  //   },
+  //   data: {
+  //     message:
+  //       invitationStatus === InvitationStatus.ACCEPTED
+  //         ? `You are now member of the ${updateInvitationStatus.workspace.name} as a ${updateInvitationStatus.role}`
+  //         : `You decline to be part of the ${updateInvitationStatus.workspace.name} as a ${updateInvitationStatus.role}`,
+  //     notificationType: "NORMAL",
+  //   },
+  // });
 
-  return res.status(200).json({
-    message: `You ${invitationStatus} Sucessfully`,
-    data: updateInvitationStatus,
-  });
+  // return res.status(200).json({
+  //   message: `You ${invitationStatus} Sucessfully`,
+  //   data: updateInvitationStatus,
+  // });
 }
 
 export {
@@ -401,5 +444,5 @@ export {
   getAllMembers,
   deleteMember,
   appointAsAdmin,
-  handleUpdateInvitationStatus,
+  // handleUpdateInvitationStatus,
 };

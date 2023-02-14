@@ -8,7 +8,7 @@ import {
   handleCreateWorkspace,
   handleDeleteWorkspace,
   handleGetWorkspace,
-  handleUpdateInvitationStatus,
+  // handleUpdateInvitationStatus,
   handleUpdateWorkspaceTitle,
 } from "../controllers/workspace.controller";
 import fileUpload from "express-fileupload";
@@ -42,10 +42,10 @@ workspaceRouter.patch(
   catchAsyncErrors(handleUpdateWorkspaceTitle)
 );
 
-workspaceRouter.patch(
-  "/:userId/invitation",
-  catchAsyncErrors(handleUpdateInvitationStatus)
-);
+// workspaceRouter.patch(
+//   "/:userId/invitation",
+//   catchAsyncErrors(handleUpdateInvitationStatus)
+// );
 
 workspaceRouter.patch(
   "/:workspaceId/:userId/appoint-admin",

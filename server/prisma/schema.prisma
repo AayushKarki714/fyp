@@ -11,15 +11,16 @@ datasource db {
 }
 
 model User {
-    id            String         @id @default(uuid())
-    userName      String
-    email         String         @unique
-    photo         String
-    Member        Member[]
-    Workspace     Workspace[]
-    comments      Comment[]
-    likes         Like[]
-    notifications Notification[]
+    id                    String         @id @default(uuid())
+    userName              String
+    email                 String         @unique
+    photo                 String
+    Member                Member[]
+    Workspace             Workspace[]
+    comments              Comment[]
+    likes                 Like[]
+    senderNotifications   Notification[] @relation("sender-notifications")
+    recieverNotifications Notification[] @relation("reciever-notifications")
 }
 
 model Workspace {
@@ -33,20 +34,56 @@ model Workspace {
     Gallery       GalleryContainer[]
     Progress      ProgressContainer[]
     TodoContainer TodoContainer[]
-    notifications Notification[]
 }
 
 model Member {
-    id               String           @id @default(uuid())
-    user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-    role             Role             @default(CLIENT)
-    userId           String
-    invitationStatus InvitationStatus @default(PENDING)
-    createdAt        DateTime         @default(now())
-    workspace        Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-    workspaceId      String
+    id                  String       @id @default(uuid())
+    user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+    role                Role         @default(CLIENT)
+    userId              String
+    createdAt           DateTime     @default(now())
+    workspace           Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    workspaceId         String
+    senderInvitations   Invitation[] @relation("sender")
+    recieverInvitations Invitation[] @relation("reciever")
 
     @@unique([workspaceId, userId])
+}
+
+enum InvitationStatus {
+    ACCEPTED
+    PENDING
+    DECLINED
+}
+
+model Invitation {
+    id         String           @id @default(uuid())
+    status     InvitationStatus @default(PENDING)
+    message    String
+    createdAt  DateTime         @default(now())
+    updatedAt  DateTime         @updatedAt
+    sender     Member           @relation("sender", fields: [senderId], references: [id])
+    senderId   String
+    reciever   Member           @relation("reciever", fields: [receiverId], references: [id])
+    receiverId String
+}
+
+enum NotificationType {
+    INVITATION
+    NORMAL
+}
+
+model Notification {
+    id         String           @id @default(uuid())
+    read       Boolean          @default(false)
+    type       NotificationType @default(NORMAL)
+    createdAt  DateTime         @default(now())
+    updatedAt  DateTime         @updatedAt
+    message    String
+    sender     User             @relation("sender-notifications", fields: [senderId], references: [id])
+    senderId   String
+    reciever   User             @relation("reciever-notifications", fields: [recieverId], references: [id])
+    recieverId String
 }
 
 model GalleryContainer {
@@ -144,32 +181,8 @@ model Like {
     @@unique([userId, commentId])
 }
 
-model Notification {
-    id               String           @id @default(uuid())
-    read             Boolean          @default(false)
-    createdAt        DateTime         @default(now())
-    message          String
-    updatedAt        DateTime         @updatedAt
-    workspace        Workspace?       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-    workspaceId      String?
-    notificationType NotificationType @default(NORMAL)
-    user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId           String
-}
-
 enum Role {
     ADMIN
     LANCER
     CLIENT
-}
-
-enum InvitationStatus {
-    PENDING
-    ACCEPTED
-    DECLINED
-}
-
-enum NotificationType {
-    INVITATION
-    NORMAL
 }

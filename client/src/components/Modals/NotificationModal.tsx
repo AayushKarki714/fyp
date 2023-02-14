@@ -65,7 +65,7 @@ const Invitation: React.FC<InvitationProps> = ({ notificationData }) => {
         <figure className="w-20 h-20 rounded-full overflow-hidden border-2 border-custom-light-green">
           <img
             className="w-full h-full object-cover"
-            src={notificationData.workspace.logo}
+            src={notificationData?.workspace?.logo}
             alt="Workspace"
           />
         </figure>
@@ -157,7 +157,7 @@ const NotificationModal: React.FC = () => {
       <h2>Notifications</h2>
       {notificationsData.map((notificationData: any) => (
         <div key={notificationData.id}>
-          {notificationData.notificationType === NotificationType.INVITATION ? (
+          {notificationData.type === NotificationType.INVITATION ? (
             <Invitation notificationData={notificationData} />
           ) : (
             <div className="flex items-center gap-4  bg-custom-black rounded-md p-2">
@@ -165,7 +165,7 @@ const NotificationModal: React.FC = () => {
                 <figure className="w-20 h-20 rounded-full overflow-hidden border-2 border-custom-light-green">
                   <img
                     className="w-full h-full object-cover"
-                    src={notificationData.workspace.logo}
+                    src={notificationData?.workspace?.logo}
                     alt="Workspace"
                   />
                 </figure>
