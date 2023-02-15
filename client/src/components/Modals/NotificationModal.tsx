@@ -50,13 +50,13 @@ const Invitation: React.FC<InvitationProps> = ({ notificationData }) => {
   );
 
   const handleInvitationStatus = ({
-    workspaceId,
+    invitationId,
     invitationStatus,
   }: {
-    workspaceId: string;
+    invitationId: string;
     invitationStatus: InvitationStatus;
   }) => {
-    updateInvitationMutation.mutate({ workspaceId, invitationStatus });
+    updateInvitationMutation.mutate({ invitationId, invitationStatus });
   };
 
   return (
@@ -82,7 +82,7 @@ const Invitation: React.FC<InvitationProps> = ({ notificationData }) => {
           <button
             onClick={() =>
               handleInvitationStatus({
-                workspaceId: notificationData.workspaceId,
+                invitationId: notificationData.invitationId,
                 invitationStatus: InvitationStatus.ACCEPTED,
               })
             }
@@ -93,7 +93,7 @@ const Invitation: React.FC<InvitationProps> = ({ notificationData }) => {
           <button
             onClick={() =>
               handleInvitationStatus({
-                workspaceId: notificationData.workspaceId,
+                invitationId: notificationData.invitationId,
                 invitationStatus: InvitationStatus.DECLINED,
               })
             }
@@ -146,6 +146,7 @@ const NotificationModal: React.FC = () => {
   }
 
   const notificationsData = notificationsQuery.data?.data;
+  console.log("notificationsData", notificationsData);
 
   return (
     <motion.div
@@ -161,15 +162,6 @@ const NotificationModal: React.FC = () => {
             <Invitation notificationData={notificationData} />
           ) : (
             <div className="flex items-center gap-4  bg-custom-black rounded-md p-2">
-              <div>
-                <figure className="w-20 h-20 rounded-full overflow-hidden border-2 border-custom-light-green">
-                  <img
-                    className="w-full h-full object-cover"
-                    src={notificationData?.workspace?.logo}
-                    alt="Workspace"
-                  />
-                </figure>
-              </div>
               <div className="flex flex-col gap-2">
                 <div>
                   <h3 className="text-xl">{notificationData.message}</h3>

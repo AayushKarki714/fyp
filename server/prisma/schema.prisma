@@ -57,15 +57,16 @@ enum InvitationStatus {
 }
 
 model Invitation {
-    id         String           @id @default(uuid())
-    status     InvitationStatus @default(PENDING)
-    message    String
-    createdAt  DateTime         @default(now())
-    updatedAt  DateTime         @updatedAt
-    sender     Member           @relation("sender", fields: [senderId], references: [id])
-    senderId   String
-    reciever   Member           @relation("reciever", fields: [receiverId], references: [id])
-    receiverId String
+    id           String           @id @default(uuid())
+    status       InvitationStatus @default(PENDING)
+    message      String
+    createdAt    DateTime         @default(now())
+    updatedAt    DateTime         @updatedAt
+    sender       Member           @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
+    senderId     String
+    reciever     Member           @relation("reciever", fields: [receiverId], references: [id], onDelete: Cascade)
+    receiverId   String
+    notification Notification?
 }
 
 enum NotificationType {
@@ -74,16 +75,18 @@ enum NotificationType {
 }
 
 model Notification {
-    id         String           @id @default(uuid())
-    read       Boolean          @default(false)
-    type       NotificationType @default(NORMAL)
-    createdAt  DateTime         @default(now())
-    updatedAt  DateTime         @updatedAt
-    message    String
-    sender     User             @relation("sender-notifications", fields: [senderId], references: [id])
-    senderId   String
-    reciever   User             @relation("reciever-notifications", fields: [recieverId], references: [id])
-    recieverId String
+    id           String           @id @default(uuid())
+    read         Boolean          @default(false)
+    type         NotificationType @default(NORMAL)
+    createdAt    DateTime         @default(now())
+    updatedAt    DateTime         @updatedAt
+    message      String
+    sender       User?            @relation("sender-notifications", fields: [senderId], references: [id], onDelete: Cascade)
+    senderId     String?
+    reciever     User             @relation("reciever-notifications", fields: [recieverId], references: [id], onDelete: Cascade)
+    recieverId   String
+    invitation   Invitation?      @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+    invitationId String?          @unique
 }
 
 model GalleryContainer {

@@ -33,12 +33,18 @@ function verify(_: string, __2: string, profile: object, cb: Function) {
 passport.serializeUser(async (user: any, done) => {
   const exists = await prisma.user.findUnique({ where: { id: user.id } });
   if (!exists) {
-    await prisma.user.create({
+    const createdUser = await prisma.user.create({
       data: {
         id: user.id,
         userName: user.displayName,
         email: user.emails[0].value,
         photo: user.photos[0].value,
+      },
+    });
+    await prisma.notification.create({
+      data: {
+        message: `Welcome to the Project Zone, ${createdUser.userName}`,
+        recieverId: user.id,
       },
     });
   }
