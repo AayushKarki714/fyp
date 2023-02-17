@@ -34,6 +34,7 @@ model Workspace {
     Gallery       GalleryContainer[]
     Progress      ProgressContainer[]
     TodoContainer TodoContainer[]
+    invitations   Invitation[]
 }
 
 model Member {
@@ -44,47 +45,54 @@ model Member {
     createdAt           DateTime     @default(now())
     workspace           Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId         String
-    senderInvitations   Invitation[] @relation("sender")
-    recieverInvitations Invitation[] @relation("reciever")
+    senderInvitations   Invitation[] @relation("sender-invitations")
+    recieverInvitations Invitation[] @relation("reciever-invitations")
 
     @@unique([workspaceId, userId])
 }
 
 enum InvitationStatus {
-    ACCEPTED
     PENDING
+    ACCEPTED
     DECLINED
 }
 
 model Invitation {
     id           String           @id @default(uuid())
-    status       InvitationStatus @default(PENDING)
     message      String
+    status       InvitationStatus @default(PENDING)
+    sender       Member           @relation("sender-invitations", fields: [senderId], references: [id], onDelete: Cascade)
+    senderId     String
+    reciever     Member           @relation("reciever-invitations", fields: [recieverId], references: [id], onDelete: Cascade)
+    recieverId   String
     createdAt    DateTime         @default(now())
     updatedAt    DateTime         @updatedAt
-    sender       Member           @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
-    senderId     String
-    reciever     Member           @relation("reciever", fields: [receiverId], references: [id], onDelete: Cascade)
-    receiverId   String
+    workspace    Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    workspaceId  String
     notification Notification?
 }
 
 enum NotificationType {
     INVITATION
+    ACCEPTED_INVITATION
+    DECLINED_INVITATION
     NORMAL
+    INVITATION_CREATOR
+    WORKSPACE_TITLE_UPDATE
+    DELETE_WORKSPACE
 }
 
 model Notification {
     id           String           @id @default(uuid())
-    read         Boolean          @default(false)
     type         NotificationType @default(NORMAL)
-    createdAt    DateTime         @default(now())
-    updatedAt    DateTime         @updatedAt
     message      String
+    read         Boolean          @default(false)
     sender       User?            @relation("sender-notifications", fields: [senderId], references: [id], onDelete: Cascade)
     senderId     String?
     reciever     User             @relation("reciever-notifications", fields: [recieverId], references: [id], onDelete: Cascade)
     recieverId   String
+    createdAt    DateTime         @default(now())
+    updatedAt    DateTime         @updatedAt
     invitation   Invitation?      @relation(fields: [invitationId], references: [id], onDelete: Cascade)
     invitationId String?          @unique
 }

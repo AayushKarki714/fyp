@@ -43,8 +43,8 @@ passport.serializeUser(async (user: any, done) => {
     });
     await prisma.notification.create({
       data: {
-        message: `Welcome to the Project Zone, ${createdUser.userName}`,
-        recieverId: user.id,
+        recieverId: createdUser.id,
+        message: `Welcome to Project Zone, ${createdUser.userName}`,
       },
     });
   }

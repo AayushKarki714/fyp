@@ -63,6 +63,14 @@ async function getNotificationsByUserId(
     where: {
       recieverId: userId,
     },
+    include: {
+      invitation: {
+        include: {
+          workspace: true,
+        },
+      },
+      sender: true,
+    },
     orderBy: [{ createdAt: "desc" }, { updatedAt: "desc" }],
   });
 

@@ -21,14 +21,10 @@ const Home = React.lazy(() => import("./pages/Home"));
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
 
-  const { data } = useQuery(
-    "user-data",
-    async function () {
-      const res = await axios.get("/auth/user");
-      return res.data;
-    },
-    {}
-  );
+  const { data } = useQuery("user-data", async function () {
+    const res = await axios.get("/auth/user");
+    return res.data;
+  });
 
   useEffect(() => {
     if (data?.user) {
