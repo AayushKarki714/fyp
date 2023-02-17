@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import handleStopPropagation from "../../utils/handleStopPropagation";
@@ -261,6 +261,23 @@ const NotificationModal: React.FC = () => {
     user: { id: userId },
   } = useAppSelector((state) => state.auth);
 
+  const { mutate: markAsReadMutate } = useMutation(
+    async () => {
+      const res = await axios.patch(
+        `/notification/${userId}/mark-notification-read`
+      );
+      return res.data;
+    },
+    {
+      onSuccess(data: any) {
+        console.log("data", data);
+      },
+      onError(error: any) {
+        console.log("error", error);
+      },
+    }
+  );
+
   const { data: notifications, isLoading } = useQuery(
     "notifications",
     async () => {
@@ -268,8 +285,12 @@ const NotificationModal: React.FC = () => {
       return res.data?.data;
     }
   );
+
+  useEffect(() => {
+    markAsReadMutate();
+  }, [markAsReadMutate]);
+
   if (isLoading) return <h1>Loading...</h1>;
-  console.log("notifications", notifications);
 
   return (
     <motion.div
