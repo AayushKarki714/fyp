@@ -35,6 +35,7 @@ model Workspace {
     Progress      ProgressContainer[]
     TodoContainer TodoContainer[]
     invitations   Invitation[]
+    notifications Notification[]
 }
 
 model Member {
@@ -61,8 +62,8 @@ model Invitation {
     id           String           @id @default(uuid())
     message      String
     status       InvitationStatus @default(PENDING)
-    sender       Member           @relation("sender-invitations", fields: [senderId], references: [id], onDelete: Cascade)
-    senderId     String
+    sender       Member?          @relation("sender-invitations", fields: [senderId], references: [id], onDelete: SetNull)
+    senderId     String?
     reciever     Member           @relation("reciever-invitations", fields: [recieverId], references: [id], onDelete: Cascade)
     recieverId   String
     createdAt    DateTime         @default(now())
@@ -80,6 +81,10 @@ enum NotificationType {
     INVITATION_CREATOR
     WORKSPACE_TITLE_UPDATE
     DELETE_WORKSPACE
+    APPOINT_ADMIN
+    APPOINT_ADMIN_ACCEPTED
+    APPOINT_ADMIN_DECLINED
+    APPOINT_ADMIN_CREATOR
 }
 
 model Notification {
@@ -95,6 +100,8 @@ model Notification {
     updatedAt    DateTime         @updatedAt
     invitation   Invitation?      @relation(fields: [invitationId], references: [id], onDelete: Cascade)
     invitationId String?          @unique
+    workspace    Workspace?       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    workspaceId  String?
 }
 
 model GalleryContainer {

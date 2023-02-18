@@ -69,7 +69,7 @@ async function handleCreateWorkspace(
           recieverId: member.id,
           message:
             member.id === adminMember!.id
-              ? `You created a Workspace named ${newWorkspace.name} SuccesFully`
+              ? `You created a Workspace named ${newWorkspace.name} Successfully`
               : `You are invited as a ${member.role} in ${newWorkspace.name}`,
           status:
             member.id === adminMember!.id
@@ -92,9 +92,9 @@ async function handleCreateWorkspace(
           message: invitation.message,
           invitationId: invitation.id,
           recieverId: invitation.reciever.userId,
-          senderId: invitation.sender.userId,
+          senderId: invitation.sender!.userId,
           type:
-            invitation.reciever.userId === invitation.sender.userId
+            invitation.reciever.userId === invitation?.sender!.userId
               ? NotificationType.INVITATION_CREATOR
               : NotificationType.INVITATION,
         },
@@ -223,7 +223,18 @@ async function handleUpdateWorkspaceTitle(
     return res.status(400).json({ message: "Updated title can't be Emtpy" });
 
   const allMembers = await prisma.member.findMany({
-    where: { workspaceId },
+    where: {
+      workspaceId,
+      recieverInvitations: {
+        some: {
+          status: "ACCEPTED",
+        },
+      },
+    },
+  });
+
+  const findWorkspace = await prisma.workspace.findUnique({
+    where: { id: workspaceId },
   });
 
   const updateWorkspace = await prisma.workspace.update({
@@ -239,12 +250,13 @@ async function handleUpdateWorkspaceTitle(
           recieverId: member.userId,
           message:
             member.userId === userId
-              ? `You updated the title of workspace to ${updateWorkspace.name}`
-              : `The Admin of the Workspace updated to  ${updateWorkspace.name}`,
+              ? `You updated the title of  workspace from ${findWorkspace?.name} to ${updateWorkspace.name}`
+              : `The Admin of the Workspace senderName updated the title from ${findWorkspace?.name} to ${updateWorkspace.name}`,
           type:
             member.userId === userId
               ? NotificationType.INVITATION_CREATOR
               : NotificationType.WORKSPACE_TITLE_UPDATE,
+          workspaceId: workspaceId,
         },
       })
     )
@@ -334,7 +346,7 @@ async function handleAddMembers(
           invitationId: invitation.id,
           message: invitation.message,
           recieverId: invitation.reciever.userId,
-          senderId: invitation.sender.userId,
+          senderId: invitation.sender!.userId,
           type: NotificationType.INVITATION,
         },
       })
@@ -401,8 +413,9 @@ async function getAllMembers(req: Request, res: Response, next: NextFunction) {
   const findMembers = await prisma.member.findMany({
     where: {
       workspaceId: workspaceId,
+      NOT: { role: "ADMIN" },
       recieverInvitations: {
-        every: {
+        some: {
           status: "ACCEPTED",
         },
       },
@@ -446,37 +459,38 @@ async function deleteMember(req: Request, res: Response, next: NextFunction) {
 }
 
 async function appointAsAdmin(req: Request, res: Response, next: NextFunction) {
-  const { userId, workspaceId } = req.params;
-  const { newAdminId } = req.body;
+  const { userId: senderId, workspaceId } = req.params;
+  const { recieverId } = req.body;
 
-  checkIfUserIdMatches(req, userId);
-  await verifyRole(["ADMIN"], workspaceId, userId);
+  checkIfUserIdMatches(req, senderId);
+  await verifyRole(["ADMIN"], workspaceId, senderId);
 
-  const data = await prisma.$transaction([
-    prisma.workspace.update({
-      where: {
-        id: workspaceId,
+  const workspace = await prisma.workspace.findUnique({
+    where: { id: workspaceId },
+  });
+  const notifications = await prisma.notification.createMany({
+    data: [
+      {
+        senderId,
+        recieverId,
+        message: `You are apppointed as admin of the workspace ${workspace?.name}`,
+        type: "APPOINT_ADMIN",
+        workspaceId,
       },
-      data: {
-        adminId: newAdminId,
+      {
+        senderId,
+        recieverId: senderId,
+        message: `You have sent invitation to appoint (recieverName) as admin of the workspace ${workspace?.name}`,
+        type: "APPOINT_ADMIN_CREATOR",
+        workspaceId,
       },
-    }),
-    prisma.member.update({
-      where: {
-        workspaceId_userId: { workspaceId, userId: newAdminId },
-      },
-      data: {
-        role: "ADMIN",
-      },
-    }),
-    prisma.member.delete({
-      where: {
-        workspaceId_userId: { workspaceId, userId },
-      },
-    }),
-  ]);
+    ],
+  });
 
-  return res.status(200).json({ message: "Appointed as a new Admin", data });
+  return res.status(200).json({
+    message: "Invitation is sent to appoint new Admin",
+    data: notifications,
+  });
 }
 
 async function handleUpdateInvitationStatus(
@@ -499,12 +513,16 @@ async function handleUpdateInvitationStatus(
     },
   });
 
+  const workspace = await prisma.workspace.findUnique({
+    where: { id: updateInvitationStatus.workspaceId },
+  });
+
   await prisma.notification.update({
     data: {
       message:
         invitationStatus === InvitationStatus.ACCEPTED
-          ? `You are now member of the Workspace `
-          : `You declined to be part of the Workspace `,
+          ? `You are now member of the Workspace ${workspace?.name} `
+          : `You declined to be part of the Workspace ${workspace?.name} `,
       type:
         invitationStatus === InvitationStatus.ACCEPTED
           ? NotificationType.ACCEPTED_INVITATION
@@ -521,6 +539,71 @@ async function handleUpdateInvitationStatus(
   });
 }
 
+const adminInvitationRequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { workspaceId } = req.params;
+  const { newAdminId, adminId, status, notificationId } = req.body;
+  checkIfUserIdMatches(req, newAdminId);
+
+  if (status === NotificationType.APPOINT_ADMIN_DECLINED) {
+    const data = await prisma.notification.update({
+      where: {
+        id: notificationId,
+      },
+
+      data: {
+        type: "APPOINT_ADMIN_DECLINED",
+      },
+    });
+    return res.status(200).json({
+      message: "You declined to be part of workspace as an admin",
+      data,
+    });
+  }
+  await prisma.$transaction([
+    prisma.workspace.update({
+      where: {
+        id: workspaceId,
+      },
+      data: {
+        adminId: newAdminId,
+      },
+    }),
+    prisma.member.update({
+      where: {
+        workspaceId_userId: { workspaceId, userId: newAdminId },
+      },
+      data: {
+        role: "ADMIN",
+      },
+    }),
+    prisma.member.update({
+      where: {
+        workspaceId_userId: { workspaceId, userId: adminId },
+      },
+      data: {
+        role: "CLIENT",
+      },
+    }),
+    prisma.notification.update({
+      where: {
+        id: notificationId,
+      },
+      data: {
+        type:
+          status === NotificationType.APPOINT_ADMIN_ACCEPTED
+            ? NotificationType.APPOINT_ADMIN_ACCEPTED
+            : NotificationType.APPOINT_ADMIN_DECLINED,
+      },
+    }),
+  ]);
+
+  return res.status(200).json({ message: "You are appointed as a new admin" });
+};
+
 export {
   handleCreateWorkspace,
   handleGetWorkspace,
@@ -532,4 +615,5 @@ export {
   deleteMember,
   appointAsAdmin,
   handleUpdateInvitationStatus,
+  adminInvitationRequestHandler,
 };

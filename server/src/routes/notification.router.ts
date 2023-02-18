@@ -2,8 +2,10 @@ import express from "express";
 import {
   getNotificationsByUserId,
   getUnreadNotificationCount,
+  handleDeleteNotificationById,
   handleMarkReadNotification,
 } from "../controllers/notification.controller";
+import catchAsyncErrors from "../utils/catchAsyncErrors";
 
 const notificationRouter = express.Router();
 
@@ -17,6 +19,11 @@ notificationRouter.get(
 notificationRouter.patch(
   "/:userId/mark-notification-read",
   handleMarkReadNotification
+);
+
+notificationRouter.delete(
+  "/:userId/:notificationId/delete-notification",
+  catchAsyncErrors(handleDeleteNotificationById)
 );
 
 export default notificationRouter;

@@ -12,12 +12,15 @@ async function handleMarkReadNotification(
 
   const updateNotifications = await prisma.notification.updateMany({
     where: {
+      read: false,
       recieverId: userId,
     },
     data: {
       read: true,
     },
   });
+
+  console.log({ updateNotifications });
 
   return res.status(200).json({
     message: "Mark as Read Notification SucessFully",
@@ -70,6 +73,8 @@ async function getNotificationsByUserId(
         },
       },
       sender: true,
+      reciever: true,
+      workspace: true,
     },
     orderBy: [{ createdAt: "desc" }, { updatedAt: "desc" }],
   });
@@ -79,8 +84,27 @@ async function getNotificationsByUserId(
     .json({ data: notifications, message: "Notification Fetched SucessFully" });
 }
 
+async function handleDeleteNotificationById(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { notificationId, userId } = req.params;
+  checkIfUserIdMatches(req, userId);
+
+  const deleteNotification = await prisma.notification.delete({
+    where: { id: notificationId },
+  });
+
+  return res.status(200).json({
+    message: "Notification deleted Succesfully",
+    data: deleteNotification,
+  });
+}
+
 export {
   getNotificationsByUserId,
   handleMarkReadNotification,
   getUnreadNotificationCount,
+  handleDeleteNotificationById,
 };

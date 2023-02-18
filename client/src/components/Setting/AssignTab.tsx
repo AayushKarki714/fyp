@@ -32,7 +32,7 @@ const AppointAsAdminCard: React.FC<AppointAsAdminCardProps> = ({
             <div className="flex items-center justify-center gap-2">
               <button
                 onClick={() => {
-                  mutateFn({ newAdminId: member.userId });
+                  mutateFn({ recieverId: member.userId });
                 }}
                 className="bg-green-600 px-4 w-24 py-2 flex-grow rounded-md "
               >
@@ -82,6 +82,7 @@ const AppointAsAdminCard: React.FC<AppointAsAdminCardProps> = ({
 function AssignTab() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const { workspaceId } = useAppSelector((state) => state.workspace);
   const {
     user: { id: userId },
@@ -104,8 +105,10 @@ function AssignTab() {
     },
     {
       onSuccess: (data) => {
-        dispatch(switchWorkSpace({ workspaceId: "", role: Role.CLIENT }));
-        navigate("/dashboard", { replace: true });
+        // dispatch(switchWorkSpace({ workspaceId: "", role: Role.CLIENT }));
+        // navigate("/dashboard", { replace: true });
+        queryClient.invalidateQueries("notifications");
+        queryClient.invalidateQueries("unread-notifications");
         console.log("data", data);
       },
       onError: (error) => {
