@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { FolderPlusIcon } from "@heroicons/react/24/outline";
+import {
+  FolderPlusIcon,
+  InformationCircleIcon,
+} from "@heroicons/react/24/outline";
 import Overlay from "../components/Modals/Overlay";
 import Modal from "../components/Modals/Modal";
 import CreateTodo from "../components/Modals/CreateTodo";
@@ -18,10 +21,14 @@ import { toast } from "react-toastify";
 import { Role } from "../redux/slices/workspaceSlice";
 import verifyRole from "../utils/verifyRole";
 import { createTodoContainer } from "../services/todo";
+import ColorIndicator from "../components/ColorIndicator/ColorIndicator";
+import { isVisible } from "@testing-library/user-event/dist/utils";
+import { AnimatePresence } from "framer-motion";
 
 const TodoPage: React.FC = () => {
   const queryClient = useQueryClient();
   const { user } = useAppSelector((state) => state.auth);
+  const [showInformation, setShowInformation] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState(false);
   const { workspaceId, role } = useAppSelector((state) => state.workspace);
 
@@ -63,14 +70,31 @@ const TodoPage: React.FC = () => {
 
   return (
     <>
-      <section className="flex flex-col gap-3">
-        {isAllowed && (
+      <section className="relative  flex flex-col gap-3">
+        <div className="flex gap-3 justify-end text-gray-400 ">
           <button
-            className="flex items-center justify-center p-2 w-10 h-10 rounded-full ml-auto text-gray-400 hover:text-custom-light-green"
-            onClick={() => setIsOpen(true)}
+            className="hover:text-custom-light-green"
+            onMouseLeave={() => setShowInformation(false)}
+            onMouseEnter={() => setShowInformation(true)}
           >
-            <FolderPlusIcon className="h-6" />
+            <InformationCircleIcon className="h-6 w-6" />
           </button>
+          {isAllowed && (
+            <button
+              className="flex items-center justify-center p-2 w-10 h-10 rounded-full  text-gray-400 hover:text-custom-light-green"
+              onClick={() => setIsOpen(true)}
+            >
+              <FolderPlusIcon className="h-6" />
+            </button>
+          )}
+        </div>
+        {showInformation && (
+          <AnimatePresence>
+            <ColorIndicator
+              onMouseEnter={() => setShowInformation(true)}
+              onMouseLeave={() => setShowInformation(false)}
+            />
+          </AnimatePresence>
         )}
         <Overlay isOpen={isOpen} onClick={() => setIsOpen(false)}>
           <Modal onClick={() => setIsOpen(false)}>

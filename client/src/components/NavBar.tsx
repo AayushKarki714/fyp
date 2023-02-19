@@ -27,7 +27,6 @@ const NavBar: React.FC = () => {
   useOnClickOutside(profileRef, () => setShowUserDetail(false));
   useOnClickOutside(notificationsRef, () => setIsNotificationsOpen(false));
   const unreadNotificationCount = unReadNotificationQuery?.data?.data;
-  console.log(unreadNotificationCount);
 
   return (
     <nav

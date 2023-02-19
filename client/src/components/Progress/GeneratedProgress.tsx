@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery } from "react-query";
-import { add, differenceInDays, format } from "date-fns";
+import { add, differenceInDays } from "date-fns";
 import axios from "../../api/axios";
 import { useAppSelector } from "../../redux/store/hooks";
 import useNavigateToDashboard from "../../hooks/useNavigateToDashboard";
@@ -9,19 +9,28 @@ interface Props {}
 
 function calcProgressToBeMade(
   createdAt: Date,
-  completionDate: Date,
+  completionDate: Date | null,
   completed: boolean
 ) {
-  if (completed) return 100;
-  const daysElapsed = differenceInDays(new Date(), new Date(createdAt));
-  const totalDays = differenceInDays(
-    Boolean(completionDate)
-      ? new Date(completionDate)
-      : add(new Date(createdAt), { days: 30 }),
-    new Date(createdAt)
-  );
-  const percent = Math.round((daysElapsed / totalDays) * 100);
-  return percent > 100 ? 100 : percent;
+  let endDate;
+  let leftDuration;
+  let totalDuration;
+  let currentDate = new Date();
+  let startDate = new Date(createdAt);
+  leftDuration = differenceInDays(currentDate, new Date(startDate)) || 1;
+
+  if (completed) {
+    return 100;
+  } else if (!completionDate) {
+    endDate = add(new Date(createdAt), { days: 30 });
+    totalDuration = differenceInDays(new Date(endDate), new Date(startDate));
+    return Math.round((leftDuration / totalDuration) * 100);
+  }
+  endDate = new Date(completionDate);
+  totalDuration = differenceInDays(endDate, startDate);
+  return Math.round((leftDuration / totalDuration) * 100) > 100
+    ? 100
+    : Math.round((leftDuration / totalDuration) * 100);
 }
 
 interface ProgressContainerProps {
@@ -49,28 +58,20 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   createdAt,
   completed,
 }) => {
-  let daysLeft;
-  let dateClassName = "";
-  let dateInDayMonthFormat = "";
   let progressPercent = calcProgressToBeMade(
     createdAt,
     completionDate,
     completed
   );
 
+  let dateClassName = "";
   if (completionDate) {
     const formattedCompletionDate = new Date(completionDate);
     const formattedCreatedAtDate = new Date(createdAt);
-    const monthFormat = format(formattedCompletionDate, "LLL");
-    const dayFormat = format(formattedCompletionDate, "dd");
-
-    dateInDayMonthFormat = `${monthFormat} ${dayFormat}`;
-
     const remainingDays = differenceInDays(
       formattedCompletionDate,
       formattedCreatedAtDate
     );
-    daysLeft = `${remainingDays} ${remainingDays > 1 ? "days" : "day"}`;
 
     if (completed) {
       dateClassName = "bg-green-600";
@@ -85,21 +86,20 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
     } else {
       dateClassName = "bg-red-600";
     }
-  } else {
-    daysLeft = null;
   }
   return (
-    <div className="flex flex-col gap-1" title={`${progressPercent}%`}>
+    <div className="flex flex-col gap-1">
       <div className="text-base">
         <h3>{text}</h3>
       </div>
       <div>
-        <div className="p-1 bg-custom-light-dark rounded-xl">
+        <div
+          className="p-1 bg-custom-light-dark rounded-xl"
+          title={`${progressPercent}%`}
+        >
           <div
-            style={{
-              width: `${progressPercent}%`,
-            }}
-            className={`${dateClassName}  h-4 rounded-xl `}
+            style={{ width: `${progressPercent}%` }}
+            className={`${dateClassName || "bg-violet-800"} h-4 rounded-xl `}
           ></div>
         </div>
       </div>

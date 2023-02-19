@@ -91,3 +91,7 @@
 .parent:hover .child {
   display: flex;
 }
+
+.right-angled-triangle {
+  clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+}
