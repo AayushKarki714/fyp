@@ -4,6 +4,7 @@ import Api401Error from "../utils/api401Error";
 import Api403Error from "../utils/api403Error";
 import checkIfUserIdMatches from "../utils/checkIfUserIdMatches";
 import prisma from "../utils/prisma";
+import verifyCreatedUserId from "../utils/verifyCreatedUserId";
 import verifyRole from "../utils/verifyRole";
 
 async function handleCreateTodoContainer(
@@ -27,12 +28,13 @@ async function handleCreateTodoContainer(
 
   if (findByTitle)
     throw new Api400Error(
-      `${findByTitle.title} alread Exist's as a Todo Container`
+      `${findByTitle.title} already Exist's as a Todo Container`
     );
 
   const todoContainer = await prisma.todoContainer.create({
     data: {
       title,
+      createdByUserId: userId,
       workspaceId,
     },
   });
@@ -56,6 +58,14 @@ async function getAllTodoContainer(
     },
     orderBy: {
       createdAt: "asc",
+    },
+    include: {
+      user: {
+        select: {
+          userName: true,
+          photo: true,
+        },
+      },
     },
   });
 
@@ -245,11 +255,17 @@ async function handleDeleteTodoContainer(
   res: Response,
   next: NextFunction
 ) {
-  const { todoContainerId, userId, workspaceId } = req.params;
+  const { todoContainerId, userId, workspaceId, createdByUserId } = req.params;
 
+  // checks if the users is same or not
   checkIfUserIdMatches(req, userId);
-  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
+  const role = await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+  console.log({ role });
+
+  if (role === "LANCER") {
+    verifyCreatedUserId(req, createdByUserId);
+  }
   const deletedTodoContainer = await prisma.todoContainer.delete({
     where: { id: todoContainerId },
   });

@@ -9,6 +9,11 @@ interface CreateTodoProps {
 interface ITodoContainerPayload {
   id: string;
   title: string;
+  createdByUserId: string;
+  user: {
+    photo: string;
+    userName: string;
+  };
 }
 
 interface ITodoCardPayload {

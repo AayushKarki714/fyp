@@ -87,7 +87,7 @@ todoRouter.post(
 
 // delete routes
 todoRouter.delete(
-  "/:userId/:workspaceId/:todoContainerId/delete-todo-container",
+  "/:userId/:workspaceId/:todoContainerId/:createdByUserId/delete-todo-container",
   catchAsyncErrors(handleDeleteTodoContainer)
 );
 

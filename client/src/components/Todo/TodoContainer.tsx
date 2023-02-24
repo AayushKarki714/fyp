@@ -17,11 +17,17 @@ import axios from "../../api/axios";
 interface TodoContainerProps {
   id: string;
   text: string;
+  createdByUserId: string;
+  photo: string;
+  createdUsername: string;
 }
 
 const TodoContainer: React.FC<TodoContainerProps> = ({
   text,
   id: todoContainerId,
+  photo,
+  createdByUserId,
+  createdUsername,
 }) => {
   const queryClient = useQueryClient();
   const todoContainerRef = useRef<HTMLDivElement>(null);
@@ -48,13 +54,19 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
   );
 
   const deleteTodoContainerMutation = useMutation(
-    deleteTodoContainer({ userId, workspaceId, todoContainerId }),
+    deleteTodoContainer({
+      userId,
+      workspaceId,
+      todoContainerId,
+      createdByUserId,
+    }),
     {
       onError: (error: any) => {
+        console.log({ error });
         toast(error?.response?.data?.message);
       },
       onSuccess: (data: any) => {
-        console.log(data);
+        console.log({ data });
         queryClient.invalidateQueries("todo-container-query");
         toast(data?.message);
       },
@@ -123,7 +135,7 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
     <>
       <div
         ref={todoContainerRef}
-        className="group flex flex-col gap-4 border-2 border-custom-light-dark p-3 rounded-md "
+        className="group flex flex-col gap-4 border-2 border-custom-light-dark p-3 pb-2 rounded-md "
       >
         <div className="text-2xl flex justify-between items-center">
           {isAllowed && editMode ? (
@@ -140,16 +152,16 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
               {text}
             </h2>
           )}
-          {isAllowed && (
-            <div>
-              <button
-                onClick={handleDeleteTodoContainer}
-                className="hidden group-hover:block text-sm text-gray-400 hover:text-custom-light-green"
-              >
-                <TrashIcon className="h-5 w-5" />
-              </button>
-            </div>
-          )}
+          {/* {isAllowed && ( */}
+          <div>
+            <button
+              onClick={handleDeleteTodoContainer}
+              className="hidden group-hover:block text-sm text-gray-400 hover:text-custom-light-green"
+            >
+              <TrashIcon className="h-5 w-5" />
+            </button>
+          </div>
+          {/* )} */}
         </div>
         <div className="grid grid-cols-responsive-todo items-start gap-3">
           {todoCardData.map(({ id, title, todoContainerId }: any) => (
@@ -196,6 +208,18 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
                 Add a Todo Card
               </button>
             ))}
+        </div>
+        <div className="flex items-center justify-end gap-3 text-base">
+          <p className="text-gray-400 hover:text-white">
+            Created by {createdUsername}{" "}
+          </p>
+          <div className="h-8 w-8 rounded-full overflow-x-hidden">
+            <img
+              src={photo}
+              alt={createdUsername}
+              className="w-full h-full object-containj"
+            />
+          </div>
         </div>
       </div>
     </>

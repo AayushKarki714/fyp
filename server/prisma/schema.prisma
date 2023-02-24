@@ -11,16 +11,17 @@ datasource db {
 }
 
 model User {
-    id                    String         @id @default(uuid())
+    id                    String          @id @default(uuid())
     userName              String
-    email                 String         @unique
+    email                 String          @unique
     photo                 String
     Member                Member[]
     Workspace             Workspace[]
     comments              Comment[]
     likes                 Like[]
-    senderNotifications   Notification[] @relation("sender-notifications")
-    recieverNotifications Notification[] @relation("reciever-notifications")
+    senderNotifications   Notification[]  @relation("sender-notifications")
+    recieverNotifications Notification[]  @relation("reciever-notifications")
+    todoContainer         TodoContainer[]
 }
 
 model Workspace {
@@ -138,12 +139,14 @@ model Photo {
 }
 
 model TodoContainer {
-    id          String     @id @default(uuid())
-    title       String
-    workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-    workspaceId String
-    createdAt   DateTime   @default(now())
-    TodoCard    TodoCard[]
+    id              String     @id @default(uuid())
+    title           String
+    workspace       Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    workspaceId     String
+    createdAt       DateTime   @default(now())
+    TodoCard        TodoCard[]
+    user            User       @relation(fields: [createdByUserId], references: [id])
+    createdByUserId String
 }
 
 model TodoCard {

@@ -66,6 +66,7 @@ const TodoPage: React.FC = () => {
   }
 
   const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
+  console.log({ todoContainerData });
 
   return (
     <>
@@ -102,9 +103,20 @@ const TodoPage: React.FC = () => {
         </Overlay>
         <DndProvider backend={HTML5Backend}>
           <div className="flex flex-col gap-4">
-            {todoContainerData?.map(({ id, title }: ITodoContainerPayload) => {
-              return <TodoContainer key={id} id={id} text={title} />;
-            })}
+            {todoContainerData?.map(
+              ({ id, title, user, createdByUserId }: ITodoContainerPayload) => {
+                return (
+                  <TodoContainer
+                    photo={user.photo}
+                    createdByUserId={createdByUserId}
+                    createdUsername={user.userName}
+                    key={id}
+                    id={id}
+                    text={title}
+                  />
+                );
+              }
+            )}
           </div>
         </DndProvider>
       </section>

@@ -33,13 +33,18 @@ interface ITodoContainer extends ICreateTodoContainer {
   todoContainerId: string;
 }
 
+interface IDeleteTodoContainer extends ITodoContainer {
+  createdByUserId: string;
+}
+
 function deleteTodoContainer({
   userId,
   workspaceId,
   todoContainerId,
-}: ITodoContainer) {
+  createdByUserId,
+}: IDeleteTodoContainer) {
   return makeRequestFn(
-    `/todo/${userId}/${workspaceId}/${todoContainerId}/delete-todo-container`,
+    `/todo/${userId}/${workspaceId}/${todoContainerId}/${createdByUserId}/delete-todo-container`,
     DELETE_OPTIONS
   );
 }
