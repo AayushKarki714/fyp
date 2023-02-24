@@ -22,7 +22,6 @@ import { Role } from "../redux/slices/workspaceSlice";
 import verifyRole from "../utils/verifyRole";
 import { createTodoContainer } from "../services/todo";
 import ColorIndicator from "../components/ColorIndicator/ColorIndicator";
-import { isVisible } from "@testing-library/user-event/dist/utils";
 import { AnimatePresence } from "framer-motion";
 
 const TodoPage: React.FC = () => {
@@ -103,7 +102,7 @@ const TodoPage: React.FC = () => {
         </Overlay>
         <DndProvider backend={HTML5Backend}>
           <div className="flex flex-col gap-4">
-            {todoContainerData.map(({ id, title }: ITodoContainerPayload) => {
+            {todoContainerData?.map(({ id, title }: ITodoContainerPayload) => {
               return <TodoContainer key={id} id={id} text={title} />;
             })}
           </div>
