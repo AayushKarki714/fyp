@@ -8,6 +8,7 @@ import {
   handleCreateTodoCard,
   handleCreateTodoComment,
   handleCreateTodoContainer,
+  handleDeleteTodoById,
   handleDeleteTodoCard,
   handleDeleteTodoContainer,
   handleGetTodoCommentLikeCount,
@@ -87,8 +88,13 @@ todoRouter.post(
 
 // delete routes
 todoRouter.delete(
-  "/:userId/:workspaceId/:todoContainerId/:createdByUserId/delete-todo-container",
+  "/:userId/:workspaceId/:todoContainerId/delete-todo-container",
   catchAsyncErrors(handleDeleteTodoContainer)
+);
+
+todoRouter.delete(
+  "/:userId/:workspaceId/:todoCardId/:todoId/delete-single-todo",
+  catchAsyncErrors(handleDeleteTodoById)
 );
 
 todoRouter.delete(

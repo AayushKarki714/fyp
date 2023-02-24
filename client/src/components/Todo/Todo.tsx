@@ -28,6 +28,8 @@ interface Props {
   completed: boolean;
   completionDate: Date;
   totalComments: number;
+  photo: string;
+  createdUsername: string;
 }
 
 const Todo: React.FC<Props> = ({
@@ -40,6 +42,8 @@ const Todo: React.FC<Props> = ({
   completionDate,
   completed,
   totalComments,
+  photo,
+  createdUsername,
 }) => {
   const queryClient = useQueryClient();
 
@@ -127,6 +131,9 @@ const Todo: React.FC<Props> = ({
       <Overlay isOpen={isOpen} onClick={closeModal}>
         <Modal onClick={closeModal}>
           <TodoEditModal
+            photo={photo}
+            closeModal={closeModal}
+            createdUsername={createdUsername}
             completed={completed}
             dateInDayMonthFormat={dateInDayMonthFormat}
             daysLeft={daysLeft}

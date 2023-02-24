@@ -32,6 +32,10 @@ interface ITodo {
   completionDate: Date;
   createdAt: Date;
   completed: boolean;
+  user: {
+    userName: string;
+    photo: string;
+  };
   _count: any;
 }
 

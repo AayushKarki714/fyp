@@ -22,6 +22,8 @@ model User {
     senderNotifications   Notification[]  @relation("sender-notifications")
     recieverNotifications Notification[]  @relation("reciever-notifications")
     todoContainer         TodoContainer[]
+    todoCard              TodoCard[]
+    todos                 Todo[]
 }
 
 model Workspace {
@@ -156,22 +158,26 @@ model TodoCard {
     todoContainer   TodoContainer @relation(fields: [todoContainerId], references: [id], onDelete: Cascade)
     todoContainerId String
     Todo            Todo[]
+    user            User          @relation(fields: [createdByUserId], references: [id])
+    createdByUserId String
 
     @@unique([id, todoContainerId])
 }
 
 model Todo {
-    id             String    @id @default(uuid())
-    text           String
-    dueDate        DateTime
-    status         String
-    description    String?
-    completed      Boolean   @default(false)
-    completionDate DateTime?
-    createdAt      DateTime  @default(now())
-    comments       Comment[]
-    todoCard       TodoCard  @relation(fields: [todoCardId], references: [id], onDelete: Cascade)
-    todoCardId     String
+    id              String    @id @default(uuid())
+    text            String
+    dueDate         DateTime
+    status          String
+    description     String?
+    completed       Boolean   @default(false)
+    completionDate  DateTime?
+    createdAt       DateTime  @default(now())
+    comments        Comment[]
+    todoCard        TodoCard  @relation(fields: [todoCardId], references: [id], onDelete: Cascade)
+    todoCardId      String
+    user            User      @relation(fields: [createdByUserId], references: [id])
+    createdByUserId String
 
     @@unique([id, todoCardId])
 }

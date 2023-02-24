@@ -21,12 +21,16 @@ interface Props {
   id: string;
   title: string;
   todoContainerId: string;
+  photo: string;
+  createdUsername: string;
 }
 
 const TodoCard: React.FC<Props> = ({
   title,
   id: todoCardId,
   todoContainerId,
+  photo,
+  createdUsername,
 }) => {
   const queryClient = useQueryClient();
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -81,8 +85,6 @@ const TodoCard: React.FC<Props> = ({
           todoCardId,
         ]);
 
-        console.log({ snapshotOfPrevTodoCard, snapshotOfCurrTodoCard });
-
         const updateTodo = snapshotOfPrevTodoCard?.find(
           (todo: any) => todo.id === newTodo.todoId
         );
@@ -92,8 +94,6 @@ const TodoCard: React.FC<Props> = ({
           (old: any) =>
             old.filter((oldTodo: any) => oldTodo.id !== newTodo.todoId)
         );
-
-        console.log({ ...updateTodo, status: title });
 
         queryClient.setQueryData(["todo-query", todoCardId], (old: any) => [
           ...old,
@@ -118,7 +118,8 @@ const TodoCard: React.FC<Props> = ({
           ["todo-query", data.prevTodoCardId],
           context.snapshotOfPrevTodoCard
         );
-        toast(error.message);
+        console.log({ error });
+        toast(error?.response?.data?.message);
       },
     }
   );
@@ -203,6 +204,7 @@ const TodoCard: React.FC<Props> = ({
   const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
 
   if (isLoading) return <h2>Loading...</h2>;
+  console.log({ todoData });
 
   return (
     <>
@@ -248,6 +250,8 @@ const TodoCard: React.FC<Props> = ({
               todo={todo}
               createdAt={todo.createdAt}
               completed={todo.completed}
+              photo={todo.user.photo}
+              createdUsername={todo.user.userName}
               todoContainerId={todoContainerId}
               completionDate={todo.completionDate}
               totalComments={todo?._count.comments}
@@ -296,6 +300,18 @@ const TodoCard: React.FC<Props> = ({
                 Add a Todo
               </button>
             ))}
+        </div>
+        <div className="flex items-center justify-end gap-1 text-xs">
+          <p className="text-gray-400 hover:text-white">
+            by {createdUsername}{" "}
+          </p>
+          <div className="h-5 w-5 rounded-full overflow-x-hidden">
+            <img
+              src={photo}
+              alt={createdUsername}
+              className="w-full h-full object-containj"
+            />
+          </div>
         </div>
       </div>
     </>

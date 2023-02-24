@@ -17,8 +17,8 @@ import axios from "../../api/axios";
 interface TodoContainerProps {
   id: string;
   text: string;
-  createdByUserId: string;
   photo: string;
+  createdByUserId: string;
   createdUsername: string;
 }
 
@@ -58,7 +58,6 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
       userId,
       workspaceId,
       todoContainerId,
-      createdByUserId,
     }),
     {
       onError: (error: any) => {
@@ -130,6 +129,7 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
   if (isLoading) {
     return <h1>loading...</h1>;
   }
+  console.log({ todoCardData });
 
   return (
     <>
@@ -164,14 +164,18 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
           {/* )} */}
         </div>
         <div className="grid grid-cols-responsive-todo items-start gap-3">
-          {todoCardData.map(({ id, title, todoContainerId }: any) => (
-            <TodoCard
-              key={id}
-              id={id}
-              title={title}
-              todoContainerId={todoContainerId}
-            />
-          ))}
+          {todoCardData.map(
+            ({ id, user, title, todoContainerId, createdByUserId }: any) => (
+              <TodoCard
+                key={id}
+                id={id}
+                title={title}
+                photo={user.photo}
+                createdUsername={user.userName}
+                todoContainerId={todoContainerId}
+              />
+            )
+          )}
 
           {isAllowed &&
             (showTodoCard ? (

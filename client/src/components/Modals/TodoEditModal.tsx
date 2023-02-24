@@ -36,6 +36,9 @@ interface Props {
   daysLeft: string | null;
   dateClass: string;
   completed: boolean;
+  photo: string;
+  createdUsername: string;
+  closeModal: () => any;
 }
 
 function TodoEditModal({
@@ -43,8 +46,11 @@ function TodoEditModal({
   title,
   dateInDayMonthFormat,
   daysLeft,
+  createdUsername,
+  photo,
   dateClass,
   completed,
+  closeModal,
 }: Props) {
   const queryClient = useQueryClient();
   const descriptionRef = useRef<any>(null);
@@ -82,6 +88,7 @@ function TodoEditModal({
     },
     {
       onError: (error: any) => {
+        setEditTodoTitle(title);
         toast(error?.response?.data?.message);
       },
       onSuccess: (data) => {
@@ -91,6 +98,7 @@ function TodoEditModal({
       },
     }
   );
+
   const updateDescriptionMutation = useMutation(
     async (payload: IDescriptionPayload) => {
       const res = await axios.patch(
@@ -126,6 +134,25 @@ function TodoEditModal({
       onSuccess: (data) => {
         queryClient.invalidateQueries(["todo-query", todoCardId]);
         toast(data?.message, { position: "top-center" });
+      },
+    }
+  );
+
+  const deleteTodoMutation = useMutation(
+    async () => {
+      const res = await axios.delete(
+        `/todo/${user.id}/${workspaceId}/${todoCardId}/${todoId}/delete-single-todo`
+      );
+      return res.data;
+    },
+    {
+      onError(error: any) {
+        console.log("error", error);
+      },
+      onSuccess(data) {
+        closeModal();
+        queryClient.invalidateQueries("todo-query", todoCardId);
+        console.log("data", data);
       },
     }
   );
@@ -178,10 +205,6 @@ function TodoEditModal({
     updateCompletionMutation.mutate({ completionDate: date });
   };
 
-  // const formatTime = formatDistance(new Date(createdAt), new Date(), {
-  //   addSuffix: true,
-  // });
-
   const formatTime = formatRelative(new Date(createdAt), new Date());
 
   const createdCommentMutation = useMutation(
@@ -193,7 +216,9 @@ function TodoEditModal({
       return res.data;
     },
     {
-      onError: (error) => {},
+      onError: (error) => {
+        console.log("error", error);
+      },
       onSuccess: (data) => {
         queryClient.invalidateQueries("todo-query", todo.todoCardId);
         queryClient.invalidateQueries(["single-todo", todo.id]);
@@ -204,6 +229,7 @@ function TodoEditModal({
   const handleCreateComment = (data: any) => {
     createdCommentMutation.mutate(data);
   };
+
   useOnClickOutside(descriptionRef, () => {
     if (description) {
       setTodoDescription(description);
@@ -248,7 +274,17 @@ function TodoEditModal({
           </>
         )}
       </button>
-      <p className="text-custom-light-green mb-4">Created {formatTime}</p>
+      <div className="flex gap-1 text-custom-light-green mb-2">
+        <p>Created {formatTime}</p>
+      </div>
+      <div className="mb-3 text-gray-400">
+        <button
+          onClick={() => deleteTodoMutation.mutate()}
+          className="text-xs hover:text-red-600"
+        >
+          Delete
+        </button>
+      </div>
       <form
         onSubmit={handleTodoDescriptionlUpdate}
         className="flex flex-col  mb-4 "
@@ -322,7 +358,18 @@ function TodoEditModal({
           selectsEnd
         />
       </div>
-
+      <div className="text-gray-400 flex justify-end mt-3 gap-2 items-center">
+        <span>by {createdUsername}</span>
+        <div>
+          <div className="h-8 w-8 rounded-full overflow-hidden">
+            <img
+              className="h-full w-full object-cover"
+              src={photo}
+              alt={createdUsername}
+            />
+          </div>
+        </div>
+      </div>
       <div className=" mt-8">
         <h2 className="text-2xl text-gray-400">Comments:</h2>
         {rootComments != null && rootComments.length > 0 && (

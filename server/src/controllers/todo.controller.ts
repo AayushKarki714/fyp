@@ -1,3 +1,4 @@
+import { Role } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import Api400Error from "../utils/api400Error";
 import Api401Error from "../utils/api401Error";
@@ -82,10 +83,9 @@ async function handleCreateTodoCard(
 ) {
   const { title } = req.body;
   const { workspaceId, todoContainerId, userId } = req.params;
-
   checkIfUserIdMatches(req, userId);
-  await verifyRole(["LANCER", "ADMIN"], workspaceId, userId);
 
+  await verifyRole(["LANCER", "ADMIN"], workspaceId, userId);
   if (!title) throw new Api400Error("Missing Required Field (title)");
 
   const workspace = await prisma.workspace.findUnique({
@@ -98,6 +98,7 @@ async function handleCreateTodoCard(
   const todoCard = await prisma.todoCard.create({
     data: {
       title,
+      createdByUserId: userId,
       todoContainerId,
     },
   });
@@ -125,6 +126,14 @@ async function getAllTodoCardInTodoContainer(
   const todoCards = await prisma.todoCard.findMany({
     where: {
       todoContainerId: todoContainerId,
+    },
+    include: {
+      user: {
+        select: {
+          photo: true,
+          userName: true,
+        },
+      },
     },
   });
   return res
@@ -164,8 +173,9 @@ async function handleCreateTodo(
     data: {
       text,
       status,
-      dueDate: new Date(),
       todoCardId,
+      dueDate: new Date(),
+      createdByUserId: userId,
     },
   });
   return res
@@ -212,6 +222,12 @@ async function getAllTodosInTodoCard(
           comments: true,
         },
       },
+      user: {
+        select: {
+          photo: true,
+          userName: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "asc",
@@ -232,9 +248,13 @@ async function handleUpdateTodoStatus(
   const { status } = req.body;
 
   checkIfUserIdMatches(req, userId);
-  verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+  const role = await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   const findTodo = await prisma.todo.findUnique({ where: { id: todoId } });
+
+  if (role === Role.LANCER)
+    verifyCreatedUserId(findTodo?.createdByUserId, userId);
+
   const deletedTodo = await prisma.todo.delete({ where: { id: todoId } });
 
   if (!deletedTodo || !findTodo) throw new Api400Error("Not found my boi!!");
@@ -261,11 +281,15 @@ async function handleDeleteTodoContainer(
   checkIfUserIdMatches(req, userId);
 
   const role = await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
-  console.log({ role });
 
-  if (role === "LANCER") {
-    verifyCreatedUserId(req, createdByUserId);
+  const findTodoContainer = await prisma.todoContainer.findUnique({
+    where: { id: todoContainerId },
+  });
+
+  if (role === Role.LANCER) {
+    verifyCreatedUserId(findTodoContainer?.createdByUserId, userId);
   }
+
   const deletedTodoContainer = await prisma.todoContainer.delete({
     where: { id: todoContainerId },
   });
@@ -282,9 +306,16 @@ async function handleDeleteTodoCard(
   next: NextFunction
 ) {
   const { todoContainerId, userId, workspaceId, todoCardId } = req.params;
-
   checkIfUserIdMatches(req, userId);
-  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+
+  const role = await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+  const findTodoCard = await prisma.todoCard.findUnique({
+    where: {
+      id_todoContainerId: { id: todoCardId, todoContainerId },
+    },
+  });
+  if (role === Role.LANCER)
+    verifyCreatedUserId(findTodoCard?.createdByUserId, userId);
 
   const deleteTodoCard = await prisma.todoCard.delete({
     where: {
@@ -308,7 +339,16 @@ async function handleTodoContainerTitleUpdate(
 
   checkIfUserIdMatches(req, userId);
 
-  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+  const role = await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+
+  const findTodoContainer = await prisma.todoContainer.findUnique({
+    where: {
+      id: todoContainerId,
+    },
+  });
+
+  if (role === Role.LANCER)
+    verifyCreatedUserId(findTodoContainer?.createdByUserId, userId);
 
   if (!title) throw new Api400Error("Missing Required Fields");
 
@@ -336,7 +376,14 @@ async function handleTodoTitleUpdate(
   const { todoCardId, todoId, userId, workspaceId } = req.params;
 
   checkIfUserIdMatches(req, userId);
-  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+  const role = await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+
+  const findTodo = await prisma.todo.findUnique({
+    where: { id_todoCardId: { id: todoId, todoCardId } },
+  });
+
+  if (role === Role.LANCER)
+    verifyCreatedUserId(findTodo?.createdByUserId, userId);
 
   if (!text) throw new Api400Error("Updated Todo Text can't be Empty");
 
@@ -380,10 +427,19 @@ async function handleTodoDescriptionUpdate(
   const { todoCardId, todoId, workspaceId, userId } = req.params;
 
   checkIfUserIdMatches(req, userId);
-  await verifyRole(["LANCER", "ADMIN"], workspaceId, userId);
+  const role = await verifyRole(["LANCER", "ADMIN"], workspaceId, userId);
+
+  const findTodo = await prisma.todo.findUnique({
+    where: {
+      id_todoCardId: { id: todoId, todoCardId },
+    },
+  });
+
+  if (role === Role.LANCER)
+    verifyCreatedUserId(findTodo?.createdByUserId, userId);
 
   if (!description)
-    throw new Api400Error("Updaed Todo description can't be Emtpy!!");
+    throw new Api400Error("Updated Todo description can't be Emtpy!!");
 
   const todoCard = await prisma.todoCard.findUnique({
     where: { id: todoCardId },
@@ -425,7 +481,14 @@ async function handleTodoCompletionUpdate(
   const { todoCardId, todoId, userId, workspaceId } = req.params;
 
   checkIfUserIdMatches(req, userId);
-  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+  const role = await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+
+  const findTodo = await prisma.todo.findUnique({
+    where: { id_todoCardId: { id: todoId, todoCardId } },
+  });
+
+  if (role === Role.LANCER)
+    verifyCreatedUserId(findTodo?.createdByUserId, userId);
 
   if (!completionDate)
     throw new Api400Error("Updated  Completion date can't be Emtpy!!");
@@ -684,9 +747,19 @@ async function handleTodoCardTitleUpdate(
   const { userId, workspaceId, todoContainerId, todoCardId } = req.params;
 
   checkIfUserIdMatches(req, userId);
-  verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+  const role = await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+
+  const findTodoCard = await prisma.todoCard.findUnique({
+    where: {
+      id_todoContainerId: { id: todoCardId, todoContainerId },
+    },
+  });
+
+  if (role === Role.LANCER)
+    verifyCreatedUserId(findTodoCard?.createdByUserId, userId);
 
   if (!title) throw new Api400Error("Missing Required Fields* (title)");
+
   const updateTodoCardTitle = await prisma.todoCard.update({
     data: {
       title,
@@ -695,8 +768,36 @@ async function handleTodoCardTitleUpdate(
       id_todoContainerId: { id: todoCardId, todoContainerId },
     },
   });
+
   return res.status(200).json({
     message: `TodoCard title was succesfully updated to ${updateTodoCardTitle.title}`,
+  });
+}
+
+async function handleDeleteTodoById(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { todoCardId, todoId, userId, workspaceId } = req.params;
+  checkIfUserIdMatches(req, userId);
+  const role = await verifyRole([Role.ADMIN, Role.LANCER], workspaceId, userId);
+  const findTodo = await prisma.todo.findUnique({
+    where: { id_todoCardId: { id: todoId, todoCardId } },
+  });
+
+  if (role === Role.LANCER)
+    verifyCreatedUserId(findTodo?.createdByUserId, userId);
+
+  const deleteTodo = await prisma.todo.delete({
+    where: {
+      id_todoCardId: { id: todoId, todoCardId },
+    },
+  });
+
+  return res.status(200).json({
+    message: `${deleteTodo.text} was deleted Successfully`,
+    data: null,
   });
 }
 
@@ -722,4 +823,5 @@ export {
   handleGetTodoCommentLikeCount,
   handleToggleTodoCommentLikes,
   handleTodoCardTitleUpdate,
+  handleDeleteTodoById,
 };
