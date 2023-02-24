@@ -18,9 +18,16 @@ import { motion } from "framer-motion";
 interface Props {
   text: string;
   galleryContainerId: string;
+  createdUsername: string;
+  photo: string;
 }
 
-const GalleryContainer: React.FC<Props> = ({ text, galleryContainerId }) => {
+const GalleryContainer: React.FC<Props> = ({
+  text,
+  galleryContainerId,
+  createdUsername,
+  photo,
+}) => {
   const galleryContainerRef = useRef<HTMLDivElement>(null);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [showViewer, setShowViewer] = useState<boolean>(false);
@@ -45,13 +52,15 @@ const GalleryContainer: React.FC<Props> = ({ text, galleryContainerId }) => {
   const updateGalleryTitleMutation = useMutation(
     async (payload: any) => {
       const res = await axios.patch(
-        `/gallery/${galleryContainerId}/update-gallery-title`,
+        `/gallery/${userId}/${workspaceId}/${galleryContainerId}/update-gallery-title`,
         payload
       );
       return res;
     },
     {
       onError: (error: any) => {
+        setEditMode(false);
+        setGalleryTitle(text);
         toast(error?.response?.data?.message);
       },
       onSuccess: (data) => {
@@ -66,7 +75,7 @@ const GalleryContainer: React.FC<Props> = ({ text, galleryContainerId }) => {
   const uploadImageMutation = useMutation(
     async (payload: any) => {
       const res = await axios.post(
-        `/gallery/${workspaceId}/${galleryContainerId}/upload-image`,
+        `/gallery/${userId}/${workspaceId}/${galleryContainerId}/upload-image`,
         payload
       );
 
@@ -89,7 +98,7 @@ const GalleryContainer: React.FC<Props> = ({ text, galleryContainerId }) => {
   const deleteGalleryContainerMutation = useMutation(
     async (deleteGalleryContainerId: string) => {
       const res = await axios.delete(
-        `/gallery/${deleteGalleryContainerId}/delete-gallery-container`
+        `/gallery/${userId}/${workspaceId}/${deleteGalleryContainerId}/delete-gallery-container`
       );
       return res;
     },
@@ -107,7 +116,7 @@ const GalleryContainer: React.FC<Props> = ({ text, galleryContainerId }) => {
   const deletePhotoMutation = useMutation(
     async (photoId: string) => {
       const res = await axios.delete(
-        `/gallery/${userId}/${photoId}/delete-single-photo`
+        `/gallery/${userId}/${workspaceId}/${photoId}/delete-single-photo`
       );
       return res.data;
     },
@@ -176,6 +185,8 @@ const GalleryContainer: React.FC<Props> = ({ text, galleryContainerId }) => {
     setGalleryTitle(text);
   });
 
+  console.log({ imagesData });
+
   return (
     <>
       <div
@@ -239,6 +250,19 @@ const GalleryContainer: React.FC<Props> = ({ text, galleryContainerId }) => {
               onChange={handleFileChange}
             />
           </label>
+        </div>
+
+        <div className="flex items-center justify-end gap-3 text-base">
+          <p className="text-gray-400 hover:text-white">
+            by {createdUsername}{" "}
+          </p>
+          <div className="h-8 w-8 rounded-full overflow-x-hidden">
+            <img
+              src={photo}
+              alt={createdUsername}
+              className="w-full h-full object-containj"
+            />
+          </div>
         </div>
       </div>
       <Overlay isOpen={showViewer} onClick={() => setShowViewer(false)}>

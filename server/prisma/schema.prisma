@@ -11,19 +11,21 @@ datasource db {
 }
 
 model User {
-    id                    String          @id @default(uuid())
+    id                    String             @id @default(uuid())
     userName              String
-    email                 String          @unique
+    email                 String             @unique
     photo                 String
     Member                Member[]
     Workspace             Workspace[]
     comments              Comment[]
     likes                 Like[]
-    senderNotifications   Notification[]  @relation("sender-notifications")
-    recieverNotifications Notification[]  @relation("reciever-notifications")
+    senderNotifications   Notification[]     @relation("sender-notifications")
+    recieverNotifications Notification[]     @relation("reciever-notifications")
     todoContainer         TodoContainer[]
     todoCard              TodoCard[]
     todos                 Todo[]
+    galleryContainers     GalleryContainer[]
+    galleryPhotos         Photo[]
 }
 
 model Workspace {
@@ -108,12 +110,14 @@ model Notification {
 }
 
 model GalleryContainer {
-    id          String    @id @default(uuid())
-    title       String
-    workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-    workspaceId String
-    createdAt   DateTime  @default(now())
-    Photo       Photo[]
+    id              String    @id @default(uuid())
+    title           String
+    workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    workspaceId     String
+    createdAt       DateTime  @default(now())
+    Photo           Photo[]
+    user            User      @relation(fields: [createdByUserId], references: [id])
+    createdByUserId String
 }
 
 model ProgressContainer {
@@ -138,6 +142,8 @@ model Photo {
     url                String
     galleryContainer   GalleryContainer @relation(fields: [galleryContainerId], references: [id], onDelete: Cascade)
     galleryContainerId String
+    user               User             @relation(fields: [uploadedByUserId], references: [id])
+    uploadedByUserId   String
 }
 
 model TodoContainer {

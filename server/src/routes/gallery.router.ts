@@ -14,7 +14,7 @@ import catchAsyncErrors from "../utils/catchAsyncErrors";
 const galleryRouter = express.Router();
 
 galleryRouter.post(
-  "/:workspaceId/create-gallery-container",
+  "/:userId/:workspaceId/create-gallery-container",
   catchAsyncErrors(handleCreateGalleryContainer)
 );
 
@@ -24,7 +24,7 @@ galleryRouter.get(
 );
 
 galleryRouter.post(
-  "/:workspaceId/:galleryContainerId/upload-image",
+  "/:userId/:workspaceId/:galleryContainerId/upload-image",
   fileUpload({ createParentPath: true }),
   catchAsyncErrors(handleUploadImageInGallery)
 );
@@ -35,7 +35,7 @@ galleryRouter.get(
 );
 
 galleryRouter.patch(
-  "/:galleryContainerId/update-gallery-title",
+  "/:userId/:workspaceId/:galleryContainerId/update-gallery-title",
   catchAsyncErrors(handleGalleryTitleUpdate)
 );
 
@@ -45,12 +45,12 @@ galleryRouter.delete(
 );
 
 galleryRouter.delete(
-  "/:galleryContainerId/delete-gallery-container",
+  "/:userId/:workspaceId/:galleryContainerId/delete-gallery-container",
   catchAsyncErrors(handleDeleteGalleryContainer)
 );
 
 galleryRouter.delete(
-  "/:userId/:photoId/delete-single-photo",
+  "/:userId/:workspaceId/:photoId/delete-single-photo",
   catchAsyncErrors(handleDeletePhoto)
 );
 

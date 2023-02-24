@@ -215,7 +215,7 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
         </div>
         <div className="flex items-center justify-end gap-3 text-base">
           <p className="text-gray-400 hover:text-white">
-            Created by {createdUsername}{" "}
+            by {createdUsername}{" "}
           </p>
           <div className="h-8 w-8 rounded-full overflow-x-hidden">
             <img

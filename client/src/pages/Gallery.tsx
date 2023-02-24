@@ -14,6 +14,9 @@ const Gallery: React.FC = () => {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const { workspaceId } = useAppSelector((state) => state.workspace);
+  const {
+    user: { id: userId },
+  } = useAppSelector((state) => state.auth);
 
   const galleryContainerQuery = useQuery(
     "gallery-container-query",
@@ -29,7 +32,7 @@ const Gallery: React.FC = () => {
   const galleryContainerMutation = useMutation(
     async (payload: any) => {
       const res = await axios.post(
-        `/gallery/${workspaceId}/create-gallery-container`,
+        `/gallery/${userId}/${workspaceId}/create-gallery-container`,
         payload
       );
       return res;
@@ -95,6 +98,8 @@ const Gallery: React.FC = () => {
             {galleryContainerData.map((galleryContainer: any) => {
               return (
                 <GalleryContainer
+                  createdUsername={galleryContainer.user.userName}
+                  photo={galleryContainer.user.photo}
                   key={galleryContainer.id}
                   galleryContainerId={galleryContainer.id}
                   text={galleryContainer.title}

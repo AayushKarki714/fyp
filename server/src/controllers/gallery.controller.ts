@@ -1,8 +1,11 @@
+import { Role } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import path from "path";
 import Api400Error from "../utils/api400Error";
 import checkIfUserIdMatches from "../utils/checkIfUserIdMatches";
 import prisma from "../utils/prisma";
+import verifyCreatedUserId from "../utils/verifyCreatedUserId";
+import verifyRole from "../utils/verifyRole";
 
 async function handleCreateGalleryContainer(
   req: Request,
@@ -10,7 +13,9 @@ async function handleCreateGalleryContainer(
   next: NextFunction
 ) {
   const { title } = req.body;
-  const { workspaceId } = req.params;
+  const { workspaceId, userId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
 
   const findGalleryByTitle = await prisma.galleryContainer.findFirst({
     where: {
@@ -27,6 +32,7 @@ async function handleCreateGalleryContainer(
   const galleryContainer = await prisma.galleryContainer.create({
     data: {
       title: title,
+      createdByUserId: userId,
       workspaceId: workspaceId,
     },
   });
@@ -48,6 +54,14 @@ async function getAllGalleryContainer(
     orderBy: {
       createdAt: "asc",
     },
+    include: {
+      user: {
+        select: {
+          photo: true,
+          userName: true,
+        },
+      },
+    },
   });
 
   return res.status(200).json(allGalleryContainer);
@@ -58,7 +72,10 @@ async function handleUploadImageInGallery(
   res: Response,
   next: NextFunction
 ) {
-  const { workspaceId, galleryContainerId } = req.params;
+  const { workspaceId, galleryContainerId, userId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+
   const files = req.files!;
   const file = files[Object.keys(files)[0]] as any;
 
@@ -70,6 +87,7 @@ async function handleUploadImageInGallery(
 
   const photo = await prisma.photo.create({
     data: {
+      uploadedByUserId: userId,
       url: `http://localhost:8000/${file.name}`,
       galleryContainerId,
     },
@@ -86,6 +104,14 @@ async function getAllPhotosInGalleryContainer(
   const { galleryContainerId } = req.params;
   const photos = await prisma.photo.findMany({
     where: { galleryContainerId },
+    include: {
+      user: {
+        select: {
+          photo: true,
+          userName: true,
+        },
+      },
+    },
   });
   return res.status(200).json(photos);
 }
@@ -95,7 +121,21 @@ async function handleDeleteGalleryContainer(
   res: Response,
   next: NextFunction
 ) {
-  const { galleryContainerId } = req.params;
+  const { galleryContainerId, userId, workspaceId } = req.params;
+  checkIfUserIdMatches(req, userId);
+
+  const role = await verifyRole(
+    [Role.LANCER, Role.CLIENT, Role.ADMIN],
+    workspaceId,
+    userId
+  );
+
+  const findGalleryContainer = await prisma.galleryContainer.findUnique({
+    where: { id: galleryContainerId },
+  });
+
+  if (role === Role.LANCER || role === Role.CLIENT)
+    verifyCreatedUserId(findGalleryContainer?.createdByUserId, userId);
 
   const deleteGalleryContainer = await prisma.galleryContainer.delete({
     where: { id: galleryContainerId },
@@ -113,7 +153,22 @@ async function handleGalleryTitleUpdate(
   next: NextFunction
 ) {
   const { title } = req.body;
-  const { galleryContainerId } = req.params;
+  const { galleryContainerId, userId, workspaceId } = req.params;
+
+  checkIfUserIdMatches(req, userId);
+
+  const role = await verifyRole(
+    [Role.CLIENT, Role.ADMIN, Role.LANCER],
+    workspaceId,
+    userId
+  );
+
+  const findGallery = await prisma.galleryContainer.findUnique({
+    where: { id: galleryContainerId },
+  });
+
+  if (role === Role.CLIENT || role === Role.LANCER)
+    verifyCreatedUserId(findGallery?.createdByUserId, userId);
 
   if (!title) throw new Api400Error("Missing Required Field* (title)");
 
@@ -137,12 +192,21 @@ async function handleDeletePhoto(
   res: Response,
   next: NextFunction
 ) {
-  const { photoId, userId } = req.params;
-
-  console.log(photoId, userId);
-
+  const { photoId, userId, workspaceId } = req.params;
+  console.log({ userId, workspaceId });
   checkIfUserIdMatches(req, userId);
+
+  const role = await verifyRole(
+    [Role.LANCER, Role.CLIENT, Role.ADMIN],
+    workspaceId,
+    userId
+  );
+
   const findPhoto = await prisma.photo.findUnique({ where: { id: photoId } });
+
+  if (role === Role.LANCER || role === Role.CLIENT)
+    verifyCreatedUserId(findPhoto?.uploadedByUserId, userId);
+
   if (!findPhoto) throw new Api400Error("Photo not Found!!");
 
   const deletePhoto = await prisma.photo.delete({

@@ -536,7 +536,7 @@ async function handleTodoCompletedUpdate(
   const { todoCardId, todoId, userId, workspaceId } = req.params;
 
   checkIfUserIdMatches(req, userId);
-  await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+  const role = await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   const todoCard = await prisma.todoCard.findUnique({
     where: { id: todoCardId },
@@ -548,6 +548,8 @@ async function handleTodoCompletedUpdate(
   const todo = await prisma.todo.findUnique({
     where: { id_todoCardId: { id: todoId, todoCardId } },
   });
+
+  if (role === Role.LANCER) verifyCreatedUserId(todo?.createdByUserId, userId);
 
   if (!todo)
     throw new Api400Error(

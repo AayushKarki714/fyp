@@ -68,6 +68,7 @@ const Todo: React.FC<Props> = ({
     },
     {
       onError: (error: any) => {
+        setIsChecked(completed);
         queryClient.invalidateQueries(["todo-query", todoCardId]);
         toast(error?.response?.data?.message);
       },
