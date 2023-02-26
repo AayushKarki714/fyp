@@ -191,7 +191,7 @@ const GeneratedProgress: React.FC<Props> = () => {
   if (isLoading) return <h1>Loading...</h1>;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 mt-3">
       {progressContainerData?.map((progressContainer: any) => (
         <ProgressContainer
           key={progressContainer.id}

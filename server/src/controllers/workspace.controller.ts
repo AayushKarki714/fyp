@@ -12,6 +12,8 @@ async function handleCreateWorkspace(
   next: NextFunction
 ) {
   const { name, lancerValues, clientValues, adminId } = req.body;
+  console.log({ name, lancerValues, clientValues, adminId, file: req.files });
+
   checkIfUserIdMatches(req, adminId);
 
   const files = req.files!;
@@ -30,16 +32,16 @@ async function handleCreateWorkspace(
     },
   });
 
-  const lancers = JSON.parse(lancerValues).map(async (lancer: any) => {
+  const lancers = JSON.parse(lancerValues).map(async (lancerEmail: any) => {
     const val = await prisma.user.findUnique({
-      where: { email: lancer.email },
+      where: { email: lancerEmail },
     });
     return { userId: val?.id, role: "LANCER", workspaceId: newWorkspace.id };
   });
 
-  const clients = JSON.parse(clientValues).map(async (lancer: any) => {
+  const clients = JSON.parse(clientValues).map(async (clientEmail: any) => {
     const val = await prisma.user.findUnique({
-      where: { email: lancer.email },
+      where: { email: clientEmail },
     });
     return { userId: val?.id, role: "CLIENT", workspaceId: newWorkspace.id };
   });
@@ -151,7 +153,6 @@ async function handleGetWorkspace(
   });
 
   const finalData = await Promise.all(membersWithTotalCount);
-
   return res.status(200).json({ data: finalData });
 }
 
