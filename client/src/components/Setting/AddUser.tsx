@@ -69,7 +69,7 @@ const AddUser: React.FC<AddLancerProps> = ({ type, role }) => {
             .required("Missing Required Email")
         ),
       })}
-      initialValues={{ users: [""] }}
+      initialValues={{ users: [] }}
       onSubmit={handleAdd}
     >
       {({ values }) => (
@@ -80,19 +80,21 @@ const AddUser: React.FC<AddLancerProps> = ({ type, role }) => {
               <div className="flex flex-col gap-4">
                 {values.users && values.users.length > 0 ? (
                   values.users.map((user, index) => (
-                    <div key={index} className="flex flex-col gap-2">
-                      <Field
-                        type="email"
-                        className={`bg-[#09090a] rounded px-3 py-2`}
-                        name={`users.${index}`}
-                        placeholder={`Enter a ${role} Email`}
-                      />
+                    <div key={index} className="flex  gap-2">
+                      <div className="flex flex-col items-start gap-1">
+                        <Field
+                          type="email"
+                          className={`bg-[#09090a] rounded px-3 py-2`}
+                          name={`users.${index}`}
+                          placeholder={`Enter a ${role} Email`}
+                        />
 
-                      <ErrorMessage
-                        component="div"
-                        className="text-xs text-red-600"
-                        name={`users.${index}`}
-                      />
+                        <ErrorMessage
+                          component="div"
+                          className="text-xs text-red-600"
+                          name={`users.${index}`}
+                        />
+                      </div>
                       <div className="flex gap-2">
                         <button
                           type="button"
@@ -112,15 +114,24 @@ const AddUser: React.FC<AddLancerProps> = ({ type, role }) => {
                     </div>
                   ))
                 ) : (
-                  <button type="button" onClick={() => arrayHelpers.push("")}>
+                  <button
+                    className="bg-custom-light-green px-4 py-2 text-black rounded-md font-medium"
+                    type="button"
+                    onClick={() => arrayHelpers.push("")}
+                  >
                     Add a {role}
                   </button>
                 )}
-                {values.users[0] ? (
+                {values.users.length > 0 && (
                   <div>
-                    <button type="submit">Submit</button>
+                    <button
+                      className="bg-custom-light-green text-black px-4 py-2 text-white rounded-md"
+                      type="submit"
+                    >
+                      Submit
+                    </button>
                   </div>
-                ) : null}
+                )}
               </div>
             )}
           />

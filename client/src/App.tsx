@@ -6,7 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Chat from "./pages/Chat";
 import Gallery from "./pages/Gallery";
 import Progress from "./pages/Progress";
-import CreateWorkspace from "./pages/CreateWorkspace";
+import CreateWorkspace, { DemoCreateWorkspace } from "./pages/CreateWorkspace";
 import NestedLayout from "./components/NestedLayout";
 import { useAppDispatch } from "./redux/store/hooks";
 import { updateUser } from "./redux/slices/authSlice";
@@ -47,7 +47,7 @@ const App: React.FC = () => {
             <Route path="setting" element={<Setting />} />
             <Route path="*" element={<NotFound />} />
           </Route>
-          <Route path="create-workspace" element={<CreateWorkspace />} />
+          <Route path="create-workspace" element={<DemoCreateWorkspace />} />
           <Route path="*" element={<NotFound />} />
         </Route>
         <Route path="*" element={<NotFound />} />
