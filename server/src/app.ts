@@ -17,6 +17,7 @@ import {
   logError,
 } from "./utils/errorHandler";
 import notificationRouter from "./routes/notification.router";
+import chatRouter from "./routes/chat.router";
 
 const AUTH_OPTIONS = {
   clientID: process.env.CLIENT_ID!,
@@ -83,6 +84,7 @@ app.use("/auth", authRouter);
 app.use(verifyAuth);
 app.use("/notification", notificationRouter);
 app.use("/workspace", workspaceRouter);
+app.use("/chat", chatRouter);
 app.use("/gallery", galleryRouter);
 app.use("/progress", progressRouter);
 app.use("/todo", todoRouter);
