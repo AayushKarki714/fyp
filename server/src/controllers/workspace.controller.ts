@@ -49,17 +49,81 @@ async function handleCreateWorkspace(
   const lancersData = await Promise.all(lancers);
   const clientsData = await Promise.all(clients);
 
-  const membersData = lancersData.concat(clientsData).concat({
+  const adminData = {
     userId: adminId,
     role: "ADMIN",
     workspaceId: newWorkspace.id,
-  });
+  };
+  const membersData = lancersData.concat(clientsData).concat(adminData);
 
   const members = await prisma.$transaction(
     membersData.map((memberData) =>
       prisma.member.create({ data: { ...memberData } })
     )
   );
+
+  const allChat = await prisma.chat.create({
+    data: {
+      workspaceId: newWorkspace.id,
+      type: "ALL",
+    },
+  });
+
+  const lancersAndAdminChat = await prisma.chat.create({
+    data: {
+      workspaceId: newWorkspace.id,
+      type: "LANCERS",
+    },
+  });
+
+  const clientsAndAdminChat = await prisma.chat.create({
+    data: {
+      workspaceId: newWorkspace.id,
+      type: "CLIENTS",
+    },
+  });
+
+  const allMembersDataWithId = await prisma.member.findMany({
+    where: { workspaceId: newWorkspace.id },
+    select: {
+      id: true,
+    },
+  });
+
+  const lancersDataWithId = await prisma.member.findMany({
+    where: { workspaceId: newWorkspace.id, role: { in: ["ADMIN", "LANCER"] } },
+    select: {
+      id: true,
+    },
+  });
+
+  const clientsDataWithId = await prisma.member.findMany({
+    where: { workspaceId: newWorkspace.id, role: { in: ["ADMIN", "CLIENT"] } },
+    select: {
+      id: true,
+    },
+  });
+
+  const allChatData = allMembersDataWithId.map((memberData) => ({
+    memberId: memberData.id,
+    chatId: allChat.id,
+  }));
+
+  const lancersChatData = lancersDataWithId.map((memberData) => ({
+    memberId: memberData.id,
+    chatId: lancersAndAdminChat.id,
+  }));
+
+  const clientsChatData = clientsDataWithId.map((memberData) => ({
+    memberId: memberData.id,
+    chatId: clientsAndAdminChat.id,
+  }));
+
+  const finalData = allChatData.concat(lancersChatData).concat(clientsChatData);
+
+  await prisma.$transaction([
+    prisma.chatWithMember.createMany({ data: finalData }),
+  ]);
 
   const adminMember = members.find((member) => member.role === Role.ADMIN);
 

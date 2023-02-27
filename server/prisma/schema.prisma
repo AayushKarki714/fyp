@@ -41,18 +41,54 @@ model Workspace {
     TodoContainer TodoContainer[]
     invitations   Invitation[]
     notifications Notification[]
+    chats         Chat[]
+}
+
+enum ChatType {
+    ALL
+    LANCERS
+    CLIENTS
+}
+
+model Chat {
+    id              String           @id @default(uuid())
+    workspace       Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    workspaceId     String
+    chatWithMembers ChatWithMember[]
+    chatMessages    ChatMessage[]
+    type            ChatType
+}
+
+model ChatWithMember {
+    chat     Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+    chatId   String
+    member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+    memberId String
+
+    @@id([chatId, memberId])
+}
+
+model ChatMessage {
+    id       String  @id @default(uuid())
+    message  String
+    chat     Chat    @relation(fields: [chatId], references: [id], onDelete: Cascade)
+    chatId   String
+    member   Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
+    memberId String?
 }
 
 model Member {
-    id                  String       @id @default(uuid())
-    user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-    role                Role         @default(CLIENT)
+    id                  String           @id @default(uuid())
+    user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    role                Role             @default(CLIENT)
     userId              String
-    createdAt           DateTime     @default(now())
-    workspace           Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    createdAt           DateTime         @default(now())
+    workspace           Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId         String
-    senderInvitations   Invitation[] @relation("sender-invitations")
-    recieverInvitations Invitation[] @relation("reciever-invitations")
+    senderInvitations   Invitation[]     @relation("sender-invitations")
+    recieverInvitations Invitation[]     @relation("reciever-invitations")
+    chatMessages        ChatMessage[]
+    chatWithMembers     ChatWithMember[]
 
     @@unique([workspaceId, userId])
 }

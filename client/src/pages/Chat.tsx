@@ -1,7 +1,10 @@
 import React, { useState, useRef, RefObject } from "react";
-// import { useAppSelector } from "../redux/store/hooks";
 import { PhotoIcon } from "@heroicons/react/24/outline";
-import { FaceSmileIcon, PaperAirplaneIcon } from "@heroicons/react/24/solid";
+import {
+  InformationCircleIcon,
+  FaceSmileIcon,
+  PaperAirplaneIcon,
+} from "@heroicons/react/24/solid";
 import EmojiPicker, {
   EmojiClickData,
   EmojiStyle,
@@ -54,7 +57,13 @@ const Chat: React.FC = () => {
       </div>
 
       <div className="flex-grow flex flex-col">
-        <div className="basis-16 flex-shrink-0 bg-custom-black border-b-2 border-dark-gray"></div>
+        <div className="basis-16 flex-shrink-0 flex p-3 items-center justify-end  bg-custom-black border-b-2 border-dark-gray">
+          <div className="flex itemis-center justify-center">
+            <button className="text-gray-400 hover:text-white">
+              <InformationCircleIcon className="h-8 w-8" />
+            </button>
+          </div>
+        </div>
 
         <div className="flex flex-col gap-2 flex-grow bg-custom-black p-3 overflow-y-auto custom-scrollbar">
           {messages.map((mssg, index) => (
