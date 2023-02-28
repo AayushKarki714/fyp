@@ -6,11 +6,13 @@ enum Role {
   CLIENT = "CLIENT",
 }
 interface WorkspaceState {
+  memberId: string;
   workspaceId: string;
   role: Role;
 }
 
 const initialState: WorkspaceState = {
+  memberId: "",
   workspaceId: "",
   role: Role.CLIENT,
 };

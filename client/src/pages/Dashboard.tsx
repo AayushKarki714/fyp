@@ -40,6 +40,7 @@ const Dashboard: React.FC = () => {
             logo={item.workspace.logo}
             createdAt={item.workspace.createdAt}
             role={item.role}
+            memberId={item.id}
             id={item.workspaceId}
           />
         ))}

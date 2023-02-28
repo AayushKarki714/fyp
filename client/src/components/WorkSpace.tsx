@@ -23,6 +23,7 @@ const Workspace: React.FC<any> = ({
   name,
   id,
   role,
+  memberId,
   totalMember,
   adminImg,
   adminName,
@@ -50,7 +51,9 @@ const Workspace: React.FC<any> = ({
       onSuccess: (data: any) => {
         queryClient.invalidateQueries("unread-notifications");
         queryClient.invalidateQueries("workspace-query");
-        dispatch(switchWorkSpace({ workspaceId: "", role: Role.CLIENT }));
+        dispatch(
+          switchWorkSpace({ workspaceId: "", role: Role.CLIENT, memberId: "" })
+        );
         console.log("data", data);
       },
       onError: (error: any) => {
@@ -109,7 +112,11 @@ const Workspace: React.FC<any> = ({
         whileHover={{ scale: 1.05 }}
         title={adminName}
         onMouseLeave={() => setIsPopupVisible(false)}
-        onClick={() => dispatch(switchWorkSpace({ workspaceId: id, role }))}
+        onClick={() =>
+          dispatch(
+            switchWorkSpace({ workspaceId: id, role, memberId: memberId })
+          )
+        }
         className={`flex gap-3 bg-[#27292a] relative  p-3 rounded-lg h-full cursor-pointer w-full ${isActive}  group hover:shadow-green-shadow overflow-hidden   `}
       >
         {/* created by admin Avatar */}
