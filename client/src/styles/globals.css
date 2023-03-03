@@ -95,3 +95,7 @@
 .right-angled-triangle {
   clip-path: polygon(100% 0, 0% 100%, 100% 100%);
 }
+
+.center-angled-triangle {
+  clip-path: polygon(100% 0, 0 0, 50% 100%);
+}

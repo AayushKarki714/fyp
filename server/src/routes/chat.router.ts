@@ -3,6 +3,7 @@ import {
   getAllChat,
   getAllMembersInChat,
   getAllMessagesInChat,
+  handleDeleteChatMessage,
   handleSendMessageInChat,
 } from "../controllers/chat.controller";
 import catchAsyncErrors from "../utils/catchAsyncErrors";
@@ -27,6 +28,11 @@ chatRouter.get(
 chatRouter.post(
   "/:userId/:workspaceId/:chatId/send-message-chat",
   catchAsyncErrors(handleSendMessageInChat)
+);
+
+chatRouter.delete(
+  "/:userId/:workspaceId/:chatMessageId/delete-chat-message",
+  catchAsyncErrors(handleDeleteChatMessage)
 );
 
 export default chatRouter;

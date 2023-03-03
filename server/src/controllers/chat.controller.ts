@@ -98,6 +98,9 @@ async function getAllMessagesInChat(
     where: {
       chatId,
     },
+    orderBy: {
+      createdAt: "asc",
+    },
     include: {
       member: {
         include: {
@@ -112,9 +115,29 @@ async function getAllMessagesInChat(
     .json({ message: "Chat Messages Fetched Sucessfully", data: chatMessages });
 }
 
+async function handleDeleteChatMessage(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { userId, workspaceId, chatMessageId } = req.params;
+  checkIfUserIdMatches(req, userId);
+  await verifyRole([Role.ADMIN], workspaceId, userId);
+
+  const deleteChatMessage = await prisma.chatMessage.delete({
+    where: { id: chatMessageId },
+  });
+
+  return res.status(200).json({
+    message: "Chat Message was deleted Succesfully!!",
+    data: deleteChatMessage,
+  });
+}
+
 export {
   getAllChat,
   getAllMembersInChat,
   getAllMessagesInChat,
   handleSendMessageInChat,
+  handleDeleteChatMessage,
 };

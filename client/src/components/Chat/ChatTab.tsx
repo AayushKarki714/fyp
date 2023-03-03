@@ -1,4 +1,4 @@
-import { useRef, useState, RefObject } from "react";
+import { useRef, useState, RefObject, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAppSelector } from "../../redux/store/hooks";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
@@ -24,6 +24,7 @@ import ChatMessage from "./ChatMessage";
 interface ChatTabProps {}
 
 const ChatTab: React.FC<ChatTabProps> = () => {
+  const bottomRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const [message, setMessage] = useState<string>("");
   const [isMembersModalOpen, setIsMembersModalOpen] = useState<boolean>(false);
@@ -84,8 +85,12 @@ const ChatTab: React.FC<ChatTabProps> = () => {
     setShowPicker(false);
   });
 
+  useEffect(() => {
+    bottomRef?.current?.scrollIntoView({ behavior: "smooth" });
+    console.log(bottomRef);
+  }, [chatMessages]);
+
   if (isLoading) return <h2>Loading...</h2>;
-  console.log({ chatMessages });
 
   return (
     <>
@@ -109,11 +114,19 @@ const ChatTab: React.FC<ChatTabProps> = () => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 flex-grow bg-custom-black p-3 overflow-y-auto custom-scrollbar">
-          {chatMessages?.map((message: any) => (
+        <div
+          ref={bottomRef}
+          className="flex flex-col  flex-grow bg-custom-black p-3 overflow-y-auto custom-scrollbar"
+        >
+          {chatMessages?.map((message: any, index: number) => (
             <ChatMessage
               key={message.id}
+              chatMessageId={message.id}
+              createdAt={message.createdAt}
               isLoggedUser={message.member.userId === userId}
+              isNextMessageOfSameUser={
+                message.member.userId === chatMessages[index + 1]?.member.userId
+              }
               message={message.message}
               photo={message.member.user.photo}
               userName={message.member.user.userName}
