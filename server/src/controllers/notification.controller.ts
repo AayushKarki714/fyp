@@ -20,8 +20,6 @@ async function handleMarkReadNotification(
     },
   });
 
-  console.log({ updateNotifications });
-
   return res.status(200).json({
     message: "Mark as Read Notification SucessFully",
     data: updateNotifications,

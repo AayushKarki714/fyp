@@ -7,9 +7,13 @@ import { switchChat } from "../redux/slices/chatSlice";
 import ChatTab from "../components/Chat/ChatTab";
 import SwitchChatTab from "../components/Chat/SwitchChatTab";
 
-const Chat: React.FC = () => {
+interface ChatProps {
+  socket: any;
+}
+
+const Chat: React.FC<ChatProps> = ({ socket }) => {
   const dispatch = useAppDispatch();
-  const { id: chatId, type: chatType } = useAppSelector((state) => state.chat);
+  const { id: chatId } = useAppSelector((state) => state.chat);
   const { workspaceId } = useAppSelector((state) => state.workspace);
 
   const {
@@ -59,7 +63,7 @@ const Chat: React.FC = () => {
           })}
         </div>
       </div>
-      <ChatTab />
+      <ChatTab socket={socket} />
     </div>
   );
 };

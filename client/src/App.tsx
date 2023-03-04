@@ -13,6 +13,7 @@ import { updateUser } from "./redux/slices/authSlice";
 import Setting from "./pages/Setting";
 import TodoPage from "./pages/Todo";
 import "./styles/comments.css";
+import socket from "./api/socket";
 
 const Login = React.lazy(() => import("./pages/Login"));
 const NotFound = React.lazy(() => import("./pages/404"));
@@ -40,7 +41,7 @@ const App: React.FC = () => {
           <Route element={<NestedLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
-            <Route path="chat" element={<Chat />} />
+            <Route path="chat" element={<Chat socket={socket} />} />
             <Route path="todo" element={<TodoPage />} />
             <Route path="gallery" element={<Gallery />} />
             <Route path="progress" element={<Progress />} />

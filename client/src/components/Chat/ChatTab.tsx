@@ -21,10 +21,12 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import axios from "../../api/axios";
 import ChatMessage from "./ChatMessage";
 
-interface ChatTabProps {}
+interface ChatTabProps {
+  socket: any;
+}
 
-const ChatTab: React.FC<ChatTabProps> = () => {
-  const bottomRef = useRef<HTMLDivElement>(null);
+const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
+  const bottomRef = useRef<any>(null);
   const queryClient = useQueryClient();
   const [message, setMessage] = useState<string>("");
   const [isMembersModalOpen, setIsMembersModalOpen] = useState<boolean>(false);
@@ -32,7 +34,7 @@ const ChatTab: React.FC<ChatTabProps> = () => {
   const emojiRef = useRef(null) as RefObject<HTMLDivElement>;
   const [showPicker, setShowPicker] = useState<boolean>(false);
   const {
-    user: { id: userId },
+    user: { id: userId, photo, userName, email },
   } = useAppSelector((state) => state.auth);
   const { memberId, workspaceId } = useAppSelector((state) => state.workspace);
 
@@ -58,7 +60,6 @@ const ChatTab: React.FC<ChatTabProps> = () => {
       },
       onSuccess(data) {
         queryClient.invalidateQueries({ queryKey: ["chat-messages", chatId] });
-        console.log("data", data);
       },
     }
   );
@@ -71,12 +72,33 @@ const ChatTab: React.FC<ChatTabProps> = () => {
       );
       return res.data?.data;
     },
-    { enabled: Boolean(userId && workspaceId && chatId && chatType) }
+    {
+      enabled: Boolean(userId && workspaceId && chatId && chatType),
+    }
   );
 
   const handleMessageSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!message) return;
+    const data = {
+      chatId,
+      id: (Math.random() * Date.now()).toString(),
+      createdAt: new Date(),
+      member: {
+        id: memberId,
+        user: {
+          id: userId,
+          email,
+          photo,
+          userName,
+        },
+        userId: userId,
+        workspaceId,
+      },
+      memberId,
+      message,
+    };
+    socket.emit("new-message", data);
     sendMessageMutate({ message, memberId, chatType });
     setMessage("");
   };
@@ -86,11 +108,28 @@ const ChatTab: React.FC<ChatTabProps> = () => {
   });
 
   useEffect(() => {
+    if (!chatId) return;
+    socket.emit("join-room", chatId);
+  }, [chatId, socket]);
+
+  useEffect(() => {
+    socket.on("push-new-message", (data: any) => {
+      queryClient.setQueryData(["chat-messages", chatId], (old: any) => [
+        ...old,
+        { ...data },
+      ]);
+    });
+    return () => {
+      socket.off("push-new-message");
+    };
+  }, [chatId, queryClient, socket]);
+
+  useEffect(() => {
     bottomRef?.current?.scrollIntoView({ behavior: "smooth" });
-    console.log(bottomRef);
   }, [chatMessages]);
 
   if (isLoading) return <h2>Loading...</h2>;
+  console.log({ chatMessages });
 
   return (
     <>
@@ -114,10 +153,7 @@ const ChatTab: React.FC<ChatTabProps> = () => {
           </div>
         </div>
 
-        <div
-          ref={bottomRef}
-          className="flex flex-col  flex-grow bg-custom-black p-3 overflow-y-auto custom-scrollbar"
-        >
+        <div className="flex flex-col  flex-grow bg-custom-dark p-3 overflow-y-auto custom-scrollbar ">
           {chatMessages?.map((message: any, index: number) => (
             <ChatMessage
               key={message.id}
@@ -132,6 +168,7 @@ const ChatTab: React.FC<ChatTabProps> = () => {
               userName={message.member.user.userName}
             />
           ))}
+          <div ref={bottomRef}></div>
         </div>
         <div className="relative flex items-center gap-3 p-2 border-t-2 border-dark-gray">
           <label className="flex items-center cursor-pointer">
