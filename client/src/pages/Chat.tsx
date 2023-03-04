@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { switchChat } from "../redux/slices/chatSlice";
 import ChatTab from "../components/Chat/ChatTab";
 import SwitchChatTab from "../components/Chat/SwitchChatTab";
+import { Role } from "../redux/slices/workspaceSlice";
 
 interface ChatProps {
   socket: any;
@@ -14,7 +15,10 @@ interface ChatProps {
 const Chat: React.FC<ChatProps> = ({ socket }) => {
   const dispatch = useAppDispatch();
   const { id: chatId } = useAppSelector((state) => state.chat);
-  const { workspaceId } = useAppSelector((state) => state.workspace);
+  const { workspaceId, role } = useAppSelector((state) => state.workspace);
+  let allowedAccess = ["ALL", "LANCERS", "CLIENTS"];
+  if (role === Role.LANCER) allowedAccess = ["LANCERS", "ALL"];
+  else if (role === Role.CLIENT) allowedAccess = ["CLIENTS", "ALL"];
 
   const {
     user: { id: userId },
@@ -54,6 +58,7 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
               <SwitchChatTab
                 key={chat.type}
                 chat={chat}
+                allowedAccess={allowedAccess}
                 chatId={chat.id}
                 chatTabType={chat.type}
               >

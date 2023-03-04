@@ -1,5 +1,5 @@
 import { useRef, useState, RefObject, useEffect } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useAppSelector } from "../../redux/store/hooks";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
 import Overlay from "../Modals/Overlay";
@@ -20,12 +20,16 @@ import handleStopPropagation from "../../utils/handleStopPropagation";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import axios from "../../api/axios";
 import ChatMessage from "./ChatMessage";
+import isTypingData from "../../lotties/isTyping.json";
+import Lottie from "lottie-react";
 
 interface ChatTabProps {
   socket: any;
 }
 
 const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
+  const [isTyping, setIsTyping] = useState(false);
+  const messageCountRef = useRef<number>(0);
   const bottomRef = useRef<any>(null);
   const queryClient = useQueryClient();
   const [message, setMessage] = useState<string>("");
@@ -34,7 +38,7 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
   const emojiRef = useRef(null) as RefObject<HTMLDivElement>;
   const [showPicker, setShowPicker] = useState<boolean>(false);
   const {
-    user: { id: userId, photo, userName, email },
+    user: { id: userId },
   } = useAppSelector((state) => state.auth);
   const { memberId, workspaceId } = useAppSelector((state) => state.workspace);
 
@@ -80,25 +84,6 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
   const handleMessageSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!message) return;
-    const data = {
-      chatId,
-      id: (Math.random() * Date.now()).toString(),
-      createdAt: new Date(),
-      member: {
-        id: memberId,
-        user: {
-          id: userId,
-          email,
-          photo,
-          userName,
-        },
-        userId: userId,
-        workspaceId,
-      },
-      memberId,
-      message,
-    };
-    socket.emit("new-message", data);
     sendMessageMutate({ message, memberId, chatType });
     setMessage("");
   };
@@ -113,11 +98,11 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
   }, [chatId, socket]);
 
   useEffect(() => {
-    socket.on("push-new-message", (data: any) => {
-      queryClient.setQueryData(["chat-messages", chatId], (old: any) => [
-        ...old,
-        { ...data },
-      ]);
+    socket.on("push-new-message", (event: any) => {
+      const data = event.data;
+      const queryKey = [...data.events].filter(Boolean);
+      console.log({ queryKey });
+      queryClient.invalidateQueries({ queryKey: queryKey });
     });
     return () => {
       socket.off("push-new-message");
@@ -125,11 +110,34 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
   }, [chatId, queryClient, socket]);
 
   useEffect(() => {
-    bottomRef?.current?.scrollIntoView({ behavior: "smooth" });
+    socket.emit("new-message", {
+      data: {
+        events: ["chat-messages", chatId],
+      },
+    });
+  }, [chatId, chatMessages, socket]);
+
+  useEffect(() => {
+    console.log({ messageCountRef });
+    if (messageCountRef.current < chatMessages?.length) {
+      bottomRef?.current?.scrollIntoView({ behavior: "smooth" });
+    }
+    messageCountRef.current = chatMessages?.length || 0;
   }, [chatMessages]);
 
+  useEffect(() => {
+    socket.emit("typing", { chatId, isTyping: !message ? false : true });
+  }, [chatId, message, socket]);
+
+  useEffect(() => {
+    socket.on("typing-status", (data: any) => {
+      setIsTyping(data?.isTyping);
+    });
+    return () => {
+      socket.off("typing-status");
+    };
+  }, [socket]);
   if (isLoading) return <h2>Loading...</h2>;
-  console.log({ chatMessages });
 
   return (
     <>
@@ -153,7 +161,7 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
           </div>
         </div>
 
-        <div className="flex flex-col  flex-grow bg-custom-dark p-3 overflow-y-auto custom-scrollbar ">
+        <div className="flex relative flex-col  flex-grow bg-custom-dark p-3 pt-14 overflow-y-auto custom-scrollbar ">
           {chatMessages?.map((message: any, index: number) => (
             <ChatMessage
               key={message.id}
@@ -168,7 +176,23 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
               userName={message.member.user.userName}
             />
           ))}
-          <div ref={bottomRef}></div>
+          <AnimatePresence>
+            {isTyping && (
+              <motion.div
+                className="w-20 h-20"
+                initial={{ y: "100%", opacity: 0 }}
+                animate={{ y: "0%", opacity: 1 }}
+                exit={{ y: "100%", opacity: 0 }}
+              >
+                <Lottie
+                  className="h-20 w-20 mt-5"
+                  animationData={isTypingData}
+                  loop={true}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <div ref={bottomRef} />
         </div>
         <div className="relative flex items-center gap-3 p-2 border-t-2 border-dark-gray">
           <label className="flex items-center cursor-pointer">

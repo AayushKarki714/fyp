@@ -19,8 +19,12 @@ io.on("connection", (socket) => {
     socket.join(roomId);
   });
 
-  socket.on("new-message", (data) => {
-    socket.to(data.chatId).emit("push-new-message", data);
+  socket.on("new-message", (event) => {
+    socket.to(event.data.events[1]).emit("push-new-message", event);
+  });
+
+  socket.on("typing", (data) => {
+    socket.to(data.chatId).emit("typing-status", data);
   });
 });
 

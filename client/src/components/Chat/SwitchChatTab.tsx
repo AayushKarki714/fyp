@@ -7,6 +7,7 @@ interface SwitchChatTabProps {
   chatTabType: ChatType;
   chat: any;
   chatId: string;
+  allowedAccess: any;
 }
 
 const SwitchChatTab: React.FC<SwitchChatTabProps> = ({
@@ -14,6 +15,7 @@ const SwitchChatTab: React.FC<SwitchChatTabProps> = ({
   chat,
   chatId,
   chatTabType,
+  allowedAccess,
 }) => {
   const dispatch = useAppDispatch();
   const { id: selectedChatId } = useAppSelector((state) => state.chat);
@@ -22,10 +24,14 @@ const SwitchChatTab: React.FC<SwitchChatTabProps> = ({
     dispatch(switchChat(data));
   };
 
+  if (!allowedAccess.includes(chat.type)) {
+    return null;
+  }
+
   const isActive = chatId === selectedChatId;
   return (
     <button
-      className={`py-2 px-3  text-base text-left  ${
+      className={`py-2 px-3 rounded-md  text-base text-left  ${
         isActive
           ? "bg-custom-light-green"
           : "bg-custom-light-dark text-gray-300"
