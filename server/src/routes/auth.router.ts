@@ -25,7 +25,7 @@ authRouter.get(
 );
 
 authRouter.get(
-  "/:emailValue/email-exists",
+  "/:userId/:emailValue/email-exists",
   verifyAuth,
   catchAsyncErrors(handleIfEmailExists)
 );

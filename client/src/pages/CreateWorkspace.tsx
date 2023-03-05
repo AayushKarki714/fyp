@@ -30,6 +30,7 @@ const Preview: React.FC<PreviewProps> = ({ file }) => {
     />
   ) : null;
 };
+
 interface IButton {
   type?: "submit" | "button" | "reset";
   children: React.ReactNode;
@@ -127,7 +128,7 @@ const CreateWorkspace: React.FC = () => {
                   function (value) {
                     return new Promise((resolve, reject) => {
                       axios
-                        .get(`/auth/${value}/email-exists`)
+                        .get(`/auth/${user.id}/${value}/email-exists`)
                         .then((res) => {
                           resolve(true);
                         })
@@ -152,7 +153,7 @@ const CreateWorkspace: React.FC = () => {
                   function (value) {
                     return new Promise((resolve, reject) => {
                       axios
-                        .get(`/auth/${value}/email-exists`)
+                        .get(`/auth/${user.id}/${value}/email-exists`)
                         .then((res) => {
                           resolve(true);
                         })

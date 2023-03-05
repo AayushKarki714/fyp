@@ -104,7 +104,6 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
     socket.on("push-new-message", (event: any) => {
       const data = event.data;
       const queryKey = [...data.events].filter(Boolean);
-      console.log({ queryKey });
       queryClient.invalidateQueries({ queryKey: queryKey });
     });
     return () => {

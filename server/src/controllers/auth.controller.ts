@@ -1,4 +1,5 @@
 import { NextFunction, RequestHandler, Request, Response } from "express";
+import checkIfUserIdMatches from "../utils/checkIfUserIdMatches";
 import prisma from "../utils/prisma";
 
 const getUserData: RequestHandler = async function (req, res) {
@@ -15,7 +16,20 @@ async function handleIfEmailExists(
   res: Response,
   next: NextFunction
 ) {
-  const { emailValue } = req.params;
+  const { emailValue, userId } = req.params;
+  checkIfUserIdMatches(req, userId);
+  const findUser = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      email: true,
+    },
+  });
+
+  if (findUser?.email === emailValue)
+    return res.status(400).json({ message: "Admin is not allowed" });
+
   const emailExists = await prisma.user.findUnique({
     where: { email: emailValue },
   });
