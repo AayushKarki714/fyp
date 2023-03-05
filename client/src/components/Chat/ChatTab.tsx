@@ -95,6 +95,9 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
   useEffect(() => {
     if (!chatId) return;
     socket.emit("join-room", chatId);
+    return () => {
+      socket.emit("leave-room", chatId);
+    };
   }, [chatId, socket]);
 
   useEffect(() => {
@@ -118,7 +121,6 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
   }, [chatId, chatMessages, socket]);
 
   useEffect(() => {
-    console.log({ messageCountRef });
     if (messageCountRef.current < chatMessages?.length) {
       bottomRef?.current?.scrollIntoView({ behavior: "smooth" });
     }
@@ -131,6 +133,7 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
 
   useEffect(() => {
     socket.on("typing-status", (data: any) => {
+      console.log({ data });
       setIsTyping(data?.isTyping);
     });
     return () => {

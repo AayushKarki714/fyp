@@ -19,11 +19,16 @@ io.on("connection", (socket) => {
     socket.join(roomId);
   });
 
+  socket.on("leave-room", (chatId) => {
+    socket.leave(chatId);
+  });
+
   socket.on("new-message", (event) => {
     socket.to(event.data.events[1]).emit("push-new-message", event);
   });
 
   socket.on("typing", (data) => {
+    console.log({ data });
     socket.to(data.chatId).emit("typing-status", data);
   });
 });
