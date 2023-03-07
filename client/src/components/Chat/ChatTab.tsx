@@ -168,14 +168,15 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
             <ChatMessage
               key={message.id}
               chatMessageId={message.id}
-              createdAt={message.createdAt}
-              isLoggedUser={message.member.userId === userId}
+              createdAt={message?.createdAt}
+              isLoggedUser={message?.member?.userId === userId}
               isNextMessageOfSameUser={
-                message.member.userId === chatMessages[index + 1]?.member.userId
+                message?.member?.userId ===
+                chatMessages[index + 1]?.member?.userId
               }
               message={message.message}
-              photo={message.member.user.photo}
-              userName={message.member.user.userName}
+              photo={message?.member?.user?.photo}
+              userName={message?.member?.user?.userName}
             />
           ))}
           <AnimatePresence>

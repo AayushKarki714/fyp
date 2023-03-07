@@ -16,11 +16,11 @@ const MembersList: React.FC = () => {
     }
   );
 
-  console.log(membersData);
+  console.log({ membersData });
   if (isLoading) return <h1>Loading...</h1>;
   return (
     <div className="flex flex-col gap-4 w-[350px]">
-      {membersData.map(({ member }: any) => (
+      {membersData?.map(({ member }: any) => (
         <div
           key={member.id}
           className="border-b-2 border-custom-light-dark  pb-2"
@@ -29,8 +29,8 @@ const MembersList: React.FC = () => {
             <div className="w-12 h-12 rounded-full overflow-hidden">
               <img
                 referrerPolicy="no-referrer"
-                src={member.user.photo}
-                alt={member.user.userName}
+                src={member?.user?.photo}
+                alt={member?.user?.userName && "Deleted User 😢"}
               />
             </div>
             <div>

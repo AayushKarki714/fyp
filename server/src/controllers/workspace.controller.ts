@@ -12,7 +12,6 @@ async function handleCreateWorkspace(
   next: NextFunction
 ) {
   const { name, lancerValues, clientValues, adminId } = req.body;
-  console.log({ name, lancerValues, clientValues, adminId, file: req.files });
 
   checkIfUserIdMatches(req, adminId);
 
@@ -383,6 +382,56 @@ async function handleAddMembers(
     )
   );
 
+  const x = await prisma.$transaction([
+    prisma.chat.findMany({
+      where: { workspaceId: workspace.id, type: "ALL" },
+    }),
+    prisma.chat.findMany({
+      where: { workspaceId: workspace.id, type: "LANCERS" },
+    }),
+    prisma.chat.findMany({
+      where: { workspaceId: workspace.id, type: "CLIENTS" },
+    }),
+  ]);
+
+  const allChatId = await prisma.chat.findMany({
+    where: { workspaceId: workspace.id, type: "ALL" },
+    select: {
+      id: true,
+    },
+  });
+
+  const lancersChatId = await prisma.chat.findMany({
+    where: { workspaceId: workspace.id, type: "LANCERS" },
+    select: { id: true },
+  });
+
+  const clientsChatId = await prisma.chat.findMany({
+    where: { workspaceId: workspace.id, type: "CLIENTS" },
+    select: { id: true },
+  });
+
+  console.log({ addedMembers, x, allChatId, lancersChatId, clientsChatId });
+
+  await prisma.chatWithMember.createMany({
+    data: addedMembers.map(({ id }) => ({
+      memberId: id,
+      chatId: allChatId[0].id as any,
+    })),
+  });
+
+  await prisma.chatWithMember.createMany({
+    data: addedMembers
+      .filter((addedMember) => addedMember.role === Role.LANCER)
+      .map(({ id }) => ({ memberId: id, chatId: lancersChatId[0].id as any })),
+  });
+
+  await prisma.chatWithMember.createMany({
+    data: addedMembers
+      .filter((addedMember) => addedMember.role === Role.CLIENT)
+      .map(({ id }) => ({ memberId: id, chatId: clientsChatId[0].id as any })),
+  });
+
   const adminMember = await prisma.member.findUnique({
     where: { workspaceId_userId: { workspaceId, userId } },
   });
@@ -517,6 +566,8 @@ async function deleteMember(req: Request, res: Response, next: NextFunction) {
     },
   });
 
+  console.log({ deleteMember });
+
   return res.status(200).json({
     message: `The member with the role ${deleteMember.role} was SuccesFully removed `,
     data: deleteMember,
@@ -564,10 +615,8 @@ async function handleUpdateInvitationStatus(
   next: NextFunction
 ) {
   const { userId } = req.params;
-  console.log({ userId });
   const { invitationId, invitationStatus, notificationId } = req.body;
   checkIfUserIdMatches(req, userId);
-  console.log({ invitationId, invitationStatus, notificationId });
 
   const updateInvitationStatus = await prisma.invitation.update({
     data: {

@@ -40,7 +40,20 @@ async function getAllMembersInChat(
     throw new Api400Error("Underlying workspace Id was not found!!");
 
   const allMembers = await prisma.chatWithMember.findMany({
-    where: { chatId },
+    where: {
+      chatId,
+      member: {
+        NOT: {
+          recieverInvitations: {
+            some: {
+              status: {
+                in: ["DECLINED", "PENDING"],
+              },
+            },
+          },
+        },
+      },
+    },
     select: {
       member: {
         include: {
