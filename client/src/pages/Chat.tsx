@@ -3,16 +3,21 @@ import useNavigateToDashboard from "../hooks/useNavigateToDashboard";
 import { useQuery } from "react-query";
 import axios from "../api/axios";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
-import { switchChat } from "../redux/slices/chatSlice";
 import ChatTab from "../components/Chat/ChatTab";
 import SwitchChatTab from "../components/Chat/SwitchChatTab";
 import { Role } from "../redux/slices/workspaceSlice";
+import { useLocation, useNavigate } from "react-router-dom";
+import { displayPartsToString } from "typescript";
+import { switchChat } from "../redux/slices/chatSlice";
+import ChatType from "../utils/ChatTab";
 
 interface ChatProps {
   socket: any;
 }
 
 const Chat: React.FC<ChatProps> = ({ socket }) => {
+  const location = useLocation();
+  console.log({ location });
   const dispatch = useAppDispatch();
   const { id: chatId } = useAppSelector((state) => state.chat);
   const { workspaceId, role } = useAppSelector((state) => state.workspace);
@@ -25,7 +30,7 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
   } = useAppSelector((state) => state.auth);
 
   const { data: chats, isLoading } = useQuery(
-    "all-chat",
+    ["all-chat", workspaceId],
     async () => {
       const res = await axios.get(
         `/chat/${userId}/${workspaceId}/get-all-chat`
@@ -35,13 +40,20 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
     { enabled: Boolean(workspaceId) }
   );
 
+  useNavigateToDashboard();
+
   useEffect(() => {
     if (chatId === null && chats?.length > 0) {
       dispatch(switchChat(chats[0]));
     }
-  }, [dispatch, chatId, chats]);
+  }, [chatId, chats, dispatch]);
 
-  useNavigateToDashboard();
+  useEffect(() => {
+    return () => {
+      console.log("outside effect");
+      dispatch(switchChat({ id: null, type: ChatType.ALL }));
+    };
+  }, [dispatch]);
 
   if (isLoading) {
     return <h1>Loading...</h1>;
@@ -68,7 +80,7 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
           })}
         </div>
       </div>
-      <ChatTab socket={socket} />
+      {chatId && <ChatTab socket={socket} />}
     </div>
   );
 };
