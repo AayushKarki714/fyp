@@ -69,13 +69,20 @@ const ProgressBar: React.FC<Props> = ({
   return (
     <>
       <div onDoubleClick={isAllowed ? () => setIsModalOpen(true) : () => {}}>
-        <p className="text-sm self-center">{text}</p>
-        <div className="relative w-full h-[20px] overflow-hidden">
-          <div
-            style={{ width: `${width}%` }}
-            title={`${width}%`}
-            className="absolute left-0 top-0 h-full bg-custom-light-green rounded-md "
-          />
+        <div className="flex gap-3">
+          <div>
+            <img src="" alt="Profile" />
+          </div>
+          <div className="flex-grow flex flex-col bg-red-500">
+            <p className="text-sm ">{text}</p>
+            <div className="relative w-full h-[20px] overflow-hidden">
+              <div
+                style={{ width: `${width}%` }}
+                title={`${width}%`}
+                className="absolute left-0 top-0 h-full bg-custom-light-green rounded-md "
+              />
+            </div>
+          </div>
         </div>
       </div>
       <Overlay isOpen={isModalOpen} onClick={handleModalClose}>

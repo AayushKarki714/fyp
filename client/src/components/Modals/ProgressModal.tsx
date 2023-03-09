@@ -75,7 +75,7 @@ const ProgressModal = ({ onSubmit }: Props) => {
         onChange={(event) => setProgressPercent(event.target.value)}
         placeholder="Enter a percent"
       />
-      <button className="px-6 py-2 bg-custom-light-green rounded-md text-black font-medium">
+      <button className="px-6 py-2  bg-custom-light-green rounded-md text-black font-medium">
         Submit
       </button>
     </form>

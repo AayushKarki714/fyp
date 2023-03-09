@@ -90,7 +90,6 @@ const ChatMessage: React.FC<Props> = ({
   useOnClickOutside(messageRef, () => {
     setIsChatOptionsVisible(false);
   });
-  console.log(!isNextMessageOfSameUser);
 
   return (
     <div
@@ -109,6 +108,7 @@ const ChatMessage: React.FC<Props> = ({
           {!isNextMessageOfSameUser && (
             <img
               className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
               src={
                 photo ??
                 "https://images.unsplash.com/file-1662566326028-7013d2f857a6image?dpr=2&auto=format&fit=crop&w=416&q=60"

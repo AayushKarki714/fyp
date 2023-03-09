@@ -22,6 +22,7 @@ import axios from "../../api/axios";
 import ChatMessage from "./ChatMessage";
 import isTypingData from "../../lotties/isTyping.json";
 import Lottie from "lottie-react";
+// import ChatSpinner from "./ChatSpinner";
 
 interface ChatTabProps {
   socket: any;
@@ -139,6 +140,9 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
       socket.off("typing-status");
     };
   }, [socket]);
+
+  console.log({ chatMessages });
+
   if (isLoading) return <h2>Loading...</h2>;
 
   return (
@@ -163,7 +167,8 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
           </div>
         </div>
 
-        <div className="flex relative flex-col  flex-grow bg-custom-dark p-3 pt-14 overflow-y-auto custom-scrollbar ">
+        <div className="flex relative  flex-col  flex-grow bg-custom-dark p-3 pt-14 overflow-y-auto custom-scrollbar ">
+          {/* <ChatSpinner /> */}
           {chatMessages?.map((message: any, index: number) => (
             <ChatMessage
               key={message.id}

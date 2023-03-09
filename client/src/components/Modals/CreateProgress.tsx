@@ -28,7 +28,7 @@ const CreateProgress: React.FC<Props> = ({ onSubmit }) => {
       />
       <button
         type="submit"
-        className="bg-custom-light-green px-4 py-2 rounded-md text-base"
+        className="bg-custom-light-green px-4 text-black py-2 rounded-md text-base"
       >
         Submit
       </button>

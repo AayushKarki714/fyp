@@ -6,8 +6,6 @@ import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import ChatTab from "../components/Chat/ChatTab";
 import SwitchChatTab from "../components/Chat/SwitchChatTab";
 import { Role } from "../redux/slices/workspaceSlice";
-import { useLocation, useNavigate } from "react-router-dom";
-import { displayPartsToString } from "typescript";
 import { switchChat } from "../redux/slices/chatSlice";
 import ChatType from "../utils/ChatTab";
 
@@ -16,8 +14,6 @@ interface ChatProps {
 }
 
 const Chat: React.FC<ChatProps> = ({ socket }) => {
-  const location = useLocation();
-  console.log({ location });
   const dispatch = useAppDispatch();
   const { id: chatId } = useAppSelector((state) => state.chat);
   const { workspaceId, role } = useAppSelector((state) => state.workspace);
@@ -50,7 +46,6 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
 
   useEffect(() => {
     return () => {
-      console.log("outside effect");
       dispatch(switchChat({ id: null, type: ChatType.ALL }));
     };
   }, [dispatch]);

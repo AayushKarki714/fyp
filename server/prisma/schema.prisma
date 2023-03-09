@@ -11,20 +11,22 @@ datasource db {
 }
 
 model User {
-    id                    String             @id @default(uuid())
+    id                    String              @id @default(uuid())
     userName              String
-    email                 String             @unique
+    email                 String              @unique
     photo                 String
     Member                Member[]
     Workspace             Workspace[]
     comments              Comment[]
     likes                 Like[]
-    senderNotifications   Notification[]     @relation("sender-notifications")
-    recieverNotifications Notification[]     @relation("reciever-notifications")
+    senderNotifications   Notification[]      @relation("sender-notifications")
+    recieverNotifications Notification[]      @relation("reciever-notifications")
     todoContainer         TodoContainer[]
     todoCard              TodoCard[]
     todos                 Todo[]
+    progressContainers    ProgressContainer[]
     galleryContainers     GalleryContainer[]
+    progresses            Progress[]
     galleryPhotos         Photo[]
 }
 
@@ -158,12 +160,14 @@ model GalleryContainer {
 }
 
 model ProgressContainer {
-    id          String     @id @default(uuid())
-    title       String
-    workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-    workspaceId String
-    createdAt   DateTime   @default(now())
-    Progress    Progress[]
+    id              String     @id @default(uuid())
+    title           String
+    workspace       Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    workspaceId     String
+    createdAt       DateTime   @default(now())
+    Progress        Progress[]
+    user            User       @relation(fields: [createdByUserId], references: [id])
+    createdByUserId String
 }
 
 model Progress {
@@ -172,6 +176,8 @@ model Progress {
     progressPercent     Int
     progressContainer   ProgressContainer @relation(fields: [progressContainerId], references: [id], onDelete: Cascade)
     progressContainerId String
+    user                User              @relation(fields: [createdByUserId], references: [id])
+    createdByUserId     String
 }
 
 model Photo {
