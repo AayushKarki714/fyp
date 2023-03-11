@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import Tab from "../utils/Tab";
 import useNavigateToDashboard from "../hooks/useNavigateToDashboard";
 import SettingNavLink from "../components/Setting/SettingNavLink";
-import { UserPlusIcon } from "@heroicons/react/24/outline";
+import {
+  EyeDropperIcon,
+  UserMinusIcon,
+  UserPlusIcon,
+} from "@heroicons/react/24/outline";
 import AddTab from "../components/Setting/AddTab";
 import RemoveTab from "../components/Setting/RemoveTab";
 import AssignTab from "../components/Setting/AssignTab";
@@ -35,6 +39,9 @@ const Setting = () => {
             selectedTab={selectedTab}
             onSelectTab={handleSelectTab.bind(null, Tab.REMOVE)}
           >
+            <span>
+              <UserMinusIcon className="h-6 w-6" />
+            </span>
             Remove
           </SettingNavLink>
           <SettingNavLink
@@ -42,6 +49,9 @@ const Setting = () => {
             selectedTab={selectedTab}
             onSelectTab={handleSelectTab.bind(null, Tab.ASSIGN)}
           >
+            <span>
+              <EyeDropperIcon className="h-6 w-6" />
+            </span>
             Assign
           </SettingNavLink>
         </ul>

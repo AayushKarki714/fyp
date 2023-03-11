@@ -12,7 +12,7 @@ const MembersList: React.FC = () => {
       const res = await axios.get(
         `/chat/${userId}/${workspaceId}/${chatId}/${chatType}/all-members`
       );
-      return res.data?.data;
+      return res?.data?.data;
     }
   );
 

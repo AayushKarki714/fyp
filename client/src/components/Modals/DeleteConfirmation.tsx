@@ -19,8 +19,8 @@ const DeleteConfirmation: React.FC<Props> = ({
   return (
     <Overlay isOpen={isVisible} onClick={onCancel}>
       <Modal close={false}>
-        <div className="p-2 flex items-center flex-col justify-center gap-6  h-[200px] w-[450px]">
-          <h2 className="text-2xl text-center">{message}</h2>
+        <div className="p-2 flex items-center flex-col justify-center gap-6  h-[180px] w-[350px]">
+          <h2 className="text-xl text-center">{message}</h2>
           <div className="flex items-center justify-center gap-2">
             <button
               onClick={onConfirm}

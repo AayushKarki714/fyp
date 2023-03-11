@@ -17,6 +17,7 @@ import Modal from "./Modals/Modal";
 import UpdateWorkspaceModal from "./Modals/UpdateWorkspaceModal";
 import { toast } from "react-toastify";
 import { formatRelative } from "date-fns";
+import DeleteConfirmation from "./Modals/DeleteConfirmation";
 
 const Workspace: React.FC<any> = ({
   logo,
@@ -30,13 +31,15 @@ const Workspace: React.FC<any> = ({
   createdAt,
 }) => {
   const queryClient = useQueryClient();
+
   const ref = useRef<HTMLDivElement>(null);
   const popUpRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch();
   const { workspace, auth } = useAppSelector((state) => state);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
-
+  const [showConfirmationModal, setShowConfirmationModal] =
+    useState<boolean>(false);
   const dateFormat = formatRelative(new Date(createdAt), new Date());
 
   const deleteWorkspaceMutation = useMutation(
@@ -100,6 +103,7 @@ const Workspace: React.FC<any> = ({
   const onWorkspaceTitleUpdate = (data: any) => {
     updateWorkspaceTitleMutation.mutate(data);
   };
+
   return (
     <>
       <Overlay isOpen={isModalOpen} onClick={closeModal}>
@@ -107,7 +111,12 @@ const Workspace: React.FC<any> = ({
           <UpdateWorkspaceModal name={name} onUpdate={onWorkspaceTitleUpdate} />
         </Modal>
       </Overlay>
-
+      <DeleteConfirmation
+        isVisible={showConfirmationModal}
+        message={`Do you want to delete Workspace  named ${name}?`}
+        onCancel={() => setShowConfirmationModal(false)}
+        onConfirm={handleDeleteWorkspace}
+      />
       <motion.div
         whileHover={{ scale: 1.05 }}
         title={adminName}
@@ -190,7 +199,7 @@ const Workspace: React.FC<any> = ({
                   </button>
                 </div>
                 <div
-                  onClick={handleDeleteWorkspace}
+                  onClick={() => setShowConfirmationModal(true)}
                   className="flex items-center gap-2 p-2 hover:bg-[#434343] rounded-md"
                 >
                   <button className="text-sm flex items-center gap-2 ">

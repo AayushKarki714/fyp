@@ -6,7 +6,8 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 import Workspace from "../components/WorkSpace";
 import axios from "../api/axios";
 import { useQuery } from "react-query";
-
+import { ClipLoader } from "react-spinners";
+import Spinner from "../components/Spinner/Spinner";
 const Dashboard: React.FC = () => {
   let navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
@@ -21,7 +22,7 @@ const Dashboard: React.FC = () => {
   };
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <Spinner isLoading={isLoading} />;
   }
 
   return (
@@ -30,12 +31,13 @@ const Dashboard: React.FC = () => {
         Welcome to the Dashboard, {user?.displayName}
       </h2>
       <motion.ul className="grid grid-cols-responsive auto-rows-[150px] gap-6 p-3 ">
-        {data?.data.map((item: any) => (
+        {data?.data.map((item: any, index: number) => (
           <Workspace
             key={item.workspaceId}
             totalMember={item.totalMember}
             adminName={item.workspace.admin.name}
             adminImg={item.workspace.admin.photo}
+            index={index}
             name={item.workspace.name}
             logo={item.workspace.logo}
             createdAt={item.workspace.createdAt}

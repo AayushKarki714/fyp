@@ -22,7 +22,17 @@ import axios from "../../api/axios";
 import ChatMessage from "./ChatMessage";
 import isTypingData from "../../lotties/isTyping.json";
 import Lottie from "lottie-react";
-// import ChatSpinner from "./ChatSpinner";
+import {
+  MoonLoader,
+  ClipLoader,
+  DotLoader,
+  FadeLoader,
+  PropagateLoader,
+  RingLoader,
+  BarLoader,
+  RiseLoader,
+  SyncLoader,
+} from "react-spinners";
 
 interface ChatTabProps {
   socket: any;
@@ -141,9 +151,17 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
     };
   }, [socket]);
 
-  console.log({ chatMessages });
-
-  if (isLoading) return <h2>Loading...</h2>;
+  if (isLoading)
+    return (
+      <ClipLoader
+        color={"#8ad85c"}
+        loading={isLoading}
+        cssOverride={{ width: "40px", height: "40px" }}
+        size={150}
+        aria-label="Loading Spinner"
+        data-testid="loader"
+      />
+    );
 
   return (
     <>
@@ -154,7 +172,7 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
         <Modal onClick={() => setIsMembersModalOpen(false)}>
           <MembersList />
         </Modal>
-      </Overlay>
+      </Overlay>{" "}
       <div className="flex-grow flex flex-col">
         <div className="basis-16 flex-shrink-0 flex p-3 items-center justify-end  bg-custom-black border-b-2 border-dark-gray">
           <div className="flex itemis-center justify-center">

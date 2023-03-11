@@ -8,6 +8,7 @@ import SwitchChatTab from "../components/Chat/SwitchChatTab";
 import { Role } from "../redux/slices/workspaceSlice";
 import { switchChat } from "../redux/slices/chatSlice";
 import ChatType from "../utils/ChatTab";
+import Spinner from "../components/Spinner/Spinner";
 
 interface ChatProps {
   socket: any;
@@ -51,7 +52,7 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
   }, [dispatch]);
 
   if (isLoading) {
-    return <h1>Loading...</h1>;
+    return <Spinner isLoading={isLoading} />;
   }
 
   return (

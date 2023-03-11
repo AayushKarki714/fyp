@@ -93,13 +93,10 @@ const InvitationRequest: React.FC<InvitationRequestProps> = ({
     },
     {
       onSuccess(data) {
-        console.log("data", data);
         queryClient.invalidateQueries("workspace-query");
         queryClient.invalidateQueries("notifications");
       },
-      onError(error) {
-        console.log("error", error);
-      },
+      onError(error) {},
     }
   );
 
@@ -174,7 +171,6 @@ const AcceptDeclineAdmin: React.FC<AcceptDeclineInvitationProps> = ({
 }) => {
   const isAccepted =
     type === NotificationType.APPOINT_ADMIN_ACCEPTED ? true : false;
-  console.log("this is notification", notification);
   return (
     <div className=" p-2 rounded-md flex gap-4 items-center">
       <figure className=" flex-shrink-0 w-14 h-14   rounded-full overflow-hidden">
@@ -211,7 +207,6 @@ const AcceptDeclineInvitation: React.FC<AcceptDeclineInvitationProps> = ({
 }) => {
   const isAccepted =
     type === NotificationType.ACCEPTED_INVITATION ? true : false;
-  console.log("notification?.workspace?.name", notification?.workspace?.name);
   return (
     <div className=" p-2 rounded-md flex gap-4 items-center">
       <figure className=" flex-shrink-0 w-14 h-14   rounded-full overflow-hidden">
@@ -297,15 +292,11 @@ const AppointAdminNotification: React.FC<AppointAdminNotificationProps> = ({
         queryClient.invalidateQueries("unread-notifications");
         queryClient.invalidateQueries("workspace-query");
         queryClient.invalidateQueries("notifications");
-        console.log("data", data);
       },
-      onError(error) {
-        console.log("error", error);
-      },
+      onError(error) {},
     }
   );
 
-  console.log("admin", notification);
   return (
     <div className="p-2 rounded-md flex gap-4 items-center">
       <figure className=" flex-shrink-0 w-14 h-14   rounded-full overflow-hidden">
@@ -438,11 +429,8 @@ const NotificationTemplateDecider: React.FC<
     {
       onSuccess(data) {
         queryClient.invalidateQueries("notifications");
-        console.log("data", data);
       },
-      onError(error) {
-        console.log("error", error);
-      },
+      onError(error) {},
     }
   );
 
@@ -511,11 +499,8 @@ const NotificationModal: React.FC = () => {
     {
       onSuccess(data: any) {
         queryClient.invalidateQueries("unread-notifications");
-        console.log("data", data);
       },
-      onError(error: any) {
-        console.log("error", error);
-      },
+      onError(error: any) {},
     }
   );
 
@@ -532,7 +517,6 @@ const NotificationModal: React.FC = () => {
   }, [markAsReadMutate]);
 
   if (isLoading) return <h1>Loading...</h1>;
-  console.log("notifications", notifications);
 
   return (
     <motion.div

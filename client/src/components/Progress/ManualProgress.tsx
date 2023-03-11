@@ -10,6 +10,7 @@ import Modal from "../Modals/Modal";
 import Overlay from "../Modals/Overlay";
 import { toast } from "react-toastify";
 import ProgressContainer from "./ProgressContainer";
+import Spinner from "../Spinner/Spinner";
 
 const ManualProgress: React.FC = () => {
   const queryClient = useQueryClient();
@@ -59,11 +60,10 @@ const ManualProgress: React.FC = () => {
   };
 
   if (progressContainerQuery.isLoading) {
-    return <h1>Loading...</h1>;
+    return <Spinner isLoading={progressContainerQuery.isLoading} />;
   }
 
   const progressContainerData = progressContainerQuery?.data?.data?.data || [];
-  console.log({ progressContainerData });
   return (
     <>
       <div className="flex flex-col gap-3">

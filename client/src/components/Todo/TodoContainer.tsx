@@ -7,11 +7,6 @@ import { toast } from "react-toastify";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
 import verifyRole from "../../utils/verifyRole";
 import { Role } from "../../redux/slices/workspaceSlice";
-import {
-  createTodoCard,
-  deleteTodoContainer,
-  updateTodoContainerTitle,
-} from "../../services/todo";
 import axios from "../../api/axios";
 import DeleteConfirmation from "../Modals/DeleteConfirmation";
 
@@ -57,18 +52,17 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
   );
 
   const deleteTodoContainerMutation = useMutation(
-    deleteTodoContainer({
-      userId,
-      workspaceId,
-      todoContainerId,
-    }),
+    async () => {
+      const res = await axios.delete(
+        `/todo/${userId}/${workspaceId}/${todoContainerId}/delete-todo-container`
+      );
+      return res.data;
+    },
     {
       onError: (error: any) => {
-        console.log({ error });
         toast(error?.response?.data?.message);
       },
       onSuccess: (data: any) => {
-        console.log({ data });
         queryClient.invalidateQueries("todo-container-query");
         toast(data?.message);
       },
@@ -76,7 +70,13 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
   );
 
   const updateTodoContainerTitleMutation = useMutation(
-    updateTodoContainerTitle({ userId, workspaceId, todoContainerId }),
+    async (data: any) => {
+      const res = await axios.patch(
+        `/todo/${userId}/${workspaceId}/${todoContainerId}/update-todocontainer-title`,
+        data
+      );
+      return res.data;
+    },
     {
       onError: (error: any) => {
         toast(error?.response?.data?.message);
@@ -89,8 +89,14 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
     }
   );
 
-  const todoCardMutation = useMutation(
-    createTodoCard({ userId, todoContainerId, workspaceId }),
+  const { mutate: todoCardMutate } = useMutation(
+    async (data: any) => {
+      const res = await axios.post(
+        `/todo/${userId}/${workspaceId}/${todoContainerId}/create-todo-card`,
+        data
+      );
+      return res.data;
+    },
     {
       onSuccess: (data) => {
         setTodoCardTitle("");
@@ -106,11 +112,11 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!todoCardTitle) return toast("Please Fill the Required Fields*");
-    todoCardMutation.mutate({ title: todoCardTitle });
+    todoCardMutate({ title: todoCardTitle });
   };
 
   const handleDeleteTodoContainer = () => {
-    deleteTodoContainerMutation.mutate({});
+    deleteTodoContainerMutation.mutate();
   };
 
   const handleTodoContainerTitleSubmit = (
@@ -132,7 +138,6 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
   if (isLoading) {
     return <h1>loading...</h1>;
   }
-  console.log({ todoCardData });
 
   return (
     <>

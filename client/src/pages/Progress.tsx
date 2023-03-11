@@ -37,6 +37,7 @@ const TabbedButton: React.FC<TabbedButtonProps> = ({
 
 const Progress: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<Tab>(Tab.GENERATED);
+
   useNavigateToDashboard();
   return (
     <div className="flex flex-col gap-3">

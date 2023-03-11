@@ -4,6 +4,7 @@ import { add, differenceInDays } from "date-fns";
 import axios from "../../api/axios";
 import { useAppSelector } from "../../redux/store/hooks";
 import useNavigateToDashboard from "../../hooks/useNavigateToDashboard";
+import Spinner from "../Spinner/Spinner";
 
 interface Props {}
 
@@ -146,7 +147,7 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
   title,
   workspaceId,
 }) => {
-  const { data: progressCardData } = useQuery(
+  const { data: progressCardData, isLoading } = useQuery(
     ["todo-card-query", containerId],
     async () => {
       const res = await axios.get(
@@ -155,6 +156,11 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
       return res?.data?.data;
     }
   );
+
+  if (isLoading) {
+    return <Spinner isLoading={isLoading} />;
+  }
+
   return (
     <div className="flex flex-col gap-4 border-2 border-custom-light-dark p-3 rounded-md">
       <div className="text-2xl">

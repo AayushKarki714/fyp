@@ -10,10 +10,7 @@ import useNavigateToDashboard from "../hooks/useNavigateToDashboard";
 import { useAppSelector } from "../redux/store/hooks";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import axios from "../api/axios";
-import {
-  CreateTodoContainerPayload,
-  ITodoContainerPayload,
-} from "../types/types";
+import { CreateTodoContainerPayload } from "../types/types";
 import TodoContainer from "../components/Todo/TodoContainer";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -23,6 +20,7 @@ import verifyRole from "../utils/verifyRole";
 import { createTodoContainer } from "../services/todo";
 import ColorIndicator from "../components/ColorIndicator/ColorIndicator";
 import { AnimatePresence } from "framer-motion";
+import Spinner from "../components/Spinner/Spinner";
 
 const TodoPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -62,7 +60,7 @@ const TodoPage: React.FC = () => {
   useNavigateToDashboard();
 
   if (isLoading) {
-    return <h1>loading...</h1>;
+    return <Spinner isLoading={isLoading} />;
   }
 
   const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);

@@ -57,17 +57,6 @@ function updateTodoContainerTitle({
   );
 }
 
-function createTodoCard({
-  userId,
-  workspaceId,
-  todoContainerId,
-}: ITodoContainer) {
-  return makeRequestFn(
-    `/todo/${userId}/${workspaceId}/${todoContainerId}/create-todo-card`,
-    { method: "POST" }
-  );
-}
-
 interface ITodoCard extends ITodoContainer {
   todoCardId: string;
 }
@@ -111,7 +100,6 @@ function updateTodoCardTitle({
 export {
   getTodoCards,
   createTodoContainer,
-  createTodoCard,
   createTodo,
   deleteTodoContainer,
   deleteTodoCard,

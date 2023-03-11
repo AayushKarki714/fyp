@@ -9,6 +9,7 @@ import axios from "../api/axios";
 import { useAppSelector } from "../redux/store/hooks";
 import { toast } from "react-toastify";
 import GalleryContainer from "../components/Gallery/GalleryContainer";
+import Spinner from "../components/Spinner/Spinner";
 
 const Gallery: React.FC = () => {
   const queryClient = useQueryClient();
@@ -66,13 +67,8 @@ const Gallery: React.FC = () => {
   };
 
   if (galleryContainerQuery.isLoading) {
-    return (
-      <div className="fixed flex items-center justify-center top-0 left-0 right-0 bottom-0 w-full bg-black opacity-80 h-full">
-        <p>Loading....</p>
-      </div>
-    );
+    return <Spinner isLoading={galleryContainerQuery.isLoading} />;
   }
-
   const galleryContainerData = galleryContainerQuery.data?.data || [];
 
   return (

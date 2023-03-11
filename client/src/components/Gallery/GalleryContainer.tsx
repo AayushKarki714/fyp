@@ -85,7 +85,9 @@ const GalleryContainer: React.FC<Props> = ({
       return res;
     },
     {
-      onError: (error) => {},
+      onError: (error: any) => {
+        toast(error?.response?.data?.message);
+      },
       onSuccess: (data) => {
         if (data.status === 201) {
           toast("Image Upload SuccessFully!!");
@@ -106,8 +108,8 @@ const GalleryContainer: React.FC<Props> = ({
       return res;
     },
     {
-      onError: (data) => {
-        console.log("error", data);
+      onError: (data: any) => {
+        toast(data?.response?.data?.message);
       },
       onSuccess: (data) => {
         queryClient.invalidateQueries("gallery-container-query");
@@ -129,10 +131,10 @@ const GalleryContainer: React.FC<Props> = ({
           "gallery-images-query",
           galleryContainerId,
         ]);
-        console.log(data, "data");
+        toast(data?.message);
       },
-      onError(error) {
-        console.log(error, "error");
+      onError(error: any) {
+        toast(error?.response?.data?.message);
       },
     }
   );

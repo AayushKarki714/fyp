@@ -11,11 +11,6 @@ import { toast } from "react-toastify";
 import { useAppSelector } from "../../redux/store/hooks";
 import { Role } from "../../redux/slices/workspaceSlice";
 import verifyRole from "../../utils/verifyRole";
-import {
-  createTodo,
-  deleteTodoCard,
-  updateTodoCardTitle,
-} from "../../services/todo";
 import DeleteConfirmation from "../Modals/DeleteConfirmation";
 
 interface Props {
@@ -128,18 +123,31 @@ const TodoCard: React.FC<Props> = ({
   );
 
   const deleteTodoCardMutation = useMutation(
-    deleteTodoCard({ workspaceId, userId, todoContainerId, todoCardId }),
+    async () => {
+      const res = await axios.delete(
+        `/todo/${userId}/${workspaceId}/${todoContainerId}/${todoCardId}/delete-todo-card`
+      );
+      return res?.data;
+    },
     {
       onSuccess: (data: any) => {
         queryClient.invalidateQueries(["todo-card-query", todoContainerId]);
         toast(data?.message);
       },
-      onError: (error: any) => {},
+      onError: (error: any) => {
+        toast(error?.response?.data?.message);
+      },
     }
   );
 
   const updateTitleMutation = useMutation(
-    updateTodoCardTitle({ workspaceId, todoCardId, todoContainerId, userId }),
+    async (data: any) => {
+      const res = await axios.patch(
+        `/todo/${userId}/${workspaceId}/${todoContainerId}/${todoCardId}/update-todocard-title`,
+        data
+      );
+      return res?.data;
+    },
     {
       onSuccess: (data: any) => {
         setEditMode(false);
@@ -164,7 +172,13 @@ const TodoCard: React.FC<Props> = ({
   }));
 
   const todoMutation = useMutation(
-    createTodo({ workspaceId, userId, todoCardId, todoContainerId }),
+    async (data: any) => {
+      const res = await axios.post(
+        `/todo/${userId}/${workspaceId}/${todoContainerId}/${todoCardId}/create-todo`,
+        data
+      );
+      return res.data;
+    },
     {
       onError: (data: any) => {
         toast(data?.response?.data?.message);
@@ -184,7 +198,7 @@ const TodoCard: React.FC<Props> = ({
   };
 
   const handleDeleteTodoCard = () => {
-    deleteTodoCardMutation.mutate({});
+    deleteTodoCardMutation.mutate();
   };
 
   const handleTodoCardTitleUpdate = (
@@ -207,7 +221,6 @@ const TodoCard: React.FC<Props> = ({
   const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
 
   if (isLoading) return <h2>Loading...</h2>;
-  console.log({ todoData });
 
   return (
     <>
