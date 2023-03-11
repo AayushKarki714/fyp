@@ -49,11 +49,6 @@ const AddUser: React.FC<AddLancerProps> = ({ type, role }) => {
                     .get(`/workspace/${workspaceId}/${value}/check-email`)
                     .then((res) => {
                       resolve(true);
-                      // return resolve(
-                      //   this.createError({
-                      //     message: res?.data?.message,
-                      //   })
-                      // );
                     })
                     .catch((err) => {
                       return resolve(

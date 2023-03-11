@@ -17,6 +17,7 @@ const ManualProgress: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
   const { workspaceId, role } = useAppSelector((state) => state.workspace);
   const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
+  console.log({ workspaceId });
 
   const progressContainerQuery = useQuery(
     "progress-container-query",
@@ -62,6 +63,7 @@ const ManualProgress: React.FC = () => {
   }
 
   const progressContainerData = progressContainerQuery?.data?.data?.data || [];
+  console.log({ progressContainerData });
   return (
     <>
       <div className="flex flex-col gap-3">
@@ -85,6 +87,8 @@ const ManualProgress: React.FC = () => {
             <ProgressContainer
               key={progressContainer.id}
               title={progressContainer.title}
+              createdByUsername={progressContainer.user.userName}
+              photo={progressContainer.user.photo}
               progressContainerId={progressContainer.id}
             />
           ))}

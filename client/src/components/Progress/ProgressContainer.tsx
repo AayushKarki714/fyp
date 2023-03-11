@@ -11,14 +11,24 @@ import ProgressModal from "../Modals/ProgressModal";
 import { useAppSelector } from "../../redux/store/hooks";
 import verifyRole from "../../utils/verifyRole";
 import { Role } from "../../redux/slices/workspaceSlice";
+import DeleteConfirmation from "../Modals/DeleteConfirmation";
 
 interface Props {
   title: string;
+  createdByUsername: string;
+  photo: string;
   progressContainerId: string;
 }
 
-const ProgressContainer: React.FC<Props> = ({ title, progressContainerId }) => {
+const ProgressContainer: React.FC<Props> = ({
+  title,
+  progressContainerId,
+  createdByUsername,
+  photo,
+}) => {
   const queryClient = useQueryClient();
+  const [showConfirmationModal, setShowConfirmationModal] =
+    useState<boolean>(false);
   const progressContainerRef = useRef<HTMLDivElement>(null);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [progressTitle, setProgressTitle] = useState<string>(title);
@@ -123,6 +133,7 @@ const ProgressContainer: React.FC<Props> = ({ title, progressContainerId }) => {
   }
 
   const progressBarData = progressBarQuery.data?.data?.data || [];
+  console.log({ progressBarData });
 
   return (
     <>
@@ -136,6 +147,12 @@ const ProgressContainer: React.FC<Props> = ({ title, progressContainerId }) => {
           <ProgressModal onSubmit={handleProgressUpload} />
         </Modal>
       </Overlay>
+      <DeleteConfirmation
+        isVisible={showConfirmationModal}
+        message={`Do you want to delete Progress Container named ${title}?`}
+        onCancel={() => setShowConfirmationModal(false)}
+        onConfirm={handleDeleteProgresssContainer}
+      />
       <div
         ref={progressContainerRef}
         className="flex flex-col gap-4 border-2 border-custom-light-dark rounded-md p-3 group"
@@ -164,7 +181,7 @@ const ProgressContainer: React.FC<Props> = ({ title, progressContainerId }) => {
                 <PlusCircleIcon className="h-5" />
               </button>
               <button
-                onClick={handleDeleteProgresssContainer}
+                onClick={() => setShowConfirmationModal(true)}
                 className="hidden group-hover:block text-sm text-gray-400 hover:text-custom-light-green"
               >
                 <TrashIcon className="h-5" />
@@ -172,16 +189,30 @@ const ProgressContainer: React.FC<Props> = ({ title, progressContainerId }) => {
             </div>
           )}
         </div>
-        <div className="grid  gap-2">
-          {progressBarData.map((progressBar: any) => (
+        <div className="grid  gap-4">
+          {progressBarData?.map((progressBar: any) => (
             <ProgressBar
               key={progressBar.id}
               text={progressBar.title}
               progressId={progressBar.id}
+              createdByUsername={progressBar?.user?.userName}
+              photo={progressBar?.user?.photo}
               progressContainerId={progressContainerId}
               width={progressBar.progressPercent}
             />
           ))}
+        </div>
+        <div className="flex items-center justify-end gap-3 text-base">
+          <p className="text-gray-400 hover:text-white">
+            by {createdByUsername}
+          </p>
+          <div className="h-8 w-8 rounded-full overflow-x-hidden">
+            <img
+              src={photo}
+              alt={createdByUsername}
+              className="w-full h-full object-containj"
+            />
+          </div>
         </div>
       </div>
     </>

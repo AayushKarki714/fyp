@@ -13,6 +13,7 @@ import {
   updateTodoContainerTitle,
 } from "../../services/todo";
 import axios from "../../api/axios";
+import DeleteConfirmation from "../Modals/DeleteConfirmation";
 
 interface TodoContainerProps {
   id: string;
@@ -30,6 +31,8 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
   createdUsername,
 }) => {
   const queryClient = useQueryClient();
+  const [showConfirmationModal, setShowConfirmationModal] =
+    useState<boolean>(false);
   const todoContainerRef = useRef<HTMLDivElement>(null);
   const [todoCardTitle, setTodoCardTitle] = useState<string>("");
   const [todoContainerTitle, setTodoContainerTitle] = useState<string>(
@@ -133,6 +136,12 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
 
   return (
     <>
+      <DeleteConfirmation
+        isVisible={showConfirmationModal}
+        message={`Do you want to delete Todo Container named ${text}?`}
+        onCancel={() => setShowConfirmationModal(false)}
+        onConfirm={handleDeleteTodoContainer}
+      />
       <div
         ref={todoContainerRef}
         className="group flex flex-col gap-4 border-2 border-custom-light-dark p-3 pb-2 rounded-md "
@@ -152,15 +161,16 @@ const TodoContainer: React.FC<TodoContainerProps> = ({
               {text}
             </h2>
           )}
-          {/* {isAllowed && ( */}
-          <div>
-            <button
-              onClick={handleDeleteTodoContainer}
-              className="hidden group-hover:block text-sm text-gray-400 hover:text-custom-light-green"
-            >
-              <TrashIcon className="h-5 w-5" />
-            </button>
-          </div>
+          {isAllowed && (
+            <div>
+              <button
+                onClick={() => setShowConfirmationModal(true)}
+                className="hidden group-hover:block text-sm text-gray-400 hover:text-custom-light-green"
+              >
+                <TrashIcon className="h-5 w-5" />
+              </button>
+            </div>
+          )}
           {/* )} */}
         </div>
         <div className="grid grid-cols-responsive-todo items-start gap-3">

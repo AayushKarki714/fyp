@@ -14,6 +14,7 @@ import {
 import Overlay from "../Modals/Overlay";
 import DotContainer from "../DotContainer";
 import { motion } from "framer-motion";
+import DeleteConfirmation from "../Modals/DeleteConfirmation";
 
 interface Props {
   text: string;
@@ -29,6 +30,8 @@ const GalleryContainer: React.FC<Props> = ({
   photo,
 }) => {
   const galleryContainerRef = useRef<HTMLDivElement>(null);
+  const [showConfirmationModal, setShowConfirmationModal] =
+    useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [showViewer, setShowViewer] = useState<boolean>(false);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
@@ -185,8 +188,6 @@ const GalleryContainer: React.FC<Props> = ({
     setGalleryTitle(text);
   });
 
-  console.log({ imagesData });
-
   return (
     <>
       <div
@@ -210,7 +211,7 @@ const GalleryContainer: React.FC<Props> = ({
             <div>
               <button
                 className="flex items-center justify-center"
-                onClick={handleDeleteGalleryContainer}
+                onClick={() => setShowConfirmationModal(true)}
               >
                 <TrashIcon className="h-5 w-5 hidden hover:text-custom-light-green cursor-pointer text-gray-400 group-hover:flex" />
               </button>
@@ -265,6 +266,12 @@ const GalleryContainer: React.FC<Props> = ({
           </div>
         </div>
       </div>
+      <DeleteConfirmation
+        isVisible={showConfirmationModal}
+        message={`Do you want to delete Gallery Container named ${text}?`}
+        onCancel={() => setShowConfirmationModal(false)}
+        onConfirm={handleDeleteGalleryContainer}
+      />
       <Overlay isOpen={showViewer} onClick={() => setShowViewer(false)}>
         <div className="flex flex-col gap-3  w-full h-full p-3 pt-12 ">
           <button className="ml-auto block">

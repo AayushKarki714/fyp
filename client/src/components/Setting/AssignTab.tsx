@@ -5,7 +5,6 @@ import { useAppDispatch, useAppSelector } from "../../redux/store/hooks";
 import Overlay from "../Modals/Overlay";
 import { motion } from "framer-motion";
 import Modal from "../Modals/Modal";
-import { Role, switchWorkSpace } from "../../redux/slices/workspaceSlice";
 import { useNavigate } from "react-router-dom";
 
 interface AppointAsAdminCardProps {

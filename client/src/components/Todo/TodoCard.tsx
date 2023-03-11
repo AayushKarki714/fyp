@@ -16,6 +16,7 @@ import {
   deleteTodoCard,
   updateTodoCardTitle,
 } from "../../services/todo";
+import DeleteConfirmation from "../Modals/DeleteConfirmation";
 
 interface Props {
   id: string;
@@ -33,6 +34,8 @@ const TodoCard: React.FC<Props> = ({
   createdUsername,
 }) => {
   const queryClient = useQueryClient();
+  const [showConfirmationModal, setShowConfirmationModal] =
+    useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [todoCardTitle, setTodoCardTitle] = useState<string>(title);
   const [showAddTodo, setShowAddTodo] = useState<boolean>(false);
@@ -208,6 +211,12 @@ const TodoCard: React.FC<Props> = ({
 
   return (
     <>
+      <DeleteConfirmation
+        isVisible={showConfirmationModal}
+        message={`Do you want to delete Todo Card named ${title}?`}
+        onCancel={() => setShowConfirmationModal(false)}
+        onConfirm={handleDeleteTodoCard}
+      />
       <div
         ref={isAllowed ? drop : null}
         className={`flex parent flex-col gap-2 bg-custom-black border-2 ${
@@ -233,7 +242,7 @@ const TodoCard: React.FC<Props> = ({
           )}
           {isAllowed && (
             <button
-              onClick={handleDeleteTodoCard}
+              onClick={() => setShowConfirmationModal(true)}
               className=" child hover:text-custom-light-green"
             >
               <TrashIcon className="h-4 w-4" />

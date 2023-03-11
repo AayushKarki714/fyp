@@ -93,6 +93,7 @@ const Gallery: React.FC = () => {
             />
           </Modal>
         </Overlay>
+
         {galleryContainerData.length > 0 ? (
           <div className="flex flex-col gap-4">
             {galleryContainerData.map((galleryContainer: any) => {

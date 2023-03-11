@@ -3,6 +3,8 @@ import { NextFunction, Request, Response } from "express";
 import Api400Error from "../utils/api400Error";
 import checkIfUserIdMatches from "../utils/checkIfUserIdMatches";
 import verifyRole from "../utils/verifyRole";
+import verifyCreatedUserId from "../utils/verifyCreatedUserId";
+import { Role } from "@prisma/client";
 
 async function handleCreateProgressContainer(
   req: Request,
@@ -10,6 +12,7 @@ async function handleCreateProgressContainer(
   next: NextFunction
 ) {
   const { title } = req.body;
+  console.log({ title });
   const { workspaceId, userId } = req.params;
 
   checkIfUserIdMatches(req, userId);
@@ -35,6 +38,7 @@ async function handleCreateProgressContainer(
     data: {
       title,
       workspaceId,
+      createdByUserId: userId,
     },
   });
 
@@ -51,12 +55,21 @@ async function getAllProgressContainer(
 ) {
   const { workspaceId } = req.params;
 
+  console.log({ workspaceId });
   if (!workspaceId) throw new Api400Error("Workspace Id was not Provided!!");
 
   const progressContainers = await prisma.progressContainer.findMany({
     where: { workspaceId },
     orderBy: {
       createdAt: "asc",
+    },
+    include: {
+      user: {
+        select: {
+          photo: true,
+          userName: true,
+        },
+      },
     },
   });
 
@@ -95,6 +108,7 @@ async function handleCreateProgressBar(
       title,
       progressPercent: Number(progressPercent),
       progressContainerId,
+      createdByUserId: userId,
     },
   });
 
@@ -116,6 +130,14 @@ async function getAllProgressInProgressContainer(
     orderBy: {
       progressPercent: "desc",
     },
+    include: {
+      user: {
+        select: {
+          userName: true,
+          photo: true,
+        },
+      },
+    },
   });
 
   return res.status(200).json({
@@ -133,6 +155,18 @@ async function handleDeleteProgressBarContainer(
 
   checkIfUserIdMatches(req, userId);
   await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
+
+  const progressContainer = await prisma.progressContainer.findUnique({
+    where: { id: progressContainerId },
+  });
+
+  const member = await prisma.member.findUnique({
+    where: { workspaceId_userId: { workspaceId, userId } },
+  });
+
+  if (member?.role === Role.LANCER) {
+    verifyCreatedUserId(progressContainer?.createdByUserId, userId);
+  }
 
   const deleteProgressContainer = await prisma.progressContainer.delete({
     where: { id: progressContainerId },
@@ -152,10 +186,31 @@ async function handleProgressTitleUpdate(
   const { title } = req.body;
   const { progressContainerId, userId, workspaceId } = req.params;
 
+  console.log({ progressContainerId, userId, workspaceId });
+
   checkIfUserIdMatches(req, userId);
   await verifyRole(["ADMIN", "LANCER"], workspaceId, userId);
 
   if (!title) throw new Api400Error("Missing Required Title");
+
+  const member = await prisma.member.findUnique({
+    where: { workspaceId_userId: { workspaceId, userId } },
+  });
+
+  const findProgressContainer = await prisma.progressContainer.findUnique({
+    where: { id: progressContainerId },
+  });
+
+  console.log({
+    member: member?.role,
+    userId,
+    created: findProgressContainer?.createdByUserId,
+    progressContainerId,
+    findProgressContainer,
+  });
+
+  if (member?.role === Role.LANCER)
+    verifyCreatedUserId(findProgressContainer?.createdByUserId, userId);
 
   const updateProgress = await prisma.progressContainer.update({
     data: {
@@ -210,6 +265,18 @@ async function handleProgressBarUpdate(
       "Progress Percent can only have number between 0 t0 100%"
     );
   }
+  const member = await prisma.member.findUnique({
+    where: { workspaceId_userId: { workspaceId, userId } },
+  });
+
+  console.log({
+    member: member?.role,
+    progressBar: progressBar.createdByUserId,
+    userId,
+  });
+
+  if (member?.role === Role.LANCER)
+    verifyCreatedUserId(progressBar.createdByUserId, userId);
 
   const updatedProgressBar = await prisma.progress.update({
     where: { id: progressBarId },

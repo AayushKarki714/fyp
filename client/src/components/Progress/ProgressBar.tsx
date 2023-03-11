@@ -14,6 +14,8 @@ interface Props {
   text: string;
   progressContainerId: string;
   progressId: string;
+  createdByUsername: string;
+  photo: string;
 }
 
 const ProgressBar: React.FC<Props> = ({
@@ -21,6 +23,8 @@ const ProgressBar: React.FC<Props> = ({
   text,
   progressId,
   progressContainerId,
+  createdByUsername,
+  photo,
 }) => {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,10 +74,13 @@ const ProgressBar: React.FC<Props> = ({
     <>
       <div onDoubleClick={isAllowed ? () => setIsModalOpen(true) : () => {}}>
         <div className="flex gap-3">
-          <div>
-            <img src="" alt="Profile" />
+          <div
+            className="w-12 h-12 rounded-full overflow-hidden"
+            title={createdByUsername}
+          >
+            <img src={photo} alt={createdByUsername} />
           </div>
-          <div className="flex-grow flex flex-col bg-red-500">
+          <div className="flex-grow flex flex-col gap-1 ">
             <p className="text-sm ">{text}</p>
             <div className="relative w-full h-[20px] overflow-hidden">
               <div
