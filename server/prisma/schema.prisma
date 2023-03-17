@@ -257,6 +257,12 @@ model Like {
     @@unique([userId, commentId])
 }
 
+model Admin {
+    id       String @id @default(uuid())
+    username String
+    password String
+}
+
 enum Role {
     ADMIN
     LANCER

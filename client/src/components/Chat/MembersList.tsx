@@ -16,8 +16,6 @@ const MembersList: React.FC = () => {
     }
   );
 
-  console.log("membersData", membersData);
-
   if (isLoading) return <h1>Loading...</h1>;
   return (
     <div className="flex flex-col gap-4 w-[350px]">

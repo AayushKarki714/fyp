@@ -14,6 +14,7 @@ import Setting from "./pages/Setting";
 import TodoPage from "./pages/Todo";
 import "./styles/comments.css";
 import socket from "./api/socket";
+import SystemAdmin from "./pages/SystemAdmin";
 
 const Login = React.lazy(() => import("./pages/Login"));
 const NotFound = React.lazy(() => import("./pages/404"));
@@ -37,6 +38,7 @@ const App: React.FC = () => {
     <main className="h-screen overflow-hidden bg-[#18191a] font-poppins text-base">
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/systemAdmin" element={<SystemAdmin />} />
         <Route path="/" element={<Home />}>
           <Route element={<NestedLayout />}>
             <Route index element={<Dashboard />} />
