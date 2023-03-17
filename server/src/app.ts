@@ -18,6 +18,7 @@ import {
 } from "./utils/errorHandler";
 import notificationRouter from "./routes/notification.router";
 import chatRouter from "./routes/chat.router";
+import systemAdminRouter from "./routes/system-admin.router";
 
 const AUTH_OPTIONS = {
   clientID: process.env.CLIENT_ID!,
@@ -68,6 +69,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(systemAdminRouter);
 
 app.use(
   cookieSession({

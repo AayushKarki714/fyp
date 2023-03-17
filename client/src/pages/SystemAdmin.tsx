@@ -1,81 +1,43 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-
-type FormItemProps = {
-  label: string;
-  value: string;
-  id: string;
-  type?: "text" | "password";
-  placeholder?: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-};
-function FormItem({
-  label,
-  value,
-  onChange,
-  type = "text",
-  id,
-  placeholder = "",
-}: FormItemProps) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label className="text-custom-light-green" htmlFor={id}>
-        {label}:
-      </label>
-      <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className="bg-[#09090a] rounded px-3 py-2"
-      />
-    </div>
-  );
-}
-
-function SystemAdminForm() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleAdminLogin = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-  };
-
-  return (
-    <motion.form
-      initial={{ y: "100%", opacity: 0 }}
-      animate={{ y: "0%", opacity: 1 }}
-      onSubmit={handleAdminLogin}
-      className=" flex flex-col gap-6  shadow-lg border-2 bg-black border-custom-light-green  w-80 px-6 pt-12 pb-6 rounded-md  "
-    >
-      <FormItem
-        id="adminName"
-        label="Username"
-        placeholder="Enter a Username..."
-        value={username}
-        onChange={(event) => setUsername(event.target.value)}
-      />
-      <FormItem
-        id="password"
-        label="Password"
-        placeholder="Enter a Password..."
-        value={password}
-        type="password"
-        onChange={(event) => setPassword(event.target.value)}
-      />
-      <button className="text-black bg-custom-light-green px-4 py-2 rounded-md">
-        Login
-      </button>
-    </motion.form>
-  );
-}
+import React, { useEffect } from "react";
+import { useQuery } from "react-query";
+import { useNavigate } from "react-router-dom";
+import systemAxios from "../api/systemAxios";
+import Spinner from "../components/Spinner/Spinner";
+import { useSystemAdmin } from "../context/AdminContext";
 
 function SystemAdmin() {
+  const navigate = useNavigate();
+  const { setAdmin, admin } = useSystemAdmin();
+  const { data, isLoading } = useQuery("system-admin", async () => {
+    const res = await systemAxios.get("/system-admin");
+    return res.data;
+  });
+
+  useEffect(() => {
+    if (!admin && data) {
+      setAdmin(data?.data);
+    }
+  }, [admin, data, setAdmin]);
+
+  const handleLogout = () => {
+    navigate("/system/admin/login");
+    localStorage.removeItem("token");
+    setAdmin(null);
+  };
+
+  if (isLoading) return <Spinner isLoading={isLoading} />;
   return (
-    <section className="grid place-content-center w-full h-full">
-      <SystemAdminForm />
-    </section>
+    <div>
+      <h1 className="text-4xl">
+        Welcome to the Admin Dashboard,{admin?.username}
+      </h1>
+      <button
+        onClick={handleLogout}
+        className="bg-red-500 px-6 py-2 rounded-md hover:brightness-90"
+      >
+        logout
+      </button>
+    </div>
   );
 }
 
