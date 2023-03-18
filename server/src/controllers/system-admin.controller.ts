@@ -99,16 +99,19 @@ async function getTotalWorkspaceandUser(
   res: Response,
   next: NextFunction
 ) {
-  const userCount = await prisma.user.aggregate({
+  const user = await prisma.user.aggregate({
     _count: {
       _all: true,
     },
   });
-  const workspaceCount = await prisma.workspace.aggregate({
+  const workspace = await prisma.workspace.aggregate({
     _count: {
       _all: true,
     },
   });
+  const userCount = user._count._all;
+  const workspaceCount = workspace._count._all;
+
   return res.status(200).json({
     message: "Count Fetched Successfully",
     data: { userCount, workspaceCount },

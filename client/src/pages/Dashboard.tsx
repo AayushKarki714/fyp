@@ -6,8 +6,8 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 import Workspace from "../components/WorkSpace";
 import axios from "../api/axios";
 import { useQuery } from "react-query";
-import { ClipLoader } from "react-spinners";
 import Spinner from "../components/Spinner/Spinner";
+
 const Dashboard: React.FC = () => {
   let navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);

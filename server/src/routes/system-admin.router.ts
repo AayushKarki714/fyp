@@ -39,7 +39,7 @@ systemAdminRouter.delete(
 );
 
 systemAdminRouter.get(
-  "/:workspaceId/workspace/user/count",
+  "/workspace/user/count",
   catchAsyncErrors(verifyToken),
   catchAsyncErrors(getTotalWorkspaceandUser)
 );
