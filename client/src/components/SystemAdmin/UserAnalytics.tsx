@@ -34,7 +34,7 @@ function DeRegisterCard({ email, userName, id, photo, index }: any) {
       transition={{ delay: 0.1 * index, duration: 0.3 }}
       className="flex  text-center flex-col bg-custom-light-dark  rounded-md gap-5 p-6 hover:-translate-y-2 transition-all duration-200  cursor-pointer hover:shadow-lg"
     >
-      <figure>
+      <figure className="w-20 h-20 mx-auto rounded-full overflow-hidden">
         <img referrerPolicy="no-referrer" src={photo} alt={userName} />
       </figure>
       <div className="flex flex-col gap-2">
@@ -44,7 +44,7 @@ function DeRegisterCard({ email, userName, id, photo, index }: any) {
       <div>
         <button
           onClick={() => mutate()}
-          className="bg-red-500 px-4 py-3 text-white rounded-md"
+          className="bg-red-600 px-4 py-3 text-white rounded-md"
         >
           De-Register
         </button>

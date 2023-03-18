@@ -47,9 +47,21 @@ async function getAllWorkspace(
 ) {
   const workspaces = await prisma.workspace.findMany({
     include: {
-      Member: true,
+      Member: {
+        where: {
+          recieverInvitations: {
+            some: {
+              status: "ACCEPTED",
+            },
+          },
+        },
+        include: {
+          user: true,
+        },
+      },
     },
   });
+
   return res.json({
     message: "All Registered User Fetched Successfully",
     data: workspaces,
@@ -60,10 +72,47 @@ async function deRegisterUser(req: Request, res: Response, next: NextFunction) {
   const { userId } = req.params;
   console.log({ userId });
   const deletedUser = await prisma.user.delete({ where: { id: userId } });
-  console.log({ deletedUser });
   return res
     .status(200)
     .json({ message: "De-Registered User Successfully", data: deletedUser });
+}
+
+async function deleteWorkspace(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { workspaceId } = req.params;
+  const deletedWorkspace = await prisma.workspace.delete({
+    where: {
+      id: workspaceId,
+    },
+  });
+  return res.status(200).json({
+    message: "Deleted Workspace Successfully",
+    data: deletedWorkspace,
+  });
+}
+
+async function getTotalWorkspaceandUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const userCount = await prisma.user.aggregate({
+    _count: {
+      _all: true,
+    },
+  });
+  const workspaceCount = await prisma.workspace.aggregate({
+    _count: {
+      _all: true,
+    },
+  });
+  return res.status(200).json({
+    message: "Count Fetched Successfully",
+    data: { userCount, workspaceCount },
+  });
 }
 
 export {
@@ -71,4 +120,6 @@ export {
   getAllRegisteredUser,
   getAllWorkspace,
   deRegisterUser,
+  deleteWorkspace,
+  getTotalWorkspaceandUser,
 };

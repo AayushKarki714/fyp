@@ -1,25 +1,88 @@
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import systemAxios from "../../api/systemAxios";
 import { useSystemAdmin } from "../../context/AdminContext";
 import Spinner from "../Spinner/Spinner";
 
-const DeleteWorkspaceCard = ({ members, name, id, logo }: any) => {
-  const [expand, setExpand] = useState(false);
+const MembersAvatar = ({ member }: any) => {
   return (
-    <div className="bg-custom-light-dark p-6 rounded-md">
+    <div
+      key={member.id}
+      className="flex cursor-pointer bg-custom-black items-center  gap-2 border-2 border-custom-light-dark rounded-full p-1"
+      title={member.user.userName}
+    >
+      <figure className="w-12 h-12 rounded-full overflow-hidden">
+        <img src={member.user.photo} alt={member.user.userName} />
+      </figure>
+    </div>
+  );
+};
+
+const DeleteWorkspaceCard = ({ members, name, id, logo, index }: any) => {
+  const { admin } = useSystemAdmin();
+  const [expand, setExpand] = useState(false);
+  const queryClient = useQueryClient();
+  const { mutate } = useMutation(
+    async () => {
+      const res = await systemAxios.delete(
+        `/system-admin/${id}/delete-workspace`,
+        { headers: { authorization: `Bearer ${(admin as any).token}` } }
+      );
+      return res.data;
+    },
+    {
+      onSuccess: (data) => {
+        queryClient.invalidateQueries("workspace-analytics");
+        console.log(data);
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    }
+  );
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.1 * index, duration: 0.3 }}
+      className="bg-custom-light-dark flex items-center flex-col gap-3 p-6 rounded-md"
+    >
       <img
-        className="w-12 h-12 rounded-full border-2 border-custom-light-green"
+        className="w-28 h-28 rounded-full border-2 border-custom-light-green"
         referrerPolicy="no-referrer"
         src={logo}
         alt={name}
       />
-      <h2>{name}</h2>
-      <button className="bg-red-600 px-6 py-2 text-white rounded-md">
+      <h2 className="text-4xl">{name}</h2>
+      <button
+        onClick={() => mutate()}
+        className="bg-red-600 self-stretch px-6 py-2 text-white rounded-md"
+      >
         Delete
       </button>
-      <button>View Details</button>
-    </div>
+      <button
+        onClick={() => setExpand((prevVal) => !prevVal)}
+        className="flex text-gray-300 opacity-70 self-end items-center gap-1 text-xs mt-4 hover:text-custom-light-green"
+      >
+        <span>
+          {expand ? (
+            <ChevronUpIcon className="h-4 w-4" />
+          ) : (
+            <ChevronDownIcon className="h-4 w-4 " />
+          )}
+        </span>
+        View Details
+      </button>
+      {expand && (
+        <div className="self-start flex flex-wrap">
+          {members.map((member: any) => (
+            <MembersAvatar key={member.id} member={member} />
+          ))}
+        </div>
+      )}
+    </motion.div>
   );
 };
 
@@ -34,16 +97,18 @@ function WorkspaceAnalytics() {
 
   if (isLoading) return <Spinner isLoading={isLoading} />;
   return (
-    <div className="flex flex-col gap-6">
-      {data.map((workspace: any) => {
+    <div className="grid items-start grid-cols-responsive-todo gap-6">
+      {data.map((workspace: any, index: number) => {
         return (
-          <DeleteWorkspaceCard
-            key={workspace.id}
-            id={workspace.id}
-            logo={workspace.logo}
-            members={workspace.Member}
-            name={workspace.name}
-          />
+          <AnimatePresence key={workspace.id}>
+            <DeleteWorkspaceCard
+              index={index}
+              id={workspace.id}
+              logo={workspace.logo}
+              members={workspace.Member}
+              name={workspace.name}
+            />
+          </AnimatePresence>
         );
       })}
     </div>
