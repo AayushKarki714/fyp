@@ -6,13 +6,14 @@ import Api401Error from "../utils/api401Error";
 function verifyToken(req: Request, res: Response, next: NextFunction) {
   const header = req.headers && req.headers["authorization"];
   const token = header?.split(" ")[1];
-  if (!token) throw new Api401Error("You are not authorized");
+  console.log(token);
+  if (!token) throw new Api401Error("You are not verified");
   try {
     const decoded = jwt.verify(token, process.env.SECRET_KEY!);
     (req as any).userId = decoded;
     next();
   } catch (error) {
-    throw new Api400Error("Invalid Token");
+    return res.status(401).json({ message: "Invalid Token" });
   }
 }
 

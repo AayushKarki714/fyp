@@ -1,6 +1,8 @@
 import express from "express";
 import {
-  getAdmin,
+  deRegisterUser,
+  getAllRegisteredUser,
+  getAllWorkspace,
   handleSystemAdminLogin,
 } from "../controllers/system-admin.controller";
 import verifyToken from "../middlewares/verifyToken";
@@ -8,15 +10,23 @@ import catchAsyncErrors from "../utils/catchAsyncErrors";
 
 const systemAdminRouter = express.Router();
 
-systemAdminRouter.post(
-  "/system-admin/login",
-  catchAsyncErrors(handleSystemAdminLogin)
+systemAdminRouter.post("/login", catchAsyncErrors(handleSystemAdminLogin));
+
+systemAdminRouter.get(
+  "/all/users",
+  catchAsyncErrors(verifyToken),
+  catchAsyncErrors(getAllRegisteredUser)
 );
 
 systemAdminRouter.get(
-  "/system-admin",
+  "/all/workspaces",
   catchAsyncErrors(verifyToken),
-  catchAsyncErrors(getAdmin)
+  catchAsyncErrors(getAllWorkspace)
+);
+systemAdminRouter.delete(
+  "/:userId/deregister-user",
+  catchAsyncErrors(verifyToken),
+  catchAsyncErrors(deRegisterUser)
 );
 
 export default systemAdminRouter;

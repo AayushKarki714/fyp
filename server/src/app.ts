@@ -70,8 +70,6 @@ app.use(
   })
 );
 
-app.use(systemAdminRouter);
-
 app.use(
   cookieSession({
     name: "cookie",
@@ -83,6 +81,7 @@ app.use(
 app.use(express.static(path.join(__dirname, "..", "public")));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use("/system-admin", systemAdminRouter);
 app.use("/auth", authRouter);
 app.use(verifyAuth);
 app.use("/notification", notificationRouter);

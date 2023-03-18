@@ -42,7 +42,7 @@ function FormItem({
 }
 
 function SystemAdminForm() {
-  const { admin } = useSystemAdmin();
+  const { admin, setAdmin } = useSystemAdmin();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -58,7 +58,7 @@ function SystemAdminForm() {
         toast(data?.message);
         setUsername("");
         setPassword("");
-        localStorage.setItem("token", data.token);
+        setAdmin(data?.data);
         navigate("/system/admin/");
       },
       onError: (error: any) => {

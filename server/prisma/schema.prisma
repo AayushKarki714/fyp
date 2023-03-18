@@ -155,7 +155,7 @@ model GalleryContainer {
     workspaceId     String
     createdAt       DateTime  @default(now())
     Photo           Photo[]
-    user            User      @relation(fields: [createdByUserId], references: [id])
+    user            User      @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
     createdByUserId String
 }
 
@@ -166,7 +166,7 @@ model ProgressContainer {
     workspaceId     String
     createdAt       DateTime   @default(now())
     Progress        Progress[]
-    user            User       @relation(fields: [createdByUserId], references: [id])
+    user            User       @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
     createdByUserId String
 }
 
@@ -176,7 +176,7 @@ model Progress {
     progressPercent     Int
     progressContainer   ProgressContainer @relation(fields: [progressContainerId], references: [id], onDelete: Cascade)
     progressContainerId String
-    user                User              @relation(fields: [createdByUserId], references: [id])
+    user                User              @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
     createdByUserId     String
 }
 
@@ -185,7 +185,7 @@ model Photo {
     url                String
     galleryContainer   GalleryContainer @relation(fields: [galleryContainerId], references: [id], onDelete: Cascade)
     galleryContainerId String
-    user               User             @relation(fields: [uploadedByUserId], references: [id])
+    user               User             @relation(fields: [uploadedByUserId], references: [id], onDelete: Cascade)
     uploadedByUserId   String
 }
 
@@ -196,7 +196,7 @@ model TodoContainer {
     workspaceId     String
     createdAt       DateTime   @default(now())
     TodoCard        TodoCard[]
-    user            User       @relation(fields: [createdByUserId], references: [id])
+    user            User       @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
     createdByUserId String
 }
 
@@ -207,7 +207,7 @@ model TodoCard {
     todoContainer   TodoContainer @relation(fields: [todoContainerId], references: [id], onDelete: Cascade)
     todoContainerId String
     Todo            Todo[]
-    user            User          @relation(fields: [createdByUserId], references: [id])
+    user            User          @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
     createdByUserId String
 
     @@unique([id, todoContainerId])
@@ -225,7 +225,7 @@ model Todo {
     comments        Comment[]
     todoCard        TodoCard  @relation(fields: [todoCardId], references: [id], onDelete: Cascade)
     todoCardId      String
-    user            User      @relation(fields: [createdByUserId], references: [id])
+    user            User      @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
     createdByUserId String
 
     @@unique([id, todoCardId])

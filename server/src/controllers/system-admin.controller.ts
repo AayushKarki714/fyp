@@ -11,7 +11,6 @@ async function handleSystemAdminLogin(
   next: NextFunction
 ) {
   const { username, password } = req.body;
-  console.log({ username, password });
   if (!username || !password)
     throw new Api400Error("Username and Password must be Provided!!");
 
@@ -23,20 +22,53 @@ async function handleSystemAdminLogin(
   await verifyPassword(password, systemAdmin.password);
   const token = generateToken({ id: systemAdmin.id });
 
+  return res.status(200).json({
+    message: "Logged in SuccessFully as a System Admin",
+    data: { token, id: systemAdmin.id, username: systemAdmin.username },
+  });
+}
+
+async function getAllRegisteredUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const registeredUser = await prisma.user.findMany();
+  return res.json({
+    message: "All Registered User Fetched Successfully",
+    data: registeredUser,
+  });
+}
+
+async function getAllWorkspace(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const workspaces = await prisma.workspace.findMany({
+    include: {
+      Member: true,
+    },
+  });
+  return res.json({
+    message: "All Registered User Fetched Successfully",
+    data: workspaces,
+  });
+}
+
+async function deRegisterUser(req: Request, res: Response, next: NextFunction) {
+  const { userId } = req.params;
+  console.log({ userId });
+  const deletedUser = await prisma.user.delete({ where: { id: userId } });
+  console.log({ deletedUser });
   return res
     .status(200)
-    .json({ message: "Logged in SuccessFully as a System Admin", token });
+    .json({ message: "De-Registered User Successfully", data: deletedUser });
 }
 
-async function getAdmin(req: Request, res: Response, next: NextFunction) {
-  const id = (req as any).userId.id;
-  if (!id) throw new Api400Error("Id was not Provided");
-  const admin = await prisma.admin.findUnique({
-    where: { id },
-    select: { id: true, username: true },
-  });
-  if (!admin) throw new Api400Error("Admin was not Found");
-  return res.status(200).json({ message: "Admin Data", data: admin });
-}
-
-export { handleSystemAdminLogin, getAdmin };
+export {
+  handleSystemAdminLogin,
+  getAllRegisteredUser,
+  getAllWorkspace,
+  deRegisterUser,
+};

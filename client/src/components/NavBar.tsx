@@ -34,7 +34,6 @@ const NavBar: React.FC = () => {
     bg-[#27292a] border-b-4 border-[#333]
     "
     >
-      {" "}
       <h1 className="text-xl md:text-2xl">
         {" "}
         <Link to="/dashboard">ProjectZone</Link>{" "}

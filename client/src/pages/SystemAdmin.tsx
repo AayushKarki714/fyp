@@ -1,42 +1,107 @@
-import React, { useEffect } from "react";
-import { useQuery } from "react-query";
-import { useNavigate } from "react-router-dom";
-import systemAxios from "../api/systemAxios";
-import Spinner from "../components/Spinner/Spinner";
+import { ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
+import SystemAdminDashboard from "../components/SystemAdmin/SystemAdminDashboard";
+import UserAnalytics from "../components/SystemAdmin/UserAnalytics";
+import WorkspaceAnalytics from "../components/SystemAdmin/WorkspaceAnalytics";
 import { useSystemAdmin } from "../context/AdminContext";
+
+enum Tab {
+  DASHBOARD = "DASHBOARD",
+  USER = "USER",
+  WORKSPACE = "WORKSPACE",
+}
+
+interface TabbedButtonProps {
+  tabType: Tab;
+  setSelectedTab: any;
+  children: React.ReactNode;
+  selectedTab: Tab;
+}
+
+const TabbedButton: React.FC<TabbedButtonProps> = ({
+  children,
+  selectedTab,
+  tabType,
+  setSelectedTab,
+}) => {
+  const isActive =
+    selectedTab === tabType ? "text-custom-light-green" : "text-gray-400";
+  return (
+    <li className="mr-2" onClick={() => setSelectedTab(tabType)}>
+      <button
+        className={`p-4  ${isActive} bg-custom-light-dark rounded-t-lg active dark:bg-gray-800 dark:text-blue-500`}
+      >
+        {children}
+      </button>
+    </li>
+  );
+};
+
+const AdminNavBar: React.FC<any> = ({ logout }) => {
+  return (
+    <header>
+      <nav className="flex flex-shrink-0 items-center justify-between px-8 py-4 bg-custom-light-dark text-custom-light-green">
+        <h1 className="text-2xl">Admin Dashboard</h1>
+        <div>
+          <button
+            onClick={logout}
+            className="px-6 py-2 rounded-md  text-red-400 hover:text-red-600"
+          >
+            <ArrowLeftOnRectangleIcon className="h-8 w-8" />
+          </button>
+        </div>
+      </nav>
+    </header>
+  );
+};
 
 function SystemAdmin() {
   const navigate = useNavigate();
   const { setAdmin, admin } = useSystemAdmin();
-  const { data, isLoading } = useQuery("system-admin", async () => {
-    const res = await systemAxios.get("/system-admin");
-    return res.data;
-  });
-
-  useEffect(() => {
-    if (!admin && data) {
-      setAdmin(data?.data);
-    }
-  }, [admin, data, setAdmin]);
+  const [selectedTab, setSelectedTab] = useState<Tab>(Tab.DASHBOARD);
 
   const handleLogout = () => {
-    navigate("/system/admin/login");
-    localStorage.removeItem("token");
     setAdmin(null);
+    navigate("/system/admin/login", { replace: true });
   };
 
-  if (isLoading) return <Spinner isLoading={isLoading} />;
+  if (!admin) return <Navigate to={"/system/admin/login"} replace={true} />;
   return (
-    <div>
-      <h1 className="text-4xl">
-        Welcome to the Admin Dashboard,{admin?.username}
-      </h1>
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 px-6 py-2 rounded-md hover:brightness-90"
-      >
-        logout
-      </button>
+    <div className="flex flex-col h-full  ">
+      <AdminNavBar logout={handleLogout} />
+      <div className="px-5 flex flex-grow flex-col gap-4 overflow-y-scroll custom-scrollbar">
+        <ul className="flex mt-3  flex-wrap text-sm font-medium text-center text-gray-500 border-b border-custom-light-dark ">
+          <TabbedButton
+            tabType={Tab.DASHBOARD}
+            selectedTab={selectedTab}
+            setSelectedTab={() => {
+              setSelectedTab(Tab.DASHBOARD);
+            }}
+          >
+            Dashboard
+          </TabbedButton>
+          <TabbedButton
+            tabType={Tab.USER}
+            selectedTab={selectedTab}
+            setSelectedTab={() => setSelectedTab(Tab.USER)}
+          >
+            User
+          </TabbedButton>
+          <TabbedButton
+            tabType={Tab.WORKSPACE}
+            selectedTab={selectedTab}
+            setSelectedTab={() => setSelectedTab(Tab.WORKSPACE)}
+          >
+            Workspace
+          </TabbedButton>
+        </ul>
+        <div>
+          {selectedTab === Tab.DASHBOARD && <SystemAdminDashboard />}
+          {selectedTab === Tab.USER && <UserAnalytics />}
+          {selectedTab === Tab.WORKSPACE && <WorkspaceAnalytics />}
+        </div>
+      </div>
     </div>
   );
 }
