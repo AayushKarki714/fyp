@@ -2,6 +2,7 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 import { useQuery } from "react-query";
 import systemAxios from "../../api/systemAxios";
 import { useSystemAdmin } from "../../context/AdminContext";
+import { Role } from "../../redux/slices/workspaceSlice";
 
 interface AdditionalWorkspaceDetailsProps {
   workspaceId: string;
@@ -27,24 +28,24 @@ const AdditionalWorkspaceDetails: React.FC<AdditionalWorkspaceDetailsProps> = ({
   return (
     <div className="self-stretch  flex flex-col gap-2">
       <div>
-        <p>
-          <span>GalleryContainer Count:</span>
+        <p className="flex items-center gap-2 text-gray-300 hover:text-custom-light-green">
+          <span>GalleryContainer :</span>
           <span>{data?.galleryContainerCount}</span>
         </p>
       </div>
       <div>
-        <p>
-          <span>TodoContainer Count:</span>
+        <p className="flex items-center gap-2 text-gray-300 hover:text-custom-light-green">
+          <span>TodoContainer :</span>
           <span>{data?.todoContainerCount}</span>
         </p>
       </div>
       <div>
-        <p>
-          <span>ProgressContainer Count:</span>
+        <p className="flex items-center gap-2 text-gray-300 hover:text-custom-light-green">
+          <span>ProgressContainer :</span>
           <span>{data?.progressContainerCount}</span>
         </p>
       </div>
-      <div className="mt-4 flex flex-col gap-2">
+      <div className="mt-4 flex flex-col gap-2 text-gray-300">
         <h2>Members:</h2>
         <div className="flex flex-col gap-3">
           {data?.members.map((member: any, index: number) => {
@@ -63,8 +64,19 @@ const AdditionalWorkspaceDetails: React.FC<AdditionalWorkspaceDetailsProps> = ({
                     alt={member.user.userName}
                   />
                 </figure>
-                <div className="flex items-center flex-grow justify-between">
+                <div className="flex flex-col gap-1 items-start  flex-grow ">
                   <p>{member.user.userName}</p>
+                  <p
+                    className={`text-xs px-4 py-1 ${
+                      member.role === Role.ADMIN
+                        ? "bg-red-600"
+                        : member.role === Role.LANCER
+                        ? "bg-custom-light-green"
+                        : "bg-blue-600"
+                    }  text-white rounded-md`}
+                  >
+                    {member.role}
+                  </p>
                 </div>
               </div>
             );

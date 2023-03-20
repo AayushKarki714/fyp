@@ -42,7 +42,7 @@ const DeleteWorkspaceCard = ({ name, id, logo, index }: any) => {
         src={logo}
         alt={name}
       />
-      <h2 className="text-4xl">{name}</h2>
+      <h2 className="text-4xl text-gray-300">{name}</h2>
       <button
         onClick={() => mutate()}
         className="bg-red-600 self-stretch px-6 py-2 text-white rounded-md"
@@ -51,7 +51,9 @@ const DeleteWorkspaceCard = ({ name, id, logo, index }: any) => {
       </button>
       <button
         onClick={() => setExpand((prevVal) => !prevVal)}
-        className="flex text-gray-300 opacity-70 self-end items-center gap-1 text-xs mt-4 hover:text-custom-light-green"
+        className={`flex ${
+          expand ? "text-custom-light-green" : "text-gray-300 opacity-70"
+        }  self-end items-center gap-1 text-xs mt-4 `}
       >
         <span>
           {expand ? (

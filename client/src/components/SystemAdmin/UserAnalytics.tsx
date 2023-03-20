@@ -2,10 +2,34 @@ import { AnimatePresence } from "framer-motion";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import systemAxios from "../../api/systemAxios";
 import Spinner from "../Spinner/Spinner";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { useSystemAdmin } from "../../context/AdminContext";
 
-function DeRegisterCard({ email, userName, id, photo, index }: any) {
+const variants: Variants = {
+  initial: {},
+  animate: {
+    transition: {
+      staggerChildren: 0.3,
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  initial: {
+    opacity: 0,
+    y: "100%",
+  },
+  animate: {
+    opacity: 0,
+    y: "100%",
+    transition: {
+      duration: 0.4,
+      type: "tween",
+    },
+  },
+};
+
+function DeRegisterCard({ email, userName, id, photo }: any) {
   const { admin } = useSystemAdmin();
   const queryClient = useQueryClient();
   const { mutate } = useMutation(
@@ -28,25 +52,18 @@ function DeRegisterCard({ email, userName, id, photo, index }: any) {
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 0.1 * index, duration: 0.3 }}
-      className="flex  text-center flex-col bg-custom-light-dark  rounded-md gap-5 p-6 hover:-translate-y-2 transition-all duration-200  cursor-pointer hover:shadow-lg"
-    >
-      <figure className="w-20 h-20 mx-auto rounded-full overflow-hidden">
+    <motion.div className="flex  bg-custom-light-dark items-center  rounded-md gap-3 p-3 hover:-translate-y-2 transition-all duration-200  cursor-pointer hover:shadow-lg">
+      <figure className="w-16 h-16 flex-shrink-0  rounded-full overflow-hidden">
         <img referrerPolicy="no-referrer" src={photo} alt={userName} />
       </figure>
-      <div className="flex flex-col gap-2">
-        <h2 className="text-2xl text-custom-light-green">{userName}</h2>
-        <p>{email}</p>
-      </div>
-      <div>
+      <div className="flex flex-col gap-1">
+        <h2 className="text-lg text-custom-light-green">{userName}</h2>
+        <p className="text-sm">{email}</p>
         <button
           onClick={() => mutate()}
-          className="bg-red-600 px-4 py-3 text-white rounded-md"
+          className="bg-red-600 text-sm mt-2 self-start  px-3 py-1 flex items-center justify-center text-white rounded-md"
         >
-          De-Register
+          Delete
         </button>
       </div>
     </motion.div>
