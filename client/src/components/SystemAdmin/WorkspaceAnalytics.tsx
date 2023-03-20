@@ -34,7 +34,7 @@ const DeleteWorkspaceCard = ({ name, id, logo, index }: any) => {
       initial={{ opacity: 0, scale: 0 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.1 * index, duration: 0.3 }}
-      className="bg-custom-light-dark flex items-center flex-col gap-3 p-6 rounded-md"
+      className="bg-custom-black border-2 border-custom-light-dark flex items-center flex-col gap-3 p-6 rounded-md"
     >
       <img
         className="w-28 h-28 rounded-full border-2 border-custom-light-green"

@@ -9,7 +9,7 @@ const variants: Variants = {
   initial: {},
   animate: {
     transition: {
-      staggerChildren: 0.3,
+      staggerChildren: 0.1,
     },
   },
 };
@@ -17,13 +17,14 @@ const variants: Variants = {
 const itemVariants: Variants = {
   initial: {
     opacity: 0,
-    y: "100%",
+    scale: 0,
   },
   animate: {
-    opacity: 0,
-    y: "100%",
+    opacity: 1,
+    scale: 1,
     transition: {
-      duration: 0.4,
+      duration: 0.1,
+      ease: "linear",
       type: "tween",
     },
   },
@@ -52,7 +53,10 @@ function DeRegisterCard({ email, userName, id, photo }: any) {
   );
 
   return (
-    <motion.div className="flex  bg-custom-light-dark items-center  rounded-md gap-3 p-3 hover:-translate-y-2 transition-all duration-200  cursor-pointer hover:shadow-lg">
+    <motion.div
+      variants={itemVariants}
+      className="flex  bg-custom-black border-custom-light-dark border-2 items-center  rounded-md gap-3 p-3 hover:!-translate-y-2 transition-all duration-200  cursor-pointer hover:shadow-lg"
+    >
       <figure className="w-16 h-16 flex-shrink-0  rounded-full overflow-hidden">
         <img referrerPolicy="no-referrer" src={photo} alt={userName} />
       </figure>
@@ -82,7 +86,12 @@ function UserAnalytics() {
   if (isLoading) return <Spinner isLoading={isLoading} />;
 
   return (
-    <div className="grid grid-cols-responsive-todo gap-6">
+    <motion.div
+      variants={variants}
+      initial="initial"
+      animate="animate"
+      className="grid grid-cols-responsive-todo gap-6"
+    >
       {data?.map((user: any, index: number) => (
         <AnimatePresence key={user.id}>
           <DeRegisterCard
@@ -94,7 +103,7 @@ function UserAnalytics() {
           />
         </AnimatePresence>
       ))}
-    </div>
+    </motion.div>
   );
 }
 
