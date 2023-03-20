@@ -2,6 +2,7 @@ import express from "express";
 import {
   deleteWorkspace,
   deRegisterUser,
+  getAdditionalWorkspaceDetails,
   getAllRegisteredUser,
   getAllWorkspace,
   getTotalWorkspaceandUser,
@@ -42,6 +43,12 @@ systemAdminRouter.get(
   "/workspace/user/count",
   catchAsyncErrors(verifyToken),
   catchAsyncErrors(getTotalWorkspaceandUser)
+);
+
+systemAdminRouter.get(
+  "/:workspaceId/additional-details",
+  catchAsyncErrors(verifyToken),
+  catchAsyncErrors(getAdditionalWorkspaceDetails)
 );
 
 export default systemAdminRouter;

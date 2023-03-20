@@ -5,6 +5,10 @@ import Api401Error from "../utils/api401Error";
 import generateToken from "../utils/generateToken";
 import verifyPassword from "../utils/verifyPassword";
 
+function decodeCount(countObj: any) {
+  return countObj._count._all ?? 0;
+}
+
 async function handleSystemAdminLogin(
   req: Request,
   res: Response,
@@ -45,23 +49,7 @@ async function getAllWorkspace(
   res: Response,
   next: NextFunction
 ) {
-  const workspaces = await prisma.workspace.findMany({
-    include: {
-      Member: {
-        where: {
-          recieverInvitations: {
-            some: {
-              status: "ACCEPTED",
-            },
-          },
-        },
-        include: {
-          user: true,
-        },
-      },
-    },
-  });
-
+  const workspaces = await prisma.workspace.findMany({});
   return res.json({
     message: "All Registered User Fetched Successfully",
     data: workspaces,
@@ -109,12 +97,73 @@ async function getTotalWorkspaceandUser(
       _all: true,
     },
   });
-  const userCount = user._count._all;
-  const workspaceCount = workspace._count._all;
+  const userCount = user._count._all ?? 0;
+  const workspaceCount = workspace._count._all ?? 0;
 
   return res.status(200).json({
     message: "Count Fetched Successfully",
     data: { userCount, workspaceCount },
+  });
+}
+
+async function getAdditionalWorkspaceDetails(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { workspaceId } = req.params;
+
+  const todoContainer = await prisma.todoContainer.aggregate({
+    where: {
+      workspaceId,
+    },
+    _count: {
+      _all: true,
+    },
+  });
+
+  const progressContainer = await prisma.progressContainer.aggregate({
+    where: {
+      workspaceId,
+    },
+    _count: {
+      _all: true,
+    },
+  });
+
+  const galleryContainer = await prisma.galleryContainer.aggregate({
+    where: {
+      workspaceId,
+    },
+    _count: {
+      _all: true,
+    },
+  });
+
+  const members = await prisma.member.findMany({
+    where: {
+      workspaceId,
+    },
+    include: {
+      recieverInvitations: {
+        where: {
+          status: {
+            in: ["ACCEPTED"],
+          },
+        },
+      },
+      user: true,
+    },
+  });
+
+  return res.status(200).json({
+    message: "fetched Successfully",
+    data: {
+      members,
+      galleryContainerCount: decodeCount(galleryContainer),
+      todoContainerCount: decodeCount(todoContainer),
+      progressContainerCount: decodeCount(progressContainer),
+    },
   });
 }
 
@@ -125,4 +174,5 @@ export {
   deRegisterUser,
   deleteWorkspace,
   getTotalWorkspaceandUser,
+  getAdditionalWorkspaceDetails,
 };

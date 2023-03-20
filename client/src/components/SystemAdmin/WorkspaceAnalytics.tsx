@@ -5,22 +5,9 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import systemAxios from "../../api/systemAxios";
 import { useSystemAdmin } from "../../context/AdminContext";
 import Spinner from "../Spinner/Spinner";
+import AdditionalWorkspaceDetails from "./AdditionalWorkspaceDetails";
 
-const MembersAvatar = ({ member }: any) => {
-  return (
-    <div
-      key={member.id}
-      className="flex cursor-pointer bg-custom-black items-center  gap-2 border-2 border-custom-light-dark rounded-full p-1"
-      title={member.user.userName}
-    >
-      <figure className="w-12 h-12 rounded-full overflow-hidden">
-        <img src={member.user.photo} alt={member.user.userName} />
-      </figure>
-    </div>
-  );
-};
-
-const DeleteWorkspaceCard = ({ members, name, id, logo, index }: any) => {
+const DeleteWorkspaceCard = ({ name, id, logo, index }: any) => {
   const { admin } = useSystemAdmin();
   const [expand, setExpand] = useState(false);
   const queryClient = useQueryClient();
@@ -75,13 +62,7 @@ const DeleteWorkspaceCard = ({ members, name, id, logo, index }: any) => {
         </span>
         View Details
       </button>
-      {expand && (
-        <div className="self-start flex flex-wrap">
-          {members.map((member: any) => (
-            <MembersAvatar key={member.id} member={member} />
-          ))}
-        </div>
-      )}
+      {expand && <AdditionalWorkspaceDetails workspaceId={id} />}
     </motion.div>
   );
 };
@@ -97,20 +78,21 @@ function WorkspaceAnalytics() {
 
   if (isLoading) return <Spinner isLoading={isLoading} />;
   return (
-    <div className="grid items-start grid-cols-responsive-todo gap-6">
-      {data.map((workspace: any, index: number) => {
-        return (
-          <AnimatePresence key={workspace.id}>
+    <div className="grid items-start grid-cols-responsive-todo gap-6 pb-5">
+      <AnimatePresence>
+        {data.map((workspace: any, index: number) => {
+          return (
             <DeleteWorkspaceCard
+              key={workspace.id}
               index={index}
               id={workspace.id}
               logo={workspace.logo}
               members={workspace.Member}
               name={workspace.name}
             />
-          </AnimatePresence>
-        );
-      })}
+          );
+        })}
+      </AnimatePresence>
     </div>
   );
 }
