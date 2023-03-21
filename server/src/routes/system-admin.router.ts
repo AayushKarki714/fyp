@@ -6,6 +6,7 @@ import {
   getAllRegisteredUser,
   getAllWorkspace,
   getTotalWorkspaceandUser,
+  getUsersRegisteredByMonth,
   handleSystemAdminLogin,
 } from "../controllers/system-admin.controller";
 import verifyToken from "../middlewares/verifyToken";
@@ -49,6 +50,12 @@ systemAdminRouter.get(
   "/:workspaceId/additional-details",
   catchAsyncErrors(verifyToken),
   catchAsyncErrors(getAdditionalWorkspaceDetails)
+);
+
+systemAdminRouter.get(
+  "/userbymonth",
+  catchAsyncErrors(verifyToken),
+  catchAsyncErrors(getUsersRegisteredByMonth)
 );
 
 export default systemAdminRouter;

@@ -9,6 +9,21 @@ function decodeCount(countObj: any) {
   return countObj._count._all ?? 0;
 }
 
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 async function handleSystemAdminLogin(
   req: Request,
   res: Response,
@@ -167,6 +182,45 @@ async function getAdditionalWorkspaceDetails(
   });
 }
 
+async function getUsersRegisteredByMonth(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const startOfYear = new Date(new Date().getFullYear(), 0, 1); // January 1st of this year
+  const endOfYear = new Date(new Date().getFullYear() + 1, 0, 1); // January 1st
+
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      createdAt: true,
+    },
+    where: {
+      createdAt: {
+        gte: startOfYear,
+        lt: endOfYear,
+      },
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+
+  const usersByMonth = users.reduce((acc: any, user) => {
+    const monthIdx = user.createdAt.getMonth();
+    const key = months[monthIdx];
+    if (!acc[key]) {
+      acc[key] = 0;
+    }
+    acc[key]++;
+    return acc;
+  }, {});
+
+  return res
+    .status(200)
+    .json({ message: "data fetched successfully", data: usersByMonth });
+}
+
 export {
   handleSystemAdminLogin,
   getAllRegisteredUser,
@@ -175,4 +229,5 @@ export {
   deleteWorkspace,
   getTotalWorkspaceandUser,
   getAdditionalWorkspaceDetails,
+  getUsersRegisteredByMonth,
 };

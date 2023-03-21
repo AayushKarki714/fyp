@@ -3,9 +3,11 @@ import { useQuery } from "react-query";
 import systemAxios from "../../api/systemAxios";
 import { useSystemAdmin } from "../../context/AdminContext";
 import Spinner from "../Spinner/Spinner";
+import UserChart from "./UserChart";
 
 function SystemAdminDashboard() {
   const { admin } = useSystemAdmin();
+
   const { data, isLoading } = useQuery("total-count", async () => {
     const res = await systemAxios.get("/system-admin/workspace/user/count", {
       headers: {
@@ -15,7 +17,22 @@ function SystemAdminDashboard() {
     return res.data?.data;
   });
 
+  const { data: userChartData, isLoading: isUserChartDataLoading } = useQuery(
+    "user-chart-data",
+    async () => {
+      const res = await systemAxios.get("/system-admin/userbymonth", {
+        headers: {
+          authorization: `Bearer ${(admin as any).token}`,
+        },
+      });
+      return res.data?.data;
+    }
+  );
+
   if (isLoading) return <Spinner isLoading={isLoading} />;
+  if (isUserChartDataLoading)
+    return <Spinner isLoading={isUserChartDataLoading} />;
+  console.log({ userChartData });
   return (
     <div>
       <div className="flex gap-8 items-center justify-center">
@@ -32,6 +49,7 @@ function SystemAdminDashboard() {
           </p>
         </div>
       </div>
+      <UserChart data={userChartData} />
     </div>
   );
 }

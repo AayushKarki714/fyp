@@ -15,6 +15,7 @@ model User {
     userName              String
     email                 String              @unique
     photo                 String
+    createdAt             DateTime            @default(now())
     Member                Member[]
     Workspace             Workspace[]
     comments              Comment[]
