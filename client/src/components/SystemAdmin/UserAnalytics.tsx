@@ -1,9 +1,11 @@
 import { AnimatePresence } from "framer-motion";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import systemAxios from "../../api/systemAxios";
+import { useState } from "react";
 import Spinner from "../Spinner/Spinner";
 import { motion, Variants } from "framer-motion";
 import { useSystemAdmin } from "../../context/AdminContext";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 const variants: Variants = {
   initial: {},
@@ -74,36 +76,73 @@ function DeRegisterCard({ email, userName, id, photo }: any) {
   );
 }
 
-function UserAnalytics() {
-  const { admin } = useSystemAdmin();
-  const { data, isLoading } = useQuery("user-analytics", async () => {
-    const res = await systemAxios.get("/system-admin/all/users", {
-      headers: { authorization: `Bearer ${(admin as any).token}` },
-    });
-    return res.data?.data;
+async function fetchUserDetails(page: number, admin: any) {
+  const res = await systemAxios.get(`/system-admin/all/users/?page=${page}`, {
+    headers: { authorization: `Bearer ${(admin as any).token}` },
   });
+  return res.data?.data;
+}
+
+function UserAnalytics() {
+  const [page, setPage] = useState(1);
+  const pageCount = 10;
+  const { admin } = useSystemAdmin();
+  const queryClient = useQueryClient();
+  const totalCount: any = queryClient.getQueryData("total-count");
+  const totalPage = Math.ceil(totalCount.userCount / pageCount);
+
+  const { data, isLoading } = useQuery(`user-analytics-${page}`, () =>
+    fetchUserDetails(page, admin)
+  );
+
+  const nextPageHandler = () => {
+    setPage((prevPage) => (prevPage === totalPage ? prevPage : prevPage + 1));
+  };
+
+  const prevPageHandler = () => {
+    setPage((prevPage) => (prevPage === 1 ? prevPage : prevPage - 1));
+  };
 
   if (isLoading) return <Spinner isLoading={isLoading} />;
-
   return (
-    <motion.div
-      variants={variants}
-      initial="initial"
-      animate="animate"
-      className="grid grid-cols-responsive-todo gap-6"
-    >
-      {data?.map((user: any, index: number) => (
-        <AnimatePresence key={user.id}>
-          <DeRegisterCard
-            index={index}
-            email={user.email}
-            userName={user.userName}
-            photo={user.photo}
-            id={user.id}
-          />
-        </AnimatePresence>
-      ))}
-    </motion.div>
+    <div className="flex flex-col gap-6">
+      <motion.div
+        variants={variants}
+        initial="initial"
+        animate="animate"
+        className="grid grid-cols-responsive-todo gap-6"
+      >
+        {data?.map((user: any, index: number) => (
+          <AnimatePresence key={user.id}>
+            <DeRegisterCard
+              index={index}
+              email={user.email}
+              userName={user.userName}
+              photo={user.photo}
+              id={user.id}
+            />
+          </AnimatePresence>
+        ))}
+      </motion.div>
+
+      <div className="flex flex-row items-center justify-center  gap-6">
+        <button
+          onClick={prevPageHandler}
+          className="w-10 h-10 rounded-full disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center bg-custom-light-green cursor-pointer"
+          disabled={page === 1}
+        >
+          <ChevronLeftIcon className="h-5 w-5 text-white" />
+        </button>
+        <span className="text-custom-light-green">{page}</span>
+        <button
+          onClick={nextPageHandler}
+          className="w-10 h-10 bg-custom-light-green disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center rounded-full cursor-pointer"
+          disabled={page === totalPage}
+        >
+          <ChevronRightIcon className="h-5 w-5 text-white" />
+        </button>
+      </div>
+    </div>
   );
 }
 

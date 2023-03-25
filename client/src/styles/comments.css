@@ -88,7 +88,7 @@ button {
   bottom: 0;
   left: 50%;
   width: 1px;
-  background-color: hsl(235, 50%, 74%);
+  background-color: #8ad85c;
   transition: background-color 100ms ease-in-out;
 }
 
@@ -100,7 +100,7 @@ button {
   --hue: 235;
   --color: hsl(var(--hue), 100%, 67%);
   padding: 0.5em 1em;
-  background: var(--color);
+  background-color: #8ad85c;
   border: none;
   color: white;
   border-radius: 0.5em;

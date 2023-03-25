@@ -1,9 +1,9 @@
-import React from "react";
 import { useQuery } from "react-query";
 import systemAxios from "../../api/systemAxios";
 import { useSystemAdmin } from "../../context/AdminContext";
 import Spinner from "../Spinner/Spinner";
 import UserChart from "./UserChart";
+import WorkspaceChart from "./WorkspaceChart";
 
 function SystemAdminDashboard() {
   const { admin } = useSystemAdmin();
@@ -29,10 +29,21 @@ function SystemAdminDashboard() {
     }
   );
 
+  const { data: workspaceChartData, isLoading: isWorkspaceChartLoading } =
+    useQuery("workspace-chart-data", async () => {
+      const res = await systemAxios.get("/system-admin/workspacebyMonth", {
+        headers: {
+          authorization: `Bearer ${(admin as any).token}`,
+        },
+      });
+      return res.data?.data;
+    });
+
   if (isLoading) return <Spinner isLoading={isLoading} />;
   if (isUserChartDataLoading)
     return <Spinner isLoading={isUserChartDataLoading} />;
-  console.log({ userChartData });
+  if (isWorkspaceChartLoading)
+    return <Spinner isLoading={isWorkspaceChartLoading} />;
   return (
     <div>
       <div className="flex gap-8 items-center justify-center">
@@ -50,6 +61,7 @@ function SystemAdminDashboard() {
         </div>
       </div>
       <UserChart data={userChartData} />
+      <WorkspaceChart data={workspaceChartData} />
     </div>
   );
 }

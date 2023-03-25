@@ -114,6 +114,9 @@ const ProgressContainer: React.FC<Props> = ({
 
   const handleProgressUpload = (data: any) => {
     console.log("handleProgressUpload", data);
+    const { progressPercent } = data;
+    if (Number(progressPercent) > 100 || Number(progressPercent) < 0)
+      return toast("Percentage can be from  0 to 100");
     progressMutation.mutate(data);
   };
 

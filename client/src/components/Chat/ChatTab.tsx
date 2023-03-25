@@ -22,17 +22,7 @@ import axios from "../../api/axios";
 import ChatMessage from "./ChatMessage";
 import isTypingData from "../../lotties/isTyping.json";
 import Lottie from "lottie-react";
-import {
-  MoonLoader,
-  ClipLoader,
-  DotLoader,
-  FadeLoader,
-  PropagateLoader,
-  RingLoader,
-  BarLoader,
-  RiseLoader,
-  SyncLoader,
-} from "react-spinners";
+import { ClipLoader } from "react-spinners";
 
 interface ChatTabProps {
   socket: any;
@@ -221,11 +211,6 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
           <div ref={bottomRef} />
         </div>
         <div className="relative flex items-center gap-3 p-2 border-t-2 border-dark-gray">
-          <label className="flex items-center cursor-pointer">
-            <input className="w-0 h-0" type="file" accept="image/*" />
-            <PhotoIcon className="h-6" />
-          </label>
-
           <form
             id="submit-message"
             className="flex items-center flex-grow"

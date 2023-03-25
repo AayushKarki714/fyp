@@ -52,7 +52,12 @@ async function getAllRegisteredUser(
   res: Response,
   next: NextFunction
 ) {
-  const registeredUser = await prisma.user.findMany();
+  const { page } = req.query;
+  const pageCount = 10;
+  const registeredUser = await prisma.user.findMany({
+    skip: (Number(page) - 1) * pageCount,
+    take: pageCount,
+  });
   return res.json({
     message: "All Registered User Fetched Successfully",
     data: registeredUser,
@@ -64,7 +69,13 @@ async function getAllWorkspace(
   res: Response,
   next: NextFunction
 ) {
-  const workspaces = await prisma.workspace.findMany({});
+  const { page } = req.query;
+  const pageCount = 4;
+  const workspaces = await prisma.workspace.findMany({
+    skip: (Number(page) - 1) * pageCount,
+    take: pageCount,
+  });
+
   return res.json({
     message: "All Registered User Fetched Successfully",
     data: workspaces,
@@ -221,6 +232,35 @@ async function getUsersRegisteredByMonth(
     .json({ message: "data fetched successfully", data: usersByMonth });
 }
 
+async function getWorkspaceRegisteredByMonth(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const startOfYear = new Date(new Date().getFullYear(), 0, 1);
+  const endOfYear = new Date(new Date().getFullYear() + 1, 0, 1);
+  const workspaces = await prisma.workspace.findMany({
+    where: {
+      createdAt: {
+        gte: startOfYear,
+        lte: endOfYear,
+      },
+    },
+  });
+  const workspaceByMonth = workspaces.reduce((acc: any, workspace) => {
+    const monthIdx = workspace.createdAt.getMonth();
+    const key = months[monthIdx];
+    if (!acc[key]) {
+      acc[key] = 0;
+    }
+    acc[key]++;
+    return acc;
+  }, {});
+  return res
+    .status(200)
+    .json({ message: "Workspace by Month", data: workspaceByMonth });
+}
+
 export {
   handleSystemAdminLogin,
   getAllRegisteredUser,
@@ -230,4 +270,5 @@ export {
   getTotalWorkspaceandUser,
   getAdditionalWorkspaceDetails,
   getUsersRegisteredByMonth,
+  getWorkspaceRegisteredByMonth,
 };

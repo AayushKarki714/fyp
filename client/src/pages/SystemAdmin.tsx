@@ -96,7 +96,7 @@ function SystemAdmin() {
             Workspace
           </TabbedButton>
         </ul>
-        <div>
+        <div className="h-full w-full pb-6">
           {selectedTab === Tab.DASHBOARD && <SystemAdminDashboard />}
           {selectedTab === Tab.USER && <UserAnalytics />}
           {selectedTab === Tab.WORKSPACE && <WorkspaceAnalytics />}

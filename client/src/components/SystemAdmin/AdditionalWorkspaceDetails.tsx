@@ -1,4 +1,3 @@
-import { TrashIcon } from "@heroicons/react/24/outline";
 import { useQuery } from "react-query";
 import systemAxios from "../../api/systemAxios";
 import { useSystemAdmin } from "../../context/AdminContext";

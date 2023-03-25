@@ -31,9 +31,9 @@ async function getAllMembersInChat(
 ) {
   const { userId, chatId, workspaceId, chatType } = req.params;
   checkIfUserIdMatches(req, userId);
-
   const allowedRoles = getAllowedRole(chatType as ChatType);
   await verifyRole(allowedRoles, workspaceId, userId);
+
   const findChat = await prisma.chat.findUnique({ where: { id: chatId } });
 
   if (findChat?.workspaceId !== workspaceId)
@@ -64,9 +64,7 @@ async function getAllMembersInChat(
     },
   });
 
-  return res
-    .status(200)
-    .json({ message: "Members Fetches Sucessfully", data: allMembers });
+  return res.status(200).json({ data: allMembers });
 }
 
 async function handleSendMessageInChat(
