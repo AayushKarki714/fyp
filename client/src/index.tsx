@@ -8,6 +8,7 @@ import "./styles/tailwind.css";
 import { store } from "./redux/store/store";
 import { Provider } from "react-redux";
 import CustomSwitch from "./components/CustomSwitch";
+import AdminContextProvider from "./context/AdminContext";
 
 const queryClient = new QueryClient();
 const container = document.getElementById("root") as HTMLDivElement;
@@ -15,12 +16,14 @@ const root = createRoot(container);
 
 root.render(
   <BrowserRouter>
-    <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <CustomSwitch>
-          <App />
-        </CustomSwitch>
-      </QueryClientProvider>
-    </Provider>
+    <AdminContextProvider>
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          <CustomSwitch>
+            <App />
+          </CustomSwitch>
+        </QueryClientProvider>
+      </Provider>
+    </AdminContextProvider>
   </BrowserRouter>
 );

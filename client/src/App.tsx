@@ -18,7 +18,6 @@ import SystemAdminLogin from "./pages/SystemAdminLogin";
 import SystemAdmin from "./pages/SystemAdmin";
 import AdminContextProvider from "./context/AdminContext";
 import WorkspaceDetailed from "./pages/WorkspaceDetailed";
-import UserDetailed from "./pages/UserDetailed";
 
 const Login = React.lazy(() => import("./pages/Login"));
 const NotFound = React.lazy(() => import("./pages/404"));
@@ -47,30 +46,8 @@ const App: React.FC = () => {
     <main className="h-screen overflow-hidden bg-[#18191a] font-poppins text-base">
       {/* All the System Admin Related code are here */}
       <Routes>
-        <Route
-          path="/system/admin/login"
-          element={
-            <AdminContextProvider>
-              <SystemAdminLogin />
-            </AdminContextProvider>
-          }
-        />
-        <Route
-          path="/system/admin"
-          element={
-            <AdminContextProvider>
-              <SystemAdmin />
-            </AdminContextProvider>
-          }
-        />
-        <Route
-          path="/system/admin/workspace/:workspaceId"
-          element={
-            <AdminContextProvider>
-              <WorkspaceDetailed />
-            </AdminContextProvider>
-          }
-        />
+        <Route path="/system/admin/login" element={<SystemAdminLogin />} />
+        <Route path="/system/admin" element={<SystemAdmin />} />
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />}>
           <Route element={<NestedLayout />}>

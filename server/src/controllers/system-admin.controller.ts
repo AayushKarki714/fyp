@@ -1,9 +1,10 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response, query } from "express";
 import Api400Error from "../utils/api400Error";
 import prisma from "../utils/prisma";
 import Api401Error from "../utils/api401Error";
 import generateToken from "../utils/generateToken";
 import verifyPassword from "../utils/verifyPassword";
+import { User } from "@prisma/client";
 
 function decodeCount(countObj: any) {
   return countObj._count._all ?? 0;
@@ -335,11 +336,26 @@ async function getUserBySearch(
 ) {
   const { searchTerm } = req.params;
   if (!searchTerm) throw new Api400Error("Search Term was not Provided");
+
   const searchResults = await prisma.user.findMany({
     where: {
-      userName: {
-        contains: searchTerm,
-      },
+      OR: [
+        {
+          userName: {
+            contains: searchTerm.toUpperCase(),
+          },
+        },
+        {
+          userName: {
+            contains: searchTerm,
+          },
+        },
+        {
+          userName: {
+            contains: searchTerm.toLowerCase(),
+          },
+        },
+      ],
     },
   });
 

@@ -6,6 +6,7 @@ import SystemSearch from "../components/SystemAdmin/SystemSearch";
 import UserAnalytics from "../components/SystemAdmin/UserAnalytics";
 import WorkspaceAnalytics from "../components/SystemAdmin/WorkspaceAnalytics";
 import { useSystemAdmin } from "../context/AdminContext";
+import { useAppSelector } from "../redux/store/hooks";
 
 enum Tab {
   DASHBOARD = "DASHBOARD",
@@ -60,6 +61,7 @@ const AdminNavBar: React.FC<any> = ({ logout }) => {
 
 function SystemAdmin() {
   const navigate = useNavigate();
+  const { user } = useAppSelector((state) => state.auth);
   const { setAdmin, admin } = useSystemAdmin();
   const [selectedTab, setSelectedTab] = useState<Tab>(Tab.DASHBOARD);
 
@@ -68,6 +70,7 @@ function SystemAdmin() {
     navigate("/system/admin/login", { replace: true });
   };
 
+  if (user) return <Navigate to={"/login"} replace={true} />;
   if (!admin) return <Navigate to={"/system/admin/login"} replace={true} />;
   return (
     <div className="flex flex-col h-full  ">

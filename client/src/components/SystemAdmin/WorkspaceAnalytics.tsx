@@ -105,41 +105,50 @@ function WorkspaceAnalytics() {
   };
 
   if (isLoading) return <Spinner isLoading={isLoading} />;
+  console.log({ data });
   return (
-    <div className="flex flex-col  justify-center">
+    <div className="flex flex-col h-full justify-center">
       <div className="grid flex-grow w-full  items-start grid-cols-4 gap-6 pb-5">
         <AnimatePresence>
-          {data.map((workspace: any, index: number) => {
-            return (
-              <DeleteWorkspaceCard
-                key={workspace.id}
-                index={index}
-                id={workspace.id}
-                logo={workspace.logo}
-                members={workspace.Member}
-                name={workspace.name}
-              />
-            );
-          })}
+          {data.length > 0 ? (
+            data.map((workspace: any, index: number) => {
+              return (
+                <DeleteWorkspaceCard
+                  key={workspace.id}
+                  index={index}
+                  id={workspace.id}
+                  logo={workspace.logo}
+                  members={workspace.Member}
+                  name={workspace.name}
+                />
+              );
+            })
+          ) : (
+            <h2 className=" col-start-1 col-end-5 text-center mt-12 text-2xl text-gray-500">
+              Not any Workspace Registered in the System
+            </h2>
+          )}
         </AnimatePresence>
       </div>
-      <div className="flex flex-row items-center justify-center  gap-6">
-        <button
-          onClick={prevPageHandler}
-          className="w-10 h-10 rounded-full disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center bg-custom-light-green cursor-pointer"
-          disabled={page === 1}
-        >
-          <ChevronLeftIcon className="h-5 w-5 text-white" />
-        </button>
-        <span className="text-custom-light-green">{page}</span>
-        <button
-          onClick={nextPageHandler}
-          className="w-10 h-10 bg-custom-light-green disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center rounded-full cursor-pointer"
-          disabled={page === totalPage}
-        >
-          <ChevronRightIcon className="h-5 w-5 text-white" />
-        </button>
-      </div>
+      {data?.length > 0 && (
+        <div className="flex flex-row items-center justify-center  gap-6">
+          <button
+            onClick={prevPageHandler}
+            className="w-10 h-10 rounded-full disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center bg-custom-light-green cursor-pointer"
+            disabled={page === 1}
+          >
+            <ChevronLeftIcon className="h-5 w-5 text-white" />
+          </button>
+          <span className="text-custom-light-green">{page}</span>
+          <button
+            onClick={nextPageHandler}
+            className="w-10 h-10 bg-custom-light-green disabled:cursor-not-allowed disabled:opacity-60 flex items-center justify-center rounded-full cursor-pointer"
+            disabled={page === totalPage}
+          >
+            <ChevronRightIcon className="h-5 w-5 text-white" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
