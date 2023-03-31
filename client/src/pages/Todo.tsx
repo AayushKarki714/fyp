@@ -69,13 +69,23 @@ const TodoPage: React.FC = () => {
     <>
       <section className="relative  flex flex-col gap-3">
         <div className="flex gap-3 justify-end text-gray-400 ">
-          <button
-            className="hover:text-custom-light-green"
-            onMouseLeave={() => setShowInformation(false)}
-            onMouseEnter={() => setShowInformation(true)}
-          >
-            <InformationCircleIcon className="h-6 w-6" />
-          </button>
+          <div className="relative">
+            <button
+              className="hover:text-custom-light-green"
+              onMouseLeave={() => setShowInformation(false)}
+              onMouseEnter={() => setShowInformation(true)}
+            >
+              <InformationCircleIcon className="h-6 w-6" />
+            </button>
+            {showInformation && (
+              <AnimatePresence>
+                <ColorIndicator
+                  onMouseEnter={() => setShowInformation(true)}
+                  onMouseLeave={() => setShowInformation(false)}
+                />
+              </AnimatePresence>
+            )}
+          </div>
           {isAllowed && (
             <button
               className="flex items-center justify-center p-2 w-10 h-10 rounded-full  text-gray-400 hover:text-custom-light-green"
@@ -85,14 +95,6 @@ const TodoPage: React.FC = () => {
             </button>
           )}
         </div>
-        {showInformation && (
-          <AnimatePresence>
-            <ColorIndicator
-              onMouseEnter={() => setShowInformation(true)}
-              onMouseLeave={() => setShowInformation(false)}
-            />
-          </AnimatePresence>
-        )}
         <Overlay isOpen={isOpen} onClick={() => setIsOpen(false)}>
           <Modal onClick={() => setIsOpen(false)}>
             <CreateTodo onSubmit={handleOnCreateTodoContainer} />

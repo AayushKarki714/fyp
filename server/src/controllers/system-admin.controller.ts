@@ -261,6 +261,106 @@ async function getWorkspaceRegisteredByMonth(
     .json({ message: "Workspace by Month", data: workspaceByMonth });
 }
 
+async function getWorkspaceBySearch(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { searchTerm } = req.params;
+  if (!searchTerm) throw new Api400Error("Search Term was not Provided");
+  const searchResults = await prisma.workspace.findMany({
+    where: {
+      name: {
+        contains: searchTerm,
+      },
+    },
+    include: {
+      admin: {
+        select: {
+          photo: true,
+          email: true,
+          userName: true,
+        },
+      },
+    },
+  });
+  return res.status(200).json({
+    message: "Search Results Fetched Successfully",
+    data: searchResults,
+  });
+}
+
+async function getWorkspaceById(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { workspaceId } = req.params;
+  if (!workspaceId) throw new Api400Error("Workspace Id was not Provided!!");
+  const findWorkspace = await prisma.workspace.findUnique({
+    where: {
+      id: workspaceId,
+    },
+    include: {
+      admin: {
+        select: {
+          userName: true,
+          email: true,
+          photo: true,
+        },
+      },
+      Member: {
+        include: {
+          recieverInvitations: {
+            where: {
+              status: {
+                notIn: ["DECLINED", "PENDING"],
+              },
+            },
+          },
+          user: true,
+        },
+      },
+    },
+  });
+  return res
+    .status(200)
+    .json({ message: "Workspace by Id", data: findWorkspace });
+}
+
+async function getUserBySearch(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { searchTerm } = req.params;
+  if (!searchTerm) throw new Api400Error("Search Term was not Provided");
+  const searchResults = await prisma.user.findMany({
+    where: {
+      userName: {
+        contains: searchTerm,
+      },
+    },
+  });
+
+  return res.status(200).json({
+    message: "Search Results Fetched Successfully",
+    data: searchResults,
+  });
+}
+
+async function getUserById(req: Request, res: Response, next: NextFunction) {
+  const { userId } = req.params;
+  if (!userId) throw new Api400Error("User Id was not Provided!!");
+  const findWorkspace = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+  return res
+    .status(200)
+    .json({ message: "Workspace by Id", data: findWorkspace });
+}
 export {
   handleSystemAdminLogin,
   getAllRegisteredUser,
@@ -271,4 +371,8 @@ export {
   getAdditionalWorkspaceDetails,
   getUsersRegisteredByMonth,
   getWorkspaceRegisteredByMonth,
+  getWorkspaceBySearch,
+  getWorkspaceById,
+  getUserById,
+  getUserBySearch,
 };

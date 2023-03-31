@@ -16,6 +16,7 @@ interface Props {
   isNextMessageOfSameUser: boolean;
   createdAt: Date;
   chatMessageId: string;
+  role: any;
 }
 
 interface ChatMessageProps {
@@ -78,6 +79,7 @@ const ChatMessage: React.FC<Props> = ({
   isNextMessageOfSameUser,
   isLoggedUser,
   createdAt,
+  role: messageRole,
   chatMessageId,
 }) => {
   const [isChatOptionsVisible, setIsChatOptionsVisible] = useState(false);
@@ -103,19 +105,33 @@ const ChatMessage: React.FC<Props> = ({
       {isLoggedUser ? null : (
         <div
           title={`${isNextMessageOfSameUser}`}
-          className="w-10 h-10 rounded-full overflow-hidden self-end"
+          className="w-10 h-10 rounded-full  self-end"
         >
           {!isNextMessageOfSameUser && (
-            <img
-              className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
-              src={
-                photo ??
-                "https://images.unsplash.com/file-1662566326028-7013d2f857a6image?dpr=2&auto=format&fit=crop&w=416&q=60"
-              }
-              alt={userName ?? "deleted User"}
-              title={userName ?? "Deleted User"}
-            />
+            <div
+              className={` border-[2px] ${
+                messageRole === Role.ADMIN
+                  ? "border-red-600"
+                  : messageRole === Role.LANCER
+                  ? "border-custom-light-green"
+                  : "border-blue-600"
+              } text-white  rounded-full`}
+            >
+              <img
+                className="w-full h-full rounded-full object-cover"
+                referrerPolicy="no-referrer"
+                src={
+                  photo ??
+                  "https://images.unsplash.com/file-1662566326028-7013d2f857a6image?dpr=2&auto=format&fit=crop&w=416&q=60"
+                }
+                alt={userName ?? "deleted User"}
+                title={userName ?? "Deleted User"}
+              />
+
+              {/* <p
+                className={`text-xs self-start w-2 h-2 rounded-full absolute -bottom-[1px] right-2 ${
+              ></p> */}
+            </div>
           )}
         </div>
       )}

@@ -17,6 +17,8 @@ import socket from "./api/socket";
 import SystemAdminLogin from "./pages/SystemAdminLogin";
 import SystemAdmin from "./pages/SystemAdmin";
 import AdminContextProvider from "./context/AdminContext";
+import WorkspaceDetailed from "./pages/WorkspaceDetailed";
+import UserDetailed from "./pages/UserDetailed";
 
 const Login = React.lazy(() => import("./pages/Login"));
 const NotFound = React.lazy(() => import("./pages/404"));
@@ -58,6 +60,14 @@ const App: React.FC = () => {
           element={
             <AdminContextProvider>
               <SystemAdmin />
+            </AdminContextProvider>
+          }
+        />
+        <Route
+          path="/system/admin/workspace/:workspaceId"
+          element={
+            <AdminContextProvider>
+              <WorkspaceDetailed />
             </AdminContextProvider>
           }
         />

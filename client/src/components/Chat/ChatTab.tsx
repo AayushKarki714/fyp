@@ -187,6 +187,7 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
                 message?.member?.userId ===
                 chatMessages[index + 1]?.member?.userId
               }
+              role={message?.member?.role}
               message={message.message}
               photo={message?.member?.user?.photo}
               userName={message?.member?.user?.userName}

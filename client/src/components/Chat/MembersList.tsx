@@ -1,5 +1,6 @@
 import { useQuery } from "react-query";
 import axios from "../../api/axios";
+import { Role } from "../../redux/slices/workspaceSlice";
 import { useAppSelector } from "../../redux/store/hooks";
 
 const MembersList: React.FC = () => {
@@ -7,7 +8,7 @@ const MembersList: React.FC = () => {
   const { id: userId } = useAppSelector((state) => state.auth.user);
   const { id: chatId, type: chatType } = useAppSelector((state) => state.chat);
   const { data: membersData, isLoading } = useQuery(
-    "members-query",
+    `members-query-${chatId}-${chatType}`,
     async () => {
       const res = await axios.get(
         `/chat/${userId}/${workspaceId}/${chatId}/${chatType}/all-members`
@@ -15,8 +16,6 @@ const MembersList: React.FC = () => {
       return res?.data?.data;
     }
   );
-
-  console.log({ membersData });
 
   if (isLoading) return <h1>Loading...</h1>;
   return (
@@ -34,8 +33,19 @@ const MembersList: React.FC = () => {
                 alt={member?.user?.userName && "Deleted User 😢"}
               />
             </div>
-            <div>
+            <div className="flex flex-col gap-2">
               <p>{member.user.userName}</p>
+              <p
+                className={`text-xs self-start px-4 py-1 ${
+                  member.role === Role.ADMIN
+                    ? "bg-red-600"
+                    : member.role === Role.LANCER
+                    ? "bg-custom-light-green"
+                    : "bg-blue-600"
+                }  text-white rounded-md`}
+              >
+                {member.role}
+              </p>
             </div>
           </div>
         </div>

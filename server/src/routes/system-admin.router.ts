@@ -6,7 +6,11 @@ import {
   getAllRegisteredUser,
   getAllWorkspace,
   getTotalWorkspaceandUser,
+  getUserById,
+  getUserBySearch,
   getUsersRegisteredByMonth,
+  getWorkspaceById,
+  getWorkspaceBySearch,
   getWorkspaceRegisteredByMonth,
   handleSystemAdminLogin,
 } from "../controllers/system-admin.controller";
@@ -63,6 +67,30 @@ systemAdminRouter.get(
   "/workspacebyMonth",
   catchAsyncErrors(verifyToken),
   catchAsyncErrors(getWorkspaceRegisteredByMonth)
+);
+
+systemAdminRouter.get(
+  "/:searchTerm/workspace-search",
+  catchAsyncErrors(verifyToken),
+  catchAsyncErrors(getWorkspaceBySearch)
+);
+
+systemAdminRouter.get(
+  "/:workspaceId/workspace",
+  catchAsyncErrors(verifyToken),
+  catchAsyncErrors(getWorkspaceById)
+);
+
+systemAdminRouter.get(
+  "/:searchTerm/user-search",
+  catchAsyncErrors(verifyToken),
+  catchAsyncErrors(getUserBySearch)
+);
+
+systemAdminRouter.get(
+  "/:userId/user",
+  catchAsyncErrors(verifyToken),
+  catchAsyncErrors(getUserById)
 );
 
 export default systemAdminRouter;

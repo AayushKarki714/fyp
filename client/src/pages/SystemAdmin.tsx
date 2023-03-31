@@ -2,6 +2,7 @@ import { ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import SystemAdminDashboard from "../components/SystemAdmin/SystemAdminDashboard";
+import SystemSearch from "../components/SystemAdmin/SystemSearch";
 import UserAnalytics from "../components/SystemAdmin/UserAnalytics";
 import WorkspaceAnalytics from "../components/SystemAdmin/WorkspaceAnalytics";
 import { useSystemAdmin } from "../context/AdminContext";
@@ -10,6 +11,7 @@ enum Tab {
   DASHBOARD = "DASHBOARD",
   USER = "USER",
   WORKSPACE = "WORKSPACE",
+  SEARCH = "SEARCH ",
 }
 
 interface TabbedButtonProps {
@@ -95,11 +97,19 @@ function SystemAdmin() {
           >
             Workspace
           </TabbedButton>
+          <TabbedButton
+            tabType={Tab.SEARCH}
+            selectedTab={selectedTab}
+            setSelectedTab={() => setSelectedTab(Tab.SEARCH)}
+          >
+            Search
+          </TabbedButton>
         </ul>
         <div className="h-full w-full pb-6">
           {selectedTab === Tab.DASHBOARD && <SystemAdminDashboard />}
           {selectedTab === Tab.USER && <UserAnalytics />}
           {selectedTab === Tab.WORKSPACE && <WorkspaceAnalytics />}
+          {selectedTab === Tab.SEARCH && <SystemSearch />}
         </div>
       </div>
     </div>
