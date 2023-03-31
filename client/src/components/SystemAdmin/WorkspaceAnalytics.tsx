@@ -47,7 +47,7 @@ const DeleteWorkspaceCard = ({ name, id, logo, index }: any) => {
         src={logo}
         alt={name}
       />
-      <h2 className="text-4xl text-gray-300">{name}</h2>
+      <h2 className="text-xl text-gray-300">{name}</h2>
       <button
         onClick={() => mutate()}
         className="bg-red-600 self-stretch px-6 py-2 text-white rounded-md"

@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAppSelector } from "../redux/store/hooks";
 import { PlusIcon } from "@heroicons/react/24/outline";

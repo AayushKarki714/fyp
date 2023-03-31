@@ -37,15 +37,15 @@ export default function WorkspaceSearchResultsItem({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex px-6 py-3  flex-row  gap-4 shadow-md rounded-md border-[2px] border-custom-light-dark"
+      className="flex px-6 py-3  flex-row  gap-4 shadow-md rounded-md border-[2px] border-custom-light-dark hover:-translate-y-2 transition-all duration-200 cursor-pointer"
     >
       <div className="h-20 self-center w-20 rounded-full overflow-hidden border-[2px] border-custom-light-green">
         <img src={logo} alt={name} className="w-full h-full  " />
       </div>
       <div className="flex flex-col gap-3">
         <h2 className="flex items-center gap-1">
-          <span>Workspace:</span>
-          <span>{name}</span>
+          <span>Workspace :</span>
+          <span className="text-custom-light-green">{name}</span>
         </h2>
         <div className="flex flex-row gap-2">
           <figure className="w-10 h-10 self-center overflow-hidden rounded-full">
@@ -59,7 +59,7 @@ export default function WorkspaceSearchResultsItem({
           </figure>
           <p className="flex flex-col gap-1">
             <span>{adminUsername}</span>
-            <span>{adminEmail}</span>
+            <span className="text-gray-400">{adminEmail}</span>
           </p>
         </div>
         <button
