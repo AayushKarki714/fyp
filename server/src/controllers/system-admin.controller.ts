@@ -170,15 +170,13 @@ async function getAdditionalWorkspaceDetails(
   const members = await prisma.member.findMany({
     where: {
       workspaceId,
-    },
-    include: {
       recieverInvitations: {
-        where: {
-          status: {
-            in: ["ACCEPTED"],
-          },
+        some: {
+          status: "ACCEPTED",
         },
       },
+    },
+    include: {
       user: true,
     },
   });
@@ -269,6 +267,7 @@ async function getWorkspaceBySearch(
 ) {
   const { searchTerm } = req.params;
   if (!searchTerm) throw new Api400Error("Search Term was not Provided");
+
   const searchResults = await prisma.workspace.findMany({
     where: {
       name: {
@@ -289,44 +288,6 @@ async function getWorkspaceBySearch(
     message: "Search Results Fetched Successfully",
     data: searchResults,
   });
-}
-
-async function getWorkspaceById(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  const { workspaceId } = req.params;
-  if (!workspaceId) throw new Api400Error("Workspace Id was not Provided!!");
-  const findWorkspace = await prisma.workspace.findUnique({
-    where: {
-      id: workspaceId,
-    },
-    include: {
-      admin: {
-        select: {
-          userName: true,
-          email: true,
-          photo: true,
-        },
-      },
-      Member: {
-        include: {
-          recieverInvitations: {
-            where: {
-              status: {
-                notIn: ["DECLINED", "PENDING"],
-              },
-            },
-          },
-          user: true,
-        },
-      },
-    },
-  });
-  return res
-    .status(200)
-    .json({ message: "Workspace by Id", data: findWorkspace });
 }
 
 async function getUserBySearch(
@@ -388,7 +349,5 @@ export {
   getUsersRegisteredByMonth,
   getWorkspaceRegisteredByMonth,
   getWorkspaceBySearch,
-  getWorkspaceById,
-  getUserById,
   getUserBySearch,
 };

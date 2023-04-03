@@ -6,10 +6,8 @@ import {
   getAllRegisteredUser,
   getAllWorkspace,
   getTotalWorkspaceandUser,
-  getUserById,
   getUserBySearch,
   getUsersRegisteredByMonth,
-  getWorkspaceById,
   getWorkspaceBySearch,
   getWorkspaceRegisteredByMonth,
   handleSystemAdminLogin,
@@ -76,21 +74,9 @@ systemAdminRouter.get(
 );
 
 systemAdminRouter.get(
-  "/:workspaceId/workspace",
-  catchAsyncErrors(verifyToken),
-  catchAsyncErrors(getWorkspaceById)
-);
-
-systemAdminRouter.get(
   "/:searchTerm/user-search",
   catchAsyncErrors(verifyToken),
   catchAsyncErrors(getUserBySearch)
-);
-
-systemAdminRouter.get(
-  "/:userId/user",
-  catchAsyncErrors(verifyToken),
-  catchAsyncErrors(getUserById)
 );
 
 export default systemAdminRouter;

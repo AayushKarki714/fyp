@@ -12,7 +12,7 @@ import { useSystemAdmin } from "../../context/AdminContext";
 import Spinner from "../Spinner/Spinner";
 import AdditionalWorkspaceDetails from "./AdditionalWorkspaceDetails";
 
-const DeleteWorkspaceCard = ({ name, id, logo, index }: any) => {
+const DeleteWorkspaceCard = ({ name, id, logo, index, page }: any) => {
   const { admin } = useSystemAdmin();
   const [expand, setExpand] = useState(false);
   const queryClient = useQueryClient();
@@ -26,7 +26,7 @@ const DeleteWorkspaceCard = ({ name, id, logo, index }: any) => {
     },
     {
       onSuccess: (data) => {
-        queryClient.invalidateQueries("workspace-analytics");
+        queryClient.invalidateQueries(`workspace-analytics-${page}`);
         console.log(data);
       },
       onError: (error) => {
@@ -114,6 +114,7 @@ function WorkspaceAnalytics() {
             data.map((workspace: any, index: number) => {
               return (
                 <DeleteWorkspaceCard
+                  page={page}
                   key={workspace.id}
                   index={index}
                   id={workspace.id}

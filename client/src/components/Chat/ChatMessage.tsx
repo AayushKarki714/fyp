@@ -120,10 +120,7 @@ const ChatMessage: React.FC<Props> = ({
               <img
                 className="w-full h-full rounded-full object-cover"
                 referrerPolicy="no-referrer"
-                src={
-                  photo ??
-                  "https://images.unsplash.com/file-1662566326028-7013d2f857a6image?dpr=2&auto=format&fit=crop&w=416&q=60"
-                }
+                src={photo ?? "/not-found.png"}
                 alt={userName ?? "deleted User"}
                 title={userName ?? "Deleted User"}
               />

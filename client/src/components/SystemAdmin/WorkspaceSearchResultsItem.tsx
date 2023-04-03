@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "react-query";
 import { useSystemAdmin } from "../../context/AdminContext";
 import systemAxios from "../../api/systemAxios";
-import { motion } from "framer-motion";
 
 export default function WorkspaceSearchResultsItem({
   logo,
@@ -24,6 +23,7 @@ export default function WorkspaceSearchResultsItem({
     },
     {
       onSuccess: (data) => {
+        console.log({ data, hel: "this is from inside onSuccess" });
         queryClient.invalidateQueries(`workspace-search-results-${searchTerm}`);
       },
       onError: (error) => {
@@ -33,12 +33,7 @@ export default function WorkspaceSearchResultsItem({
   );
 
   return (
-    <motion.li
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="flex px-6 py-3  flex-row  gap-4 shadow-md rounded-md border-[2px] border-custom-light-dark hover:-translate-y-2 transition-all duration-200 cursor-pointer"
-    >
+    <li className="flex px-6 py-3  flex-row  gap-4 shadow-md rounded-md border-[2px] border-custom-light-dark hover:-translate-y-2 transition-all duration-200 cursor-pointer">
       <div className="h-20 self-center w-20 rounded-full overflow-hidden border-[2px] border-custom-light-green">
         <img src={logo} alt={name} className="w-full h-full  " />
       </div>
@@ -69,6 +64,6 @@ export default function WorkspaceSearchResultsItem({
           Delete
         </button>
       </div>
-    </motion.li>
+    </li>
   );
 }

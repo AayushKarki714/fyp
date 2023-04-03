@@ -16,14 +16,14 @@ const root = createRoot(container);
 
 root.render(
   <BrowserRouter>
-    <AdminContextProvider>
-      <Provider store={store}>
-        <QueryClientProvider client={queryClient}>
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <AdminContextProvider>
           <CustomSwitch>
             <App />
           </CustomSwitch>
-        </QueryClientProvider>
-      </Provider>
-    </AdminContextProvider>
+        </AdminContextProvider>
+      </QueryClientProvider>
+    </Provider>
   </BrowserRouter>
 );

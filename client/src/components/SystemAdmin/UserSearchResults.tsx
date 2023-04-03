@@ -3,7 +3,6 @@ import systemAxios from "../../api/systemAxios";
 import { useSystemAdmin } from "../../context/AdminContext";
 import Spinner from "../Spinner/Spinner";
 import UserSearchResultsItem from "./UserSearchResultsItem";
-import { AnimatePresence } from "framer-motion";
 
 export default function UserSearchResults({ searchTerm, filterMode }: any) {
   const { admin } = useSystemAdmin();
@@ -33,18 +32,16 @@ export default function UserSearchResults({ searchTerm, filterMode }: any) {
       {results && Boolean(searchTerm) && results?.length === 0 && (
         <h2 className="text-red-600 ">No Search Results for {searchTerm}</h2>
       )}
-      <AnimatePresence>
-        {results?.map(({ email, id, photo, userName }: any) => (
-          <UserSearchResultsItem
-            key={id}
-            userName={userName}
-            photo={photo}
-            searchTerm={searchTerm}
-            email={email}
-            userId={id}
-          />
-        ))}
-      </AnimatePresence>
+      {results?.map(({ email, id, photo, userName }: any) => (
+        <UserSearchResultsItem
+          key={id}
+          userName={userName}
+          photo={photo}
+          searchTerm={searchTerm}
+          email={email}
+          userId={id}
+        />
+      ))}
     </ul>
   );
 }

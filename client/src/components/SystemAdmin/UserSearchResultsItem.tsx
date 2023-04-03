@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "react-query";
 import { useSystemAdmin } from "../../context/AdminContext";
 import systemAxios from "../../api/systemAxios";
-import { motion } from "framer-motion";
 
 export default function UserSearchResultsItem({
   userId,
@@ -31,13 +30,7 @@ export default function UserSearchResultsItem({
     }
   );
   return (
-    <motion.li
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      layout
-      className="flex flex-row gap-4 px-6 rounded-md py-3 border-[2px] border-custom-light-dark hover:-translate-y-2 duration-200 transition-all cursor-pointer"
-    >
+    <li className="flex flex-row gap-4 px-6 rounded-md py-3 border-[2px] border-custom-light-dark hover:-translate-y-2 duration-200 transition-all cursor-pointer">
       <figure className="self-center w-14 h-14 rounded-full overflow-hidden">
         <img
           alt={userName}
@@ -57,6 +50,6 @@ export default function UserSearchResultsItem({
           Delete
         </button>
       </div>
-    </motion.li>
+    </li>
   );
 }

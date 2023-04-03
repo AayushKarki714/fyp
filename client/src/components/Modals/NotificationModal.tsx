@@ -388,13 +388,15 @@ const NormalNotification: React.FC<NormalNotificationProps> = ({
 }) => {
   return (
     <div className="p-2 rounded-md flex gap-4 items-center">
-      <figure className=" flex-shrink-0 w-14 h-14   rounded-full overflow-hidden">
-        <img
-          className="w-full h-full object-cover"
-          src={notification?.sender?.photo}
-          alt={notification?.sender?.userName}
-        />
-      </figure>
+      {notification?.sender?.photo && (
+        <figure className=" flex-shrink-0 w-14 h-14   rounded-full overflow-hidden">
+          <img
+            className="w-full h-full object-cover"
+            src={notification?.sender?.photo}
+            alt={notification?.sender?.userName}
+          />
+        </figure>
+      )}
       <div className="flex flex-col gap-1">
         <h3 className="text-base">{notification.message}</h3>
         <div className="flex flex-col gap-1">
@@ -511,6 +513,7 @@ const NotificationModal: React.FC = () => {
       return res.data?.data;
     }
   );
+  console.log({ notifications });
 
   useEffect(() => {
     markAsReadMutate();

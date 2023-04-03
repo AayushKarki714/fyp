@@ -3,11 +3,9 @@ import { useSystemAdmin } from "../../context/AdminContext";
 import systemAxios from "../../api/systemAxios";
 import Spinner from "../Spinner/Spinner";
 import WorkspaceSearchResultsItem from "./WorkspaceSearchResultsItem";
-import { AnimatePresence } from "framer-motion";
 
 function WorkspaceSearchResults({ searchTerm, filterMode }: any) {
   const { admin } = useSystemAdmin();
-
   const { data: results, isLoading } = useQuery(
     `workspace-search-results-${searchTerm}`,
     async () => {
@@ -35,21 +33,20 @@ function WorkspaceSearchResults({ searchTerm, filterMode }: any) {
         <h2 className="text-red-600 ">No Search Results for {searchTerm}</h2>
       )}
 
-      <AnimatePresence>
-        {results?.map(
-          ({ logo, id, name, admin: { email, photo, userName } }: any) => (
-            <WorkspaceSearchResultsItem
-              key={id}
-              name={name}
-              logo={logo}
-              adminEmail={email}
-              workspaceId={id}
-              adminPhoto={photo}
-              adminUsername={userName}
-            />
-          )
-        )}
-      </AnimatePresence>
+      {results?.map(
+        ({ logo, id, name, admin: { email, photo, userName } }: any) => (
+          <WorkspaceSearchResultsItem
+            key={id}
+            name={name}
+            logo={logo}
+            searchTerm={searchTerm}
+            adminEmail={email}
+            workspaceId={id}
+            adminPhoto={photo}
+            adminUsername={userName}
+          />
+        )
+      )}
     </ul>
   );
 }
