@@ -80,6 +80,7 @@ const Workspace: React.FC<any> = ({
       },
       onSuccess: (data: any) => {
         setIsModalOpen(false);
+        queryClient.invalidateQueries("unread-notifications");
         queryClient.invalidateQueries("workspace-query");
         console.log("data", data);
       },

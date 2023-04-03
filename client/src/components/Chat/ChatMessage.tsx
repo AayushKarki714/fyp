@@ -92,6 +92,7 @@ const ChatMessage: React.FC<Props> = ({
   useOnClickOutside(messageRef, () => {
     setIsChatOptionsVisible(false);
   });
+  console.log({ isNextMessageOfSameUser, photo, message });
 
   return (
     <div

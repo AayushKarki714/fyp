@@ -15,7 +15,6 @@ import EmojiPicker, {
   EmojiStyle,
   Theme,
 } from "emoji-picker-react";
-import { PhotoIcon } from "@heroicons/react/24/outline";
 import handleStopPropagation from "../../utils/handleStopPropagation";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import axios from "../../api/axios";
@@ -81,6 +80,7 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
       enabled: Boolean(userId && workspaceId && chatId && chatType),
     }
   );
+  console.log({ chatMessages });
 
   const handleMessageSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -184,7 +184,7 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
               createdAt={message?.createdAt}
               isLoggedUser={message?.member?.userId === userId}
               isNextMessageOfSameUser={
-                message?.member?.userId ===
+                (message?.member?.userId ?? null) ===
                 chatMessages[index + 1]?.member?.userId
               }
               role={message?.member?.role}
