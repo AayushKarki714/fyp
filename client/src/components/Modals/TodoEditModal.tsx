@@ -147,6 +147,7 @@ function TodoEditModal({
     },
     {
       onError(error: any) {
+        toast(error?.response?.data?.message);
         console.log("error", error);
       },
       onSuccess(data) {

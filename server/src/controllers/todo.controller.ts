@@ -127,6 +127,9 @@ async function getAllTodoCardInTodoContainer(
     where: {
       todoContainerId: todoContainerId,
     },
+    orderBy: {
+      createdAt: "asc",
+    },
     include: {
       user: {
         select: {
@@ -230,7 +233,7 @@ async function getAllTodosInTodoCard(
       },
     },
     orderBy: {
-      createdAt: "asc",
+      updatedAt: "asc",
     },
   });
 
@@ -255,19 +258,19 @@ async function handleUpdateTodoStatus(
   if (role === Role.LANCER)
     verifyCreatedUserId(findTodo?.createdByUserId, userId);
 
-  const deletedTodo = await prisma.todo.delete({ where: { id: todoId } });
-
-  if (!deletedTodo || !findTodo) throw new Api400Error("Not found my boi!!");
-
-  await prisma.todo.create({
+  const updateTodoStatus = await prisma.todo.update({
     data: {
-      ...deletedTodo,
-      todoCardId: todoCardId,
+      todoCardId,
       status,
+    },
+    where: {
+      id: todoId,
     },
   });
 
-  return res.status(200).json({ message: "Updated SucessFully", data: null });
+  return res
+    .status(200)
+    .json({ message: "Updated SucessFully", data: updateTodoStatus });
 }
 
 async function handleDeleteTodoContainer(
