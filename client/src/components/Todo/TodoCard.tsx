@@ -154,7 +154,10 @@ const TodoCard: React.FC<Props> = ({
         queryClient.invalidateQueries(["todo-card-query", todoContainerId]);
         toast(data?.message);
       },
-      onError: (error: any) => {},
+      onError: (error: any) => {
+        toast(error?.response?.data?.message);
+        console.log(error);
+      },
     }
   );
 
