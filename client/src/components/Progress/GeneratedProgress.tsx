@@ -122,7 +122,7 @@ const ProgressCard: React.FC<ProgressCardProps> = ({
   );
 
   if (isLoading) return <h1>Loading...</h1>;
-  return (
+  return progressBarData.length > 0 ? (
     <div className="flex flex-col border-2 border-dark-gray rounded-md p-3 gap-2 ">
       <div>
         <h2 className="text-2xl">{title}</h2>
@@ -139,7 +139,7 @@ const ProgressCard: React.FC<ProgressCardProps> = ({
         ))}
       </div>
     </div>
-  );
+  ) : null;
 };
 
 const ProgressContainer: React.FC<ProgressContainerProps> = ({

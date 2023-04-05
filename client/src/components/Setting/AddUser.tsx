@@ -75,7 +75,7 @@ const AddUser: React.FC<AddLancerProps> = ({ type, role }) => {
               <div className="flex flex-col gap-4">
                 {values.users && values.users.length > 0 ? (
                   values.users.map((user, index) => (
-                    <div key={index} className="flex  gap-2">
+                    <div key={index} className="flex items-center  gap-2">
                       <div className="flex flex-col items-start gap-1">
                         <Field
                           type="email"
@@ -90,7 +90,7 @@ const AddUser: React.FC<AddLancerProps> = ({ type, role }) => {
                           name={`users.${index}`}
                         />
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex self-start gap-2">
                         <button
                           type="button"
                           className="bg-[#8ad85c] text-black px-4 py-1 rounded-md font-medium disabled:cursor-not-allowed disabled:bg-slate-400"

@@ -43,12 +43,10 @@ async function getAllMembersInChat(
     where: {
       chatId,
       member: {
-        NOT: {
-          recieverInvitations: {
-            some: {
-              status: {
-                in: ["DECLINED", "PENDING"],
-              },
+        recieverInvitations: {
+          some: {
+            status: {
+              in: ["ACCEPTED"],
             },
           },
         },
@@ -63,6 +61,8 @@ async function getAllMembersInChat(
       chat: true,
     },
   });
+
+  console.log({ allMembers });
 
   return res.status(200).json({ data: allMembers });
 }

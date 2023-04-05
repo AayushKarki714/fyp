@@ -59,12 +59,15 @@ async function handleCreateWorkspace(
     workspaceId: newWorkspace.id,
   };
   const membersData = lancersData.concat(clientsData).concat(adminData);
+  console.log({ membersData });
 
   const members = await prisma.$transaction(
     membersData.map((memberData) =>
       prisma.member.create({ data: { ...memberData } })
     )
   );
+
+  console.log({ members });
 
   const allChat = await prisma.chat.create({
     data: {
@@ -86,48 +89,6 @@ async function handleCreateWorkspace(
       type: "CLIENTS",
     },
   });
-
-  const allMembersDataWithId = await prisma.member.findMany({
-    where: { workspaceId: newWorkspace.id },
-    select: {
-      id: true,
-    },
-  });
-
-  const lancersDataWithId = await prisma.member.findMany({
-    where: { workspaceId: newWorkspace.id, role: { in: ["ADMIN", "LANCER"] } },
-    select: {
-      id: true,
-    },
-  });
-
-  const clientsDataWithId = await prisma.member.findMany({
-    where: { workspaceId: newWorkspace.id, role: { in: ["ADMIN", "CLIENT"] } },
-    select: {
-      id: true,
-    },
-  });
-
-  const allChatData = allMembersDataWithId.map((memberData) => ({
-    memberId: memberData.id,
-    chatId: allChat.id,
-  }));
-
-  const lancersChatData = lancersDataWithId.map((memberData) => ({
-    memberId: memberData.id,
-    chatId: lancersAndAdminChat.id,
-  }));
-
-  const clientsChatData = clientsDataWithId.map((memberData) => ({
-    memberId: memberData.id,
-    chatId: clientsAndAdminChat.id,
-  }));
-
-  const finalData = allChatData.concat(lancersChatData).concat(clientsChatData);
-
-  await prisma.$transaction([
-    prisma.chatWithMember.createMany({ data: finalData }),
-  ]);
 
   const adminMember = members.find((member) => member.role === Role.ADMIN);
 
@@ -171,6 +132,71 @@ async function handleCreateWorkspace(
       })
     )
   );
+
+  const allMembersDataWithId = await prisma.member.findMany({
+    where: {
+      workspaceId: newWorkspace.id,
+      recieverInvitations: {
+        some: {
+          status: "ACCEPTED",
+        },
+      },
+    },
+  });
+
+  const lancersDataWithId = await prisma.member.findMany({
+    where: {
+      workspaceId: newWorkspace.id,
+      role: { in: ["ADMIN", "LANCER"] },
+      recieverInvitations: {
+        some: {
+          status: "ACCEPTED",
+        },
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const clientsDataWithId = await prisma.member.findMany({
+    where: {
+      workspaceId: newWorkspace.id,
+      role: { in: ["ADMIN", "CLIENT"] },
+      recieverInvitations: {
+        some: {
+          status: "ACCEPTED",
+        },
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  console.log({ allMembersDataWithId, clientsDataWithId, lancersDataWithId });
+
+  const allChatData = allMembersDataWithId.map((memberData) => ({
+    memberId: memberData.id,
+    chatId: allChat.id,
+  }));
+
+  const lancersChatData = lancersDataWithId.map((memberData) => ({
+    memberId: memberData.id,
+    chatId: lancersAndAdminChat.id,
+  }));
+
+  const clientsChatData = clientsDataWithId.map((memberData) => ({
+    memberId: memberData.id,
+    chatId: clientsAndAdminChat.id,
+  }));
+
+  const finalData = allChatData.concat(lancersChatData).concat(clientsChatData);
+  console.log({ finalData });
+
+  await prisma.$transaction([
+    prisma.chatWithMember.createMany({ data: finalData }),
+  ]);
 
   return res.status(200).json({ workspace: newWorkspace });
 }
@@ -387,55 +413,43 @@ async function handleAddMembers(
     )
   );
 
-  // const x = await prisma.$transaction([
-  //   prisma.chat.findMany({
-  //     where: { workspaceId: workspace.id, type: "ALL" },
-  //   }),
-  //   prisma.chat.findMany({
-  //     where: { workspaceId: workspace.id, type: "LANCERS" },
-  //   }),
-  //   prisma.chat.findMany({
-  //     where: { workspaceId: workspace.id, type: "CLIENTS" },
-  //   }),
-  // ]);
+  // const allChatId = await prisma.chat.findMany({
+  //   where: { workspaceId: workspace.id, type: "ALL" },
+  //   select: {
+  //     id: true,
+  //   },
+  // });
 
-  const allChatId = await prisma.chat.findMany({
-    where: { workspaceId: workspace.id, type: "ALL" },
-    select: {
-      id: true,
-    },
-  });
+  // const lancersChatId = await prisma.chat.findMany({
+  //   where: { workspaceId: workspace.id, type: "LANCERS" },
+  //   select: { id: true },
+  // });
 
-  const lancersChatId = await prisma.chat.findMany({
-    where: { workspaceId: workspace.id, type: "LANCERS" },
-    select: { id: true },
-  });
+  // const clientsChatId = await prisma.chat.findMany({
+  //   where: { workspaceId: workspace.id, type: "CLIENTS" },
+  //   select: { id: true },
+  // });
 
-  const clientsChatId = await prisma.chat.findMany({
-    where: { workspaceId: workspace.id, type: "CLIENTS" },
-    select: { id: true },
-  });
+  // console.log({ addedMembers, allChatId, lancersChatId, clientsChatId });
 
-  console.log({ addedMembers, allChatId, lancersChatId, clientsChatId });
+  // await prisma.chatWithMember.createMany({
+  //   data: addedMembers.map(({ id }) => ({
+  //     memberId: id,
+  //     chatId: allChatId[0].id as any,
+  //   })),
+  // });
 
-  await prisma.chatWithMember.createMany({
-    data: addedMembers.map(({ id }) => ({
-      memberId: id,
-      chatId: allChatId[0].id as any,
-    })),
-  });
+  // await prisma.chatWithMember.createMany({
+  //   data: addedMembers
+  //     .filter((addedMember) => addedMember.role === Role.LANCER)
+  //     .map(({ id }) => ({ memberId: id, chatId: lancersChatId[0].id as any })),
+  // });
 
-  await prisma.chatWithMember.createMany({
-    data: addedMembers
-      .filter((addedMember) => addedMember.role === Role.LANCER)
-      .map(({ id }) => ({ memberId: id, chatId: lancersChatId[0].id as any })),
-  });
-
-  await prisma.chatWithMember.createMany({
-    data: addedMembers
-      .filter((addedMember) => addedMember.role === Role.CLIENT)
-      .map(({ id }) => ({ memberId: id, chatId: clientsChatId[0].id as any })),
-  });
+  // await prisma.chatWithMember.createMany({
+  //   data: addedMembers
+  //     .filter((addedMember) => addedMember.role === Role.CLIENT)
+  //     .map(({ id }) => ({ memberId: id, chatId: clientsChatId[0].id as any })),
+  // });
 
   const adminMember = await prisma.member.findUnique({
     where: { workspaceId_userId: { workspaceId, userId } },
@@ -630,6 +644,7 @@ async function handleUpdateInvitationStatus(
 ) {
   const { userId } = req.params;
   const { invitationId, invitationStatus, notificationId } = req.body;
+
   checkIfUserIdMatches(req, userId);
 
   const updateInvitationStatus = await prisma.invitation.update({
@@ -644,6 +659,65 @@ async function handleUpdateInvitationStatus(
   const workspace = await prisma.workspace.findUnique({
     where: { id: updateInvitationStatus.workspaceId },
   });
+
+  const member = await prisma.member.findUnique({
+    where: {
+      id: updateInvitationStatus.recieverId,
+    },
+    include: {
+      user: true,
+      recieverInvitations: {
+        select: {
+          status: true,
+        },
+      },
+    },
+  });
+
+  if (invitationStatus === InvitationStatus.ACCEPTED) {
+    const role = member?.role;
+    const chats = await prisma.chat.findMany({
+      where: {
+        workspaceId: updateInvitationStatus.workspaceId,
+      },
+    });
+    const allChatId = chats.find((chat) => chat.type == ChatType.ALL)!.id;
+    const lancersChatId = chats.find(
+      (chat) => chat.type == ChatType.LANCERS
+    )!.id;
+    const clientsChatId = chats.find(
+      (chat) => chat.type == ChatType.CLIENTS
+    )!.id;
+
+    if (member?.id && allChatId) {
+      await prisma.chatWithMember.create({
+        data: {
+          chatId: allChatId,
+          memberId: member.id,
+        },
+      });
+
+      if (Role.LANCER === role) {
+        await prisma.chatWithMember.create({
+          data: {
+            chatId: lancersChatId,
+            memberId: member.id,
+          },
+        });
+      }
+
+      if (Role.CLIENT === role) {
+        await prisma.chatWithMember.create({
+          data: {
+            chatId: clientsChatId,
+            memberId: member.id,
+          },
+        });
+      }
+    }
+
+    // const allChatId =
+  }
 
   await prisma.notification.update({
     data: {
@@ -776,7 +850,7 @@ const adminInvitationRequestHandler = async (
     }),
   ]);
 
-  await prisma.chat.findMany({ where: { workspaceId: workspaceId } });
+  // await prisma.chat.findMany({ where: { workspaceId: workspaceId } });
 
   return res.status(200).json({ message: "You are appointed as a new admin" });
 };
