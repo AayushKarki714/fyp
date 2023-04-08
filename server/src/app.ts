@@ -19,6 +19,7 @@ import {
 import notificationRouter from "./routes/notification.router";
 import chatRouter from "./routes/chat.router";
 import systemAdminRouter from "./routes/system-admin.router";
+import statisticsRouter from "./routes/statistics.router";
 
 const AUTH_OPTIONS = {
   clientID: process.env.CLIENT_ID!,
@@ -85,6 +86,7 @@ app.use("/system-admin", systemAdminRouter);
 app.use("/auth", authRouter);
 app.use(verifyAuth);
 app.use("/notification", notificationRouter);
+app.use("/statistics", statisticsRouter);
 app.use("/workspace", workspaceRouter);
 app.use("/chat", chatRouter);
 app.use("/gallery", galleryRouter);
