@@ -7,13 +7,13 @@ const Login: React.FC = () => {
   const location = useLocation();
   const redirectPath = location.state?.from?.pathname || "/dashboard";
 
-  // const google = () => {
-  //   window.open("https://project-zone.onrender.com/auth/google", "_self");
-  // };
-
   const google = () => {
-    window.open("http://localhost:8000/auth/google", "_self");
+    window.open("https://project-zone.onrender.com/auth/google", "_self");
   };
+
+  // const google = () => {
+  //   window.open("http://localhost:8000/auth/google", "_self");
+  // };
 
   if (user) {
     return <Navigate to={redirectPath} replace={true} />;
