@@ -61,6 +61,7 @@ passport.deserializeUser(async (userId: string, done) => {
 
 const app = express();
 
+app.set("trust proxy", 1);
 // for parsing json
 app.use(express.json());
 
@@ -76,7 +77,7 @@ app.use(
     name: "cookie",
     keys: [process.env.COOKIE_KEY1!, process.env.COOKIE_KEY2!],
     maxAge: 24 * 60 * 60 * 1000,
-    domain: "https://fyp-1w6u.vercel.app",
+    domain: "https://project-zone.vercel.app",
     sameSite: "none",
     secure: true,
   })
