@@ -11,6 +11,10 @@ const Login: React.FC = () => {
     window.open("https://project-zone.onrender.com/auth/google", "_self");
   };
 
+  // const google = () => {
+  //   window.open("http://localhost:8000/auth/google", "_self");
+  // };
+
   if (user) {
     return <Navigate to={redirectPath} replace={true} />;
   }

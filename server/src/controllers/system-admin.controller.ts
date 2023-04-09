@@ -38,6 +38,7 @@ async function handleSystemAdminLogin(
     where: { username },
   });
 
+  console.log({ systemAdmin, password, username });
   if (!systemAdmin) throw new Api401Error("You are not allowed to Login");
   await verifyPassword(password, systemAdmin.password);
   const token = generateToken({ id: systemAdmin.id });
