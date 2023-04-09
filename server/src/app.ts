@@ -76,6 +76,9 @@ app.use(
     name: "cookie",
     keys: [process.env.COOKIE_KEY1!, process.env.COOKIE_KEY2!],
     maxAge: 24 * 60 * 60 * 1000,
+    domain: "https://fyp-1w6u.vercel.app",
+    sameSite: "none",
+    secure: true,
   })
 );
 
