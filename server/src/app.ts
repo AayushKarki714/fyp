@@ -80,6 +80,8 @@ app.use(
     domain: "https://project-zone.vercel.app",
     sameSite: "none",
     secure: true,
+    httpOnly: true,
+    path: "https://project-zone.vercel.app/",
   })
 );
 
