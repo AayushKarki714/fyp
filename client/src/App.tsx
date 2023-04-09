@@ -18,6 +18,7 @@ import SystemAdminLogin from "./pages/SystemAdminLogin";
 import SystemAdmin from "./pages/SystemAdmin";
 import AdminContextProvider from "./context/AdminContext";
 import WorkspaceDetailed from "./pages/WorkspaceDetailed";
+import Statistics from "./pages/Statistics";
 
 const Login = React.lazy(() => import("./pages/Login"));
 const NotFound = React.lazy(() => import("./pages/404"));
@@ -57,6 +58,7 @@ const App: React.FC = () => {
             <Route path="todo" element={<TodoPage />} />
             <Route path="gallery" element={<Gallery />} />
             <Route path="progress" element={<Progress />} />
+            <Route path="statistics" element={<Statistics />} />
             <Route path="setting" element={<Setting />} />
             <Route path="*" element={<NotFound />} />
           </Route>

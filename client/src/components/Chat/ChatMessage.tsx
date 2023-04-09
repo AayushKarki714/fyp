@@ -7,6 +7,7 @@ import axios from "../../api/axios";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
 import { Role } from "../../redux/slices/workspaceSlice";
 import { useAppSelector } from "../../redux/store/hooks";
+import { motion } from "framer-motion";
 
 interface Props {
   message: string;
@@ -95,9 +96,12 @@ const ChatMessage: React.FC<Props> = ({
   console.log({ isNextMessageOfSameUser, photo, message });
 
   return (
-    <div
+    <motion.div
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, transition: { opacity: 0.2 }, height: 0 }}
       className={`flex items-center gap-2 mt-1
        ${isLoggedUser ? "self-end" : "self-start"}
       ${!isNextMessageOfSameUser ? "mb-12" : "mb-1"} 
@@ -176,7 +180,7 @@ const ChatMessage: React.FC<Props> = ({
           {message}
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

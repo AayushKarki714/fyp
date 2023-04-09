@@ -177,22 +177,24 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
 
         <div className="flex relative  flex-col  flex-grow bg-custom-dark p-3 pt-14 overflow-y-auto custom-scrollbar ">
           {/* <ChatSpinner /> */}
-          {chatMessages?.map((message: any, index: number) => (
-            <ChatMessage
-              key={message.id}
-              chatMessageId={message.id}
-              createdAt={message?.createdAt}
-              isLoggedUser={message?.member?.userId === userId}
-              isNextMessageOfSameUser={
-                (message?.member?.userId ?? null) ===
-                chatMessages[index + 1]?.member?.userId
-              }
-              role={message?.member?.role}
-              message={message.message}
-              photo={message?.member?.user?.photo}
-              userName={message?.member?.user?.userName}
-            />
-          ))}
+          <AnimatePresence initial={false}>
+            {chatMessages?.map((message: any, index: number) => (
+              <ChatMessage
+                key={message.id}
+                chatMessageId={message.id}
+                createdAt={message?.createdAt}
+                isLoggedUser={message?.member?.userId === userId}
+                isNextMessageOfSameUser={
+                  (message?.member?.userId ?? null) ===
+                  chatMessages[index + 1]?.member?.userId
+                }
+                role={message?.member?.role}
+                message={message.message}
+                photo={message?.member?.user?.photo}
+                userName={message?.member?.user?.userName}
+              />
+            ))}
+          </AnimatePresence>
           <AnimatePresence>
             {isTyping && (
               <motion.div
