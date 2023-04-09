@@ -12,6 +12,8 @@ const Dashboard: React.FC = () => {
   let navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
 
+  console.log("dashboard was here", { user });
+
   const { data, isLoading } = useQuery("workspace-query", async () => {
     const res = await axios.get(`/workspace/workspaces/${user.id}`);
     return res.data;
