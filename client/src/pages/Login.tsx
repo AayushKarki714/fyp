@@ -8,7 +8,7 @@ const Login: React.FC = () => {
   const redirectPath = location.state?.from?.pathname || "/dashboard";
 
   const google = () => {
-    window.open("https://project-zone.onrender.com/auth/google", "_self");
+    window.open("http://localhost:8000/auth/google", "_self");
   };
 
   if (user) {
