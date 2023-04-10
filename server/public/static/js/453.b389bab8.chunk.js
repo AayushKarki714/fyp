@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkclient=self.webpackChunkclient||[]).push([[453],{2453:function(e,t,l){l.r(t);var c=l(184);t.default=function(){return(0,c.jsx)("div",{className:"h-full flex justify-center items-center ",children:(0,c.jsx)("h2",{className:"text-6xl md:text-9xl",children:"404"})})}}}]);
+//# sourceMappingURL=453.b389bab8.chunk.js.map

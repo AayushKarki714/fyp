@@ -77,11 +77,6 @@ app.use(
     name: "cookie",
     keys: [process.env.COOKIE_KEY1!, process.env.COOKIE_KEY2!],
     maxAge: 24 * 60 * 60 * 1000,
-    domain: "https://project-zone.vercel.app",
-    sameSite: "none",
-    secure: true,
-    httpOnly: true,
-    path: "https://project-zone.vercel.app/",
   })
 );
 
@@ -98,6 +93,11 @@ app.use("/chat", chatRouter);
 app.use("/gallery", galleryRouter);
 app.use("/progress", progressRouter);
 app.use("/todo", todoRouter);
+
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "public", "index.html"));
+});
+
 app.use(globalErrorHandler);
 
 process.on("unhandledRejection", (error: Error) => {
