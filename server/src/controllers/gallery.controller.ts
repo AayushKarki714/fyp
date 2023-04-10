@@ -88,7 +88,7 @@ async function handleUploadImageInGallery(
   const photo = await prisma.photo.create({
     data: {
       uploadedByUserId: userId,
-      url: `http://localhost:8000/${file.name}`,
+      url: `${process.env.CLIENT_URL}/${file.name}`,
       galleryContainerId,
     },
   });

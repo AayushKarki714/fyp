@@ -31,7 +31,7 @@ async function handleCreateWorkspace(
   const newWorkspace = await prisma.workspace.create({
     data: {
       name,
-      logo: `http://localhost:8000/${file.name}`,
+      logo: `${process.env.CLIENT_URL}/${file.name}`,
       adminId,
     },
   });
