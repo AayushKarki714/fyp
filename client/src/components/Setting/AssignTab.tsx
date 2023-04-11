@@ -1,11 +1,10 @@
 import { useState } from "react";
 import axios from "../../api/axios";
 import { useQuery, useQueryClient, useMutation } from "react-query";
-import { useAppDispatch, useAppSelector } from "../../redux/store/hooks";
+import { useAppSelector } from "../../redux/store/hooks";
 import Overlay from "../Modals/Overlay";
 import { motion } from "framer-motion";
 import Modal from "../Modals/Modal";
-import { useNavigate } from "react-router-dom";
 
 interface AppointAsAdminCardProps {
   member: any;
@@ -81,17 +80,20 @@ const AppointAsAdminCard: React.FC<AppointAsAdminCardProps> = ({
 
 function AssignTab() {
   const queryClient = useQueryClient();
-  const { workspaceId } = useAppSelector((state) => state.workspace);
+  const { workspaceId, role } = useAppSelector((state) => state.workspace);
   const {
     user: { id: userId },
   } = useAppSelector((state) => state.auth);
 
-  const membersQuery = useQuery(`members-query`, async () => {
-    const res = await axios.get(
-      `/workspace/${userId}/${workspaceId}/get-members`
-    );
-    return res.data;
-  });
+  const membersQuery = useQuery(
+    ["members-query", workspaceId, role],
+    async () => {
+      const res = await axios.get(
+        `/workspace/${userId}/${workspaceId}/get-members`
+      );
+      return res.data;
+    }
+  );
 
   const { mutate } = useMutation(
     async (data: any) => {

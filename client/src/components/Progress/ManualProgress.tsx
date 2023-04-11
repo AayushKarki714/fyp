@@ -18,10 +18,9 @@ const ManualProgress: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
   const { workspaceId, role } = useAppSelector((state) => state.workspace);
   const isAllowed = verifyRole(role, [Role.ADMIN, Role.LANCER]);
-  console.log({ workspaceId });
 
   const progressContainerQuery = useQuery(
-    "progress-container-query",
+    ["progress-container-query", workspaceId, role],
     async () => {
       const res = await axios.get(`progress/${workspaceId}/progress-container`);
       return res;
@@ -44,7 +43,11 @@ const ManualProgress: React.FC = () => {
       onSuccess: (data) => {
         if (data?.status === 201) {
           setIsOpen(false);
-          queryClient.invalidateQueries("progress-container-query");
+          queryClient.invalidateQueries([
+            "progress-container-query",
+            workspaceId,
+            role,
+          ]);
           toast(data?.data?.message);
         }
       },

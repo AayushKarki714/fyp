@@ -33,8 +33,8 @@ const ChatMessageOptions: React.FC<ChatMessageProps> = ({
   const {
     user: { id: userId },
   } = useAppSelector((state) => state.auth);
-  const { workspaceId } = useAppSelector((state) => state.workspace);
-  const { id: chatId } = useAppSelector((state) => state.chat);
+  const { workspaceId, role } = useAppSelector((state) => state.workspace);
+  const { id: chatId, type: chatType } = useAppSelector((state) => state.chat);
 
   const { mutate: deleteChatMessageMutate } = useMutation(
     async () => {
@@ -45,7 +45,9 @@ const ChatMessageOptions: React.FC<ChatMessageProps> = ({
     },
     {
       onSuccess(data) {
-        queryClient.invalidateQueries({ queryKey: ["chat-messages", chatId] });
+        queryClient.invalidateQueries({
+          queryKey: ["chat-messages", chatId, workspaceId, chatType, role],
+        });
         setIsChatOptionsVisible(false);
         console.log("data", data);
       },

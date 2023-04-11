@@ -71,17 +71,20 @@ const RemoveUserCard = ({ member, mutateFn }: any) => {
 
 const RemoveMember: React.FC<RemoveLancerProps> = () => {
   const queryClient = useQueryClient();
-  const { workspaceId } = useAppSelector((state) => state.workspace);
+  const { workspaceId, role } = useAppSelector((state) => state.workspace);
   const {
     user: { id: userId },
   } = useAppSelector((state) => state.auth);
 
-  const membersQuery = useQuery(`members-query`, async () => {
-    const res = await axios.get(
-      `/workspace/${userId}/${workspaceId}/get-members`
-    );
-    return res.data;
-  });
+  const membersQuery = useQuery(
+    ["members-query", workspaceId, role],
+    async () => {
+      const res = await axios.get(
+        `/workspace/${userId}/${workspaceId}/get-members`
+      );
+      return res.data;
+    }
+  );
 
   const { mutate } = useMutation(
     async ({ memberId }: { memberId: string }) => {
@@ -92,7 +95,7 @@ const RemoveMember: React.FC<RemoveLancerProps> = () => {
     },
     {
       onSuccess: (data) => {
-        queryClient.invalidateQueries("members-query");
+        queryClient.invalidateQueries(["members-query", workspaceId, role]);
         console.log("data", data);
       },
       onError: (error) => {

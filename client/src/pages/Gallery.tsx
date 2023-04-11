@@ -14,13 +14,13 @@ import Spinner from "../components/Spinner/Spinner";
 const Gallery: React.FC = () => {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const { workspaceId } = useAppSelector((state) => state.workspace);
+  const { workspaceId, role } = useAppSelector((state) => state.workspace);
   const {
     user: { id: userId },
   } = useAppSelector((state) => state.auth);
 
   const galleryContainerQuery = useQuery(
-    "gallery-container-query",
+    ["gallery-container-query", workspaceId, role],
     async () => {
       const res = await axios.get(`/gallery/${workspaceId}/gallery-container`);
       return res;
@@ -46,7 +46,11 @@ const Gallery: React.FC = () => {
       onSuccess: (data) => {
         if (data.status === 201) {
           setIsOpen(false);
-          queryClient.invalidateQueries("gallery-container-query");
+          queryClient.invalidateQueries([
+            "gallery-container-query",
+            workspaceId,
+            role,
+          ]);
           toast(
             `${data?.data?.title} Gallery Container Was SucessFully Created`
           );
