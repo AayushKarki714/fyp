@@ -181,10 +181,10 @@ const ProgressContainer: React.FC<ProgressContainerProps> = ({
 };
 
 const GeneratedProgress: React.FC<Props> = () => {
-  const { workspaceId } = useAppSelector((state) => state.workspace);
+  const { workspaceId, role } = useAppSelector((state) => state.workspace);
 
   const { data: progressContainerData, isLoading } = useQuery(
-    "todo-container-query",
+    ["todo-container-query", workspaceId, role],
     async () => {
       const res = await axios.get(`/todo/${workspaceId}/todo-container`);
       return res.data?.data;

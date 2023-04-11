@@ -30,7 +30,7 @@ const TodoPage: React.FC = () => {
   const { workspaceId, role } = useAppSelector((state) => state.workspace);
 
   const { data: todoContainerData, isLoading } = useQuery(
-    "todo-container-query",
+    ["todo-container-query", workspaceId, role],
     async () => {
       const res = await axios.get(`/todo/${workspaceId}/todo-container`);
       return res.data?.data;

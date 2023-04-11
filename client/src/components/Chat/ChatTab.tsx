@@ -40,7 +40,9 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
   const {
     user: { id: userId },
   } = useAppSelector((state) => state.auth);
-  const { memberId, workspaceId } = useAppSelector((state) => state.workspace);
+  const { memberId, workspaceId, role } = useAppSelector(
+    (state) => state.workspace
+  );
 
   const onEmojiClick = (emojiObject: EmojiClickData, event: MouseEvent) => {
     setMessage(message + emojiObject.emoji);
@@ -69,7 +71,7 @@ const ChatTab: React.FC<ChatTabProps> = ({ socket }) => {
   );
 
   const { data: chatMessages, isLoading } = useQuery(
-    ["chat-messages", chatId],
+    ["chat-messages", chatId, workspaceId, role],
     async () => {
       const res = await axios.get(
         `/chat/${userId}/${workspaceId}/${chatId}/${chatType}/get-messages-chat`

@@ -27,7 +27,7 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
   } = useAppSelector((state) => state.auth);
 
   const { data: chats, isLoading } = useQuery(
-    ["all-chat", workspaceId],
+    ["all-chat", workspaceId, role],
     async () => {
       const res = await axios.get(
         `/chat/${userId}/${workspaceId}/get-all-chat`
