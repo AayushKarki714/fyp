@@ -8,6 +8,7 @@ import {
   PencilSquareIcon,
   ChatBubbleLeftIcon,
   WrenchScrewdriverIcon,
+  HomeModernIcon,
 } from "@heroicons/react/24/outline";
 import { AnimatePresence } from "framer-motion";
 import { useAppSelector } from "../redux/store/hooks";
@@ -72,7 +73,7 @@ const Sidebar: React.FC<Props> = ({ isSideBarOpen }) => {
           </SideNavLink>
           <SideNavLink
             url="/statistics"
-            Icon={ChartBarIcon}
+            Icon={HomeModernIcon}
             isOpen={isSideBarOpen}
           >
             Statistics
