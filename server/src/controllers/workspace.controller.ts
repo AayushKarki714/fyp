@@ -22,7 +22,7 @@ async function handleCreateWorkspace(
 
   const files = req.files!;
   const file = files[Object.keys(files)[0]] as any;
-  const filePath = path.join(__dirname, "..", "..", "public", file.name);
+  const filePath = path.join(__dirname, "..", "..", "images", file.name);
 
   file.mv(filePath, (err: any) => {
     if (err) return res.status(400).json({ message: "Invalid Logo" });
