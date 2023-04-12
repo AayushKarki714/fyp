@@ -85,14 +85,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use("/system-admin", systemAdminRouter);
 app.use("/auth", authRouter);
-app.use(verifyAuth);
-app.use("/notification", notificationRouter);
-app.use("/statistics", statisticsRouter);
-app.use("/workspace", workspaceRouter);
-app.use("/chat", chatRouter);
-app.use("/gallery", galleryRouter);
-app.use("/progress", progressRouter);
-app.use("/todo", todoRouter);
+// app.use(verifyAuth);
+app.use("/notification", verifyAuth, notificationRouter);
+app.use("/statistics", verifyAuth, statisticsRouter);
+app.use("/workspace", verifyAuth, workspaceRouter);
+app.use("/chat", verifyAuth, chatRouter);
+app.use("/gallery", verifyAuth, galleryRouter);
+app.use("/progress", verifyAuth, progressRouter);
+app.use("/todo", verifyAuth, todoRouter);
 
 app.get("/*", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "public", "index.html"));

@@ -28,6 +28,7 @@ const DeleteWorkspaceNotification: React.FC<
       <div className=" p-2 rounded-md flex gap-4 items-center">
         <figure className=" flex-shrink-0 w-14 h-14   rounded-full overflow-hidden">
           <img
+            referrerPolicy="no-referrer"
             className="w-full h-full object-cover"
             src={notification?.sender?.photo}
             alt={notification?.sender?.userName}
@@ -56,6 +57,7 @@ const UpdateTitleNotification: React.FC<UpdateTitleNotificationProps> = ({
     <div className=" p-2 rounded-md flex gap-4 items-center">
       <figure className=" flex-shrink-0 w-14 h-14   rounded-full overflow-hidden">
         <img
+          referrerPolicy="no-referrer"
           className="w-full h-full object-cover"
           src={notification?.sender?.photo}
           alt={notification?.sender?.userName}
@@ -116,6 +118,7 @@ const InvitationRequest: React.FC<InvitationRequestProps> = ({
     <div className=" p-2 rounded-md flex gap-4 items-center">
       <figure className=" flex-shrink-0 w-14 h-14   rounded-full overflow-hidden">
         <img
+          referrerPolicy="no-referrer"
           className="w-full h-full object-cover"
           src={notification?.sender?.photo}
           alt={notification?.sender?.userName}
@@ -175,6 +178,7 @@ const AcceptDeclineAdmin: React.FC<AcceptDeclineInvitationProps> = ({
     <div className=" p-2 rounded-md flex gap-4 items-center">
       <figure className=" flex-shrink-0 w-14 h-14   rounded-full overflow-hidden">
         <img
+          referrerPolicy="no-referrer"
           className="w-full h-full object-cover"
           src={notification?.sender?.photo}
           alt={notification?.sender?.userName}
@@ -211,6 +215,7 @@ const AcceptDeclineInvitation: React.FC<AcceptDeclineInvitationProps> = ({
     <div className=" p-2 rounded-md flex gap-4 items-center">
       <figure className=" flex-shrink-0 w-14 h-14   rounded-full overflow-hidden">
         <img
+          referrerPolicy="no-referrer"
           className="w-full h-full object-cover"
           src={notification?.sender?.photo}
           alt={notification?.sender?.userName}
@@ -249,6 +254,7 @@ const InvitationCreator: React.FC<InvitationCreatorProps> = ({
       <figure className="  border-custom-light-green flex-shrink-0 w-14 h-14   rounded-full overflow-hidden">
         <img
           className="w-full h-full object-cover"
+          referrerPolicy="no-referrer"
           src={
             notification?.invitation?.workspace?.logo ||
             notification?.workspace?.logo
@@ -301,6 +307,7 @@ const AppointAdminNotification: React.FC<AppointAdminNotificationProps> = ({
     <div className="p-2 rounded-md flex gap-4 items-center">
       <figure className=" flex-shrink-0 w-14 h-14   rounded-full overflow-hidden">
         <img
+          referrerPolicy="no-referrer"
           className="w-full h-full object-cover"
           src={notification?.sender?.photo}
           alt={notification?.sender?.userName}
@@ -358,6 +365,7 @@ const AdminAppointCreator: React.FC<AdminAppointCreatorProps> = ({
     <div className="p-2 rounded-md flex gap-4 items-center">
       <figure className=" flex-shrink-0 w-14 h-14   rounded-full overflow-hidden">
         <img
+          referrerPolicy="no-referrer"
           className="w-full h-full object-cover"
           src={notification?.sender?.photo}
           alt={notification?.sender?.userName}
@@ -391,6 +399,7 @@ const NormalNotification: React.FC<NormalNotificationProps> = ({
       {notification?.sender?.photo && (
         <figure className=" flex-shrink-0 w-14 h-14   rounded-full overflow-hidden">
           <img
+            referrerPolicy="no-referrer"
             className="w-full h-full object-cover"
             src={notification?.sender?.photo}
             alt={notification?.sender?.userName}
