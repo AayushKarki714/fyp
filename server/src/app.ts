@@ -94,9 +94,9 @@ app.use("/gallery", galleryRouter);
 app.use("/progress", progressRouter);
 app.use("/todo", todoRouter);
 
-app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "public", "index.html"));
-});
+// app.get("/*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "..", "public", "index.html"));
+// });
 
 app.use(globalErrorHandler);
 
